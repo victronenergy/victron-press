@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>1. Basic</title>
+    <script src="https://nhnent.github.io/tui.editor/api/latest/lib/jquery/dist/jquery.js"></script>
+    <script src='https://nhnent.github.io/tui.editor/api/latest/lib/markdown-it/dist/markdown-it.js'></script>
+    <script src="https://nhnent.github.io/tui.editor/api/latest/lib/to-mark/dist/to-mark.js"></script>
+    <script src="https://nhnent.github.io/tui.editor/api/latest/lib/tui-code-snippet/dist/tui-code-snippet.js"></script>
+    <script src="https://nhnent.github.io/tui.editor/api/latest/lib/codemirror/lib/codemirror.js"></script>
+    <script src="https://nhnent.github.io/tui.editor/api/latest/lib/highlightjs/highlight.pack.js"></script>
+    <script src="https://nhnent.github.io/tui.editor/api/latest/lib/squire-rte/build/squire-raw.js"></script>
+    <link rel="stylesheet" href="https://nhnent.github.io/tui.editor/api/latest/lib/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="https://nhnent.github.io/tui.editor/api/latest/lib/highlightjs/styles/github.css">
+    <link rel="stylesheet" href="./explain.css">
+</head>
+<body>
+<div class="explain">
+    See available options in <a target="_blank" href="https://nhnent.github.io/tui.editor/api/latest/ToastUIEditor.html#ToastUIEditor">here</a>
+</div>
+<div class="code-html">
+    <script src="https://nhnent.github.io/tui.editor/api/latest/dist/tui-editor-Editor.js"></script>
+    <link rel="stylesheet" href="https://nhnent.github.io/tui.editor/api/latest/dist/tui-editor.css">
+    <link rel="stylesheet" href="https://nhnent.github.io/tui.editor/api/latest/dist/tui-editor-contents.css">
+
+    <div id="editSection"></div>
+</div><br />
+<input type="submit" value="Save">
+<script class="code-js">
+    var editor = new tui.Editor({
+        el: document.querySelector('#editSection'),
+        initialEditType: 'markdown',
+        previewStyle: 'vertical',
+        height: '800px'
+    });
+
+    $.get("/contents?file=docs/ccgxmanual.md", function(data) {
+        editor.setValue(data);
+    });
+</script>
+</body>
+</html>
