@@ -23,9 +23,20 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-// $app->withFacades();
+ $app->withFacades();
 
 // $app->withEloquent();
+
+$app->singleton(Illuminate\Session\SessionManager::class, function () use ($app) {
+    return new Illuminate\Session\SessionManager($app);
+});
+
+$app->middleware([
+    Illuminate\Session\Middleware\StartSession::class,
+]);
+
+$app->configure('session');
+$app->register(Illuminate\Session\SessionServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

@@ -22,7 +22,7 @@
 
     <div id="editSection"></div>
 </div><br />
-<input type="submit" value="Save">
+<input type="submit" id="save" value="Save">
 <script class="code-js">
     var editor = new tui.Editor({
         el: document.querySelector('#editSection'),
@@ -33,6 +33,23 @@
 
     $.get("/contents?file=docs/ccgxmanual.md", function(data) {
         editor.setValue(data);
+
+        console.log(editor.getValue());
+    });
+
+    $("#save").click(function(){
+        $(this).prop('disabled', true);
+
+        var thiz = $(this);
+        $.post({
+            url: "/contents",
+            data: {
+                file: 'docs/ccgxmanual.md',
+                contents: editor.getValue()
+            }
+        }).always(function() {
+            thiz.prop('disabled', false);
+        });
     });
 </script>
 </body>
