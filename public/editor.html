@@ -31,7 +31,10 @@
         height: '800px'
     });
 
-    $.get("/contents?file=docs/ccgxmanual.md", function(data) {
+    var queryDict = {};
+    location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
+
+    $.get("/contents?file=" + queryDict.file, function(data) {
         editor.setValue(data);
 
         console.log(editor.getValue());
@@ -44,7 +47,7 @@
         $.post({
             url: "/contents",
             data: {
-                file: 'docs/ccgxmanual.md',
+                file:  + queryDict.file,
                 contents: editor.getValue()
             }
         }).always(function() {

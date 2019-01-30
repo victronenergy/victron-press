@@ -107,8 +107,23 @@ $router->get('/callback', function (Request $request) use ($router) {
             );
         } catch (\Exception $e) {
             echo 'User ' . $provider->getResourceOwner($token)->getNickname() . ' is not a collaborator';
+
+            // Remove oauth token from sessions
+            $request->session()->remove('oauth_token');
+            die();
         }
 
         return redirect('editor.html');
     }
+});
+
+$router->get('/images/{file:.+}', function ($file) {
+    $client = new Client();
+    $client->authenticate(env('GITHUB_TOKEN'), null,Client::AUTH_URL_TOKEN);
+
+    $file = $client->api('repo')->contents()->show(
+        env('GITHUB_USER'), env('GITHUB_REPO'), 'docs/images/' . $file, 'master'
+    );
+
+    return file_get_contents($file['download_url']);
 });
