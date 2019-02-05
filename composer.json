@@ -11,7 +11,8 @@
         "league/oauth2-github": "^2.0",
         "php-http/guzzle6-adapter": "^1.1",
         "phpseclib/mcrypt_compat": "dev-master",
-        "vlucas/phpdotenv": "~2.2"
+        "vlucas/phpdotenv": "~2.2",
+        "ext-gd": "*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

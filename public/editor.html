@@ -28,7 +28,26 @@
         el: document.querySelector('#editSection'),
         initialEditType: 'markdown',
         previewStyle: 'vertical',
-        height: '800px'
+        height: '800px',
+        hooks: {
+          addImageBlobHook: function (blob, callback) {
+            var reader = new FileReader();
+            reader.onloadend = function() {
+              base64data = reader.result;
+              $.post({
+                url: "/upload",
+                data: {
+                  name: blob.name,
+                  content: base64data
+                }
+              }).done(function(data) {
+                callback(data, 'alt-text');
+              });
+
+            };
+            reader.readAsDataURL(blob);
+          }
+        }
     });
 
     var queryDict = {};
@@ -36,8 +55,6 @@
 
     $.get("/contents?file=" + queryDict.file, function(data) {
         editor.setValue(data);
-
-        console.log(editor.getValue());
     });
 
     $("#save").click(function(){
@@ -47,7 +64,7 @@
         $.post({
             url: "/contents",
             data: {
-                file:  + queryDict.file,
+                file: queryDict.file,
                 contents: editor.getValue()
             }
         }).always(function() {
