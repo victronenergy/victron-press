@@ -4,7 +4,7 @@ use Github\Client;
 use Illuminate\Http\Request;
 
 $router->get('/', function () {
-    return redirect('editor');
+    return redirect(env('APP_URL') . '/editor');
 });
 
 $router->get('/editor', function (Request $request) use ($router) {
@@ -185,7 +185,7 @@ $router->get('/callback', function (Request $request) use ($router) {
             die();
         }
 
-        return redirect('editor.html');
+        return redirect(env('APP_URL') . '/editor');
     }
 });
 
