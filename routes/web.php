@@ -9,6 +9,9 @@ $router->get('/', function () {
 
 $router->get('/editor', function (Request $request) use ($router) {
     if (!$request->session()->has('oauth_token')) {
+        if (!empty($request->input('file'))) {
+            $request->session()->put("query_file", $request->input('file'));
+        }
         return '<a href="/callback">Click here to login</a>';
     }
 
@@ -185,6 +188,9 @@ $router->get('/callback', function (Request $request) use ($router) {
             die();
         }
 
+        if ($request->session()->has('query_file')) {
+            return redirect(env('APP_URL') . '/editor?file=' . $request->session()->get('query_file'));
+        }
         return redirect(env('APP_URL') . '/editor');
     }
 });
