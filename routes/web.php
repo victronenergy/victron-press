@@ -83,8 +83,9 @@ $router->get('/api/v1/oauth-callback', function (Request $request) {
 
     // Redirect the user back to the frontend application
     $redirectFile = $request->session()->get('redirect_file', null);
+    $request->session()->forget('redirect_file');
     if (!empty($redirectFile)) {
-        return redirect(env('APP_URL') . '/?editFile=' . $redirectFile);
+        return redirect(env('APP_URL') . '/' . preg_replace('/\.md$/i', '.html', $redirectFile) . '?mode=edit');
     } else {
         return redirect(env('APP_URL'));
     }
