@@ -349,7 +349,7 @@ class Application implements RequestHandlerInterface
         if ($session->has('images')) {
             foreach ($session->get('images') as $image) {
                 if ($pathParams['file'] == $image) {
-                    $this->filesystem->read($image);
+                    return new TextResponse($this->filesystem->read($image), 200, ['Content-Type' => 'image/' . pathinfo($pathParams['file'], PATHINFO_EXTENSION)]);
                 }
             }
         }
@@ -360,7 +360,7 @@ class Application implements RequestHandlerInterface
         $file = $client->api('repo')->contents()->show(
             getenv('GITHUB_USER'),
             getenv('GITHUB_REPO'),
-            'docs/images/' . $file,
+            'docs/images/' . $pathParams['file'],
             'master'
         );
 
@@ -374,15 +374,17 @@ class Application implements RequestHandlerInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
 
+        $params = \json_decode($request->getBody()->__toString(), TRUE);
+
         // Check if upload is an image
-        $image_parts = explode(';base64,', $request->getQueryParams()['content']);
+        $image_parts = explode(';base64,', $params['content']);
         $img = $image_parts[1];
         if (!imagecreatefromstring(base64_decode($img))) {
             return new TextResponse('Something went wrong uploading the image', 400);
         }
 
         // Generate unique filename
-        $ext = pathinfo($request->getQueryParams()['name'], PATHINFO_EXTENSION);
+        $ext = pathinfo($params['name'], PATHINFO_EXTENSION);
         $unique_filename = uniqid() . '.' . $ext;
 
         // Save file in upload folder
@@ -393,6 +395,6 @@ class Application implements RequestHandlerInterface
         array_push($image_array, $unique_filename);
         $session->set('images', $image_array);
 
-        return new RedirectResponse(getenv('APP_URL') . '/images/' . $unique_filename);
+        return new TextResponse(getenv('APP_URL') . '/images/' . $unique_filename);
     }
 }

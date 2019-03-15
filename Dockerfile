@@ -6,7 +6,7 @@ RUN npm install
 COPY frontend/ ./frontend/
 COPY data/docs/ ./data/docs/
 RUN npm run install
-RUN npm run build
+RUN npm run build && mv data/dist/docs/* data/dist/
 
 FROM php:7.3-apache
 
