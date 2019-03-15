@@ -1,0 +1,80 @@
+// showing default values
+$accentColor = #4790d0
+$textColor = #272622
+$borderColor = #eaecef
+$codeBgColor = #282c34
+$altBgColor = #faf9f5
+$navbarHeight = 75px
+
+body
+  font-family: "Museo Sans"
+  font-size: 15px
+  color: $textColor
+
+
+a
+  color: $accentColor
+  transition: all 0.2s ease-in-out
+
+  &:hover
+  &:active
+    text-decoration: underline
+
+.navbar
+  height: $navbarHeight
+  padding-top: 20px
+  padding-bottom: 20px
+
+  .links
+    margin-top: 10px;
+    background: transparent
+
+    a
+      color: $accentColor
+  .icon
+    &.outbound
+      float: right
+      margin: 4px 0 0 5px
+
+.sidebar
+  top: $navbarHeight
+
+  a
+    line-height: 1.4
+
+    &:hover
+    &:active
+      text-decoration: none
+
+.page
+  position: relative
+  top: $navbarHeight
+
+  .page-edit
+    padding-top: 30px
+
+    .edit-link
+      a
+        color: $accentColor
+
+    .last-updated
+      .prefix
+        color: $textColor
+
+  .content
+    h1
+     &:first-of-type
+      padding-top: 25px;
+
+@media (min-width: 719px)
+  .nav-item
+    > a
+      &:not(.external)
+        text-decoration: none
+        color: $accentColor
+
+        &:hover
+        .router-link-active
+          margin-bottom: 0
+          border-bottom: none
+          text-decoration: underline;

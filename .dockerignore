@@ -1,6 +1,6 @@
-/data/
-!/data/docs/
+**/.git/
+**/.gitignore
+**/.gitkeep
 /node_modules/
 /vendor/
-/.env
 /.php_cs.cache

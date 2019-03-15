@@ -1,7 +1,6 @@
 <?php
-if (file_exists(__DIR__ . '/' . $_SERVER['REQUEST_URI'])) {
+if (file_exists(__DIR__ . '/data/dist' . preg_replace('/\?.*$/', '', $_SERVER['REQUEST_URI']))) {
     return false;
 } else {
-    include_once 'public/index.php';
+    require __DIR__ . '/data/dist/index.php';
 }
-?>

@@ -1,0 +1,11 @@
+{
+    "extends": [
+        "eslint:recommended",
+        "plugin:vue/essential"
+    ],
+    "env": {
+        "commonjs": true,
+        "es6": true,
+        "shared-node-browser": true
+    }
+}

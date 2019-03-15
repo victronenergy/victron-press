@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<psalm name="Psalm config for Victron Press">
+    <projectFiles>
+        <directory name="backend/src" />
+        <directory name="backend/test" />
+        <directory name="backend/web" />
+    </projectFiles>
+    <issueHandlers>
+        <UndefinedInterfaceMethod>
+            <errorLevel type="suppress">
+                <referencedMethod name="Github\Api\ApiInterface::contents" />
+                <referencedMethod name="Github\Api\ApiInterface::commits" />
+                <referencedMethod name="Github\Api\ApiInterface::references" />
+                <referencedMethod name="Github\Api\ApiInterface::merge" />
+            </errorLevel>
+        </UndefinedInterfaceMethod>
+    </issueHandlers>
+</psalm>

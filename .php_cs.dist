@@ -1,0 +1,46 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->exclude('somedir')
+    ->in([
+        __DIR__ . '/backend/src',
+        __DIR__ . '/backend/test',
+        __DIR__ . '/backend/web',
+    ])
+;
+
+return PhpCsFixer\Config::create()
+    ->setRiskyAllowed(true)
+    ->setRules([
+        // PhpCsFixer includes Symfony, PSR-2 and PSR-1
+        '@PhpCsFixer' => true,
+        '@Symfony:risky' => true,
+
+        // Override some Symfony rules to comply with PSR-12
+        'concat_space' => ['spacing' => 'one'],
+
+        // Or simply because we don't like them
+        'blank_line_before_statement' => false,
+        'binary_operator_spaces' => ['operators' => ['=>' => 'align_single_space_minimal']],
+        'increment_style' => ['style' => 'post'],
+        'phpdoc_no_empty_return' => false,
+        'phpdoc_to_comment' => false,
+        'trim_array_spaces' => false,
+        'yoda_style' => false,
+
+        // Automatic migrations
+        '@PHP71Migration' => true,
+        '@PHP71Migration:risky' => true,
+        '@PHPUnit60Migration:risky' => true,
+
+        // Enable extra rules
+        'backtick_to_shell_exec' => true,
+        'linebreak_after_opening_tag' => true,
+        'logical_operators' => true,
+        'no_unreachable_default_argument_value' => true,
+        'php_unit_strict' => true,
+        'php_unit_test_case_static_method_calls' => true,
+        'semicolon_after_instruction' => true,
+    ])
+    ->setFinder($finder)
+;
