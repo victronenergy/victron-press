@@ -72,7 +72,7 @@ class Application implements RequestHandlerInterface
         }
 
         // Set up filesystem
-        $this->filesystem = new Filesystem(new Local(self::PATH . '/data'));
+        $this->filesystem = new Filesystem(new Local(self::PATH . '/data/uploads'));
 
         // Set up HTTP routes
         $this->router = new Router();
