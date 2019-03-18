@@ -21,9 +21,11 @@ To check the tools have been set up properly, check that you can run
 Execute the following commands in the (new, empty) directory where you want to set up the project:
 
  - Checkout the code: `git clone git@github.com:victronenergy/victron-press.git .`
- - Pull the latest documentation files: `git submodule init && git submodule update --remote`
+ - Initialize the documentation submodule: `git submodule init`
+ - Pull the latest documentation files: `git submodule update --remote`
  - Install frontend dependencies: `npm install`
  - Install backend dependencies: `composer install`
+ - Copy `.env.example` to `.env` and fill out the required configuration variables.
 
 ## Frontend
 The frontend is a VuePress application that renders the documenation and
@@ -44,14 +46,15 @@ The backend is a PHP application that handles routing of non-existing paths and
 provides an API used by the frontend to read and commit documentation files.
 
 ### Building and running
+There are multiple ways to work with the backend part of the repository:
 
  - You can run `composer build` to build the frontend and copy the required backend files to `/data/dist`.
-   - You can then run `php -S localhost:80 -t data/dist backend/router.php` to start a development webserver
-     or use your own webserver.
+   - You can then run `php -S localhost:80 -t data/dist backend/router.php` to start a development webserver.
  - You can run `composer test` to run the backend tests.
  - You can run `composer lint` to lint the PHP application.
  - You can run `composer fix` to automatically fix PHP linting issues.
 
+## Application structure
 ### Directory layout
  - `/backend/` contains the PHP backend application.
    - `/src/` contains the backend application.
@@ -62,3 +65,14 @@ provides an API used by the frontend to read and commit documentation files.
    - `/vuepress/` contains the VuePress configuration and templates.
  - `/data/docs/` contains a checkout of the Markdown files with the actual documentation.
  - `/data/dist/` contains a build (PHP + generated HTML + PDF files) after running `composer run build`.
+
+Configuration files for Composer, npm, Docker, Git, tests and linters are placed
+in the root directory.
+
+## Note for developers
+Always aim to leave the code in a better state than you found it in.
+
+All new functionality should have test coverage and commits should be linted,
+which you can check with the `composer test`, `npm test`, `composer lint` and
+`npm run lint` commands. Some linting issues may be resolved automatically
+using `composer fix` and `npm run fix`.

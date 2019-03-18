@@ -43,12 +43,12 @@
         "security-check": "security-checker security:check composer.lock",
         "lint": [
             "php-cs-fixer fix --dry-run --diff",
-            "phpcs --standard=PSR2 src test web",
+            "phpcs --standard=PSR2 backend/src backend/test backend/web",
             "psalm"
         ],
         "fix": [
             "php-cs-fixer fix",
-            "phpcbf --standard=PSR2 src test web"
+            "phpcbf --standard=PSR2 backend/src backend/test backend/web"
         ],
         "test": "phpunit"
     },

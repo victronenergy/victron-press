@@ -10,6 +10,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use League\OAuth2\Client\Provider\Github as GitHubOAuth2Provider;
+use League\Route\Http\Exception\NotFoundException;
 use League\Route\Router;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,7 +21,6 @@ use Zend\Diactoros\Response\RedirectResponse;
 use Zend\Diactoros\Response\TextResponse;
 use Zend\Expressive\Session\Ext\PhpSessionPersistence;
 use Zend\Expressive\Session\SessionMiddleware;
-use League\Route\Http\Exception\NotFoundException;
 
 /**
  * VictronPress backend application.
@@ -58,7 +58,7 @@ class Application implements RequestHandlerInterface
     {
         // Load and check required environment variables
         (Dotenv::create(self::PATH))->load();
-        foreach([
+        foreach ([
             'APP_URL',
             'GITHUB_REPO',
             'GITHUB_TOKEN',
@@ -67,7 +67,7 @@ class Application implements RequestHandlerInterface
             'OAUTH_CLIENT_SECRET',
         ] as $envVariable) {
             if (empty(getenv($envVariable))) {
-                throw \InvalidArgumentException('Missing required environment variable ' . $envVariable);
+                throw InvalidArgumentException('Missing required environment variable ' . $envVariable);
             }
         }
 
@@ -94,7 +94,7 @@ class Application implements RequestHandlerInterface
     {
         try {
             return $this->router->dispatch($request);
-        } catch(NotFoundException $e) {
+        } catch (NotFoundException $e) {
             return new TextResponse('404 Not Found', 404);
         }
     }
@@ -349,7 +349,9 @@ class Application implements RequestHandlerInterface
         if ($session->has('images')) {
             foreach ($session->get('images') as $image) {
                 if ($pathParams['file'] == $image) {
-                    return new TextResponse($this->filesystem->read($image), 200, ['Content-Type' => 'image/' . pathinfo($pathParams['file'], PATHINFO_EXTENSION)]);
+                    return new TextResponse($this->filesystem->read($image), 200, [
+                        'Content-Type' => 'image/' . pathinfo($pathParams['file'], PATHINFO_EXTENSION),
+                    ]);
                 }
             }
         }
@@ -374,7 +376,7 @@ class Application implements RequestHandlerInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
 
-        $params = \json_decode($request->getBody()->__toString(), TRUE);
+        $params = json_decode($request->getBody()->__toString(), true);
 
         // Check if upload is an image
         $image_parts = explode(';base64,', $params['content']);
