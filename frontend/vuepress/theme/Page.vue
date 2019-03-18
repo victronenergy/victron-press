@@ -34,6 +34,7 @@
     <ClientOnly v-if="editModeEnabled && !saveSuccess">
       <page-edit
         ref="pageEdit"
+        @editmode-toggle="$emit('editmode-toggle', true)"
         @saveSuccess="setSaveState"
       >
       </page-edit>
@@ -96,6 +97,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { resolvePage, normalize, outboundRE, endingSlashRE } from './util'
 import PageEdit from './PageEdit';
 import Modal from './Modal';
@@ -173,7 +175,22 @@ export default {
   methods: {
     tryDelete() {
       if(this.deleteConfirmationText === this.$page.title ) {
-        this.toggleDeleteModal();
+        let path = normalize(this.$page.path);
+        if (endingSlashRE.test(path)) {
+          path += 'README.md'
+        } else {
+          path += '.md'
+        }
+        const url = '/api/v1/auth?file=' + path.split('/')[1];
+
+
+        /* Disabled for safety reasons, will enable once create page works */
+        // axios.delete(url).then((response) => {
+        //   this.$router.push({});
+        // });
+
+
+        // this.toggleDeleteModal();
       }
     },
     commitClicked() {
@@ -195,6 +212,7 @@ export default {
     doEdit() {
       this.saveSuccess = false;
       this.editModeEnabled = !this.editModeEnabled;
+      this.$emit('editmode-toggle', this.editModeEnabled);
 
       if(this.editModeEnabled) {
         this.$router.push({ query: Object.assign({}, { editmode: true }) })

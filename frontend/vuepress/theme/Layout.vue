@@ -5,10 +5,13 @@
     @touchstart="onTouchStart"
     @touchend="onTouchEnd"
   >
+
+  
     <Navbar
       v-if="shouldShowNavbar"
       @toggle-sidebar="toggleSidebar"
     />
+
     <div
       class="sidebar-mask"
       @click="toggleSidebar(false)"
@@ -17,6 +20,7 @@
     <Sidebar
       :items="sidebarItems"
       @toggle-sidebar="toggleSidebar"
+      v-if="sidebarEnabled"
     >
       <slot
         name="sidebar-top"
@@ -37,14 +41,19 @@
 
     <Home v-else-if="$page.frontmatter.home"/>
 
+   
+
     <Page
       v-else
+      :class="{ 'no-sidebar': !sidebarEnabled }"
       :sidebar-items="sidebarItems"
+      @editmode-toggle="setSidebar"
     >
       <slot
         name="page-top"
         slot="top"
       />
+
       <slot
         name="page-bottom"
         slot="bottom"
@@ -71,7 +80,8 @@ export default {
   data () {
     return {
       isSidebarOpen: false,
-      swUpdateEvent: null
+      swUpdateEvent: null,
+      sidebarEnabled: true
     }
   },
 
@@ -147,6 +157,10 @@ export default {
   },
 
   methods: {
+    setSidebar(sidebarStatus) {
+      this.sidebarEnabled = !sidebarStatus;
+    },
+
     toggleSidebar (to) {
       this.isSidebarOpen = typeof to === 'boolean' ? to : !this.isSidebarOpen
     },

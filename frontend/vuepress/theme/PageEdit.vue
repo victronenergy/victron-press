@@ -80,7 +80,9 @@ export default {
 
     Promise.all([importScrollSync, importTable])
   },
-
+  created(){
+    this.$emit('editmode-toggle', false); //sets sidebarstatus to false
+  },
   mounted() {
     this.isSubscribed().then(data => {
       if(data.success) {
