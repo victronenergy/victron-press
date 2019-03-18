@@ -1,7 +1,11 @@
 <template>
   <div class="page">
-    <div class="page-edit">
-      <div class="edit-link" v-if="editLink">
+    <div class="page-edit" v-if="editModeEnabled">
+      <a @click="doEdit()" rel="noopener noreferrer">Back</a>
+
+      <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">Delete this page</a>
+
+      <!-- <div class="edit-link" v-if="editLink">
         <a v-if="!editModeEnabled" @click="doEdit()" rel="noopener noreferrer">{{ editLinkText }}</a>
         <a v-else @click="doEdit()" rel="noopener noreferrer">Back</a>
       </div>
@@ -12,7 +16,7 @@
           <span class="time">{{ lastUpdated }}</span>
         </div>
         <a class="button" @click="commitClicked()" v-if="editModeEnabled">Commit changes</a>
-      </div>
+      </div> -->
     </div>
 
     <slot name="top"/>
@@ -23,6 +27,23 @@
       <p>The changes were saved successfully. The documentation is now rebuilding and your changes should be visible in a couple of minutes.</p>
     </div>
 
+
+    <modal @close="toggleDeleteModal" v-if="deleteModalVisible">
+      <h3 slot="header">Delete page</h3>
+      <div slot="body">
+        <p>Are you sure you want to delete this page? It cannot be undone. Please type in the title of this page to confirm.</p>
+        <p><strong>{{title}}</strong></p>
+        <input type="text" placeholder="Type page title here" v-model="deleteConfirmationText">
+
+      </div>
+
+      <div slot="footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <a class="button danger" :class="{ 'disabled': deleteConfirmationText !== title }" @click="tryDelete">Delete this file</a>
+        <a @click="toggleDeleteModal">Cancel</a>
+      </div>
+    </modal>
+
+
     <ClientOnly v-if="editModeEnabled && !saveSuccess">
       <page-edit 
         ref="pageEdit"
@@ -31,7 +52,7 @@
       </page-edit>
     </ClientOnly>
     
-    <Content  v-else :custom="false"/>
+    <Content v-else :custom="false"/>
 
     
     <div class="page-edit">
@@ -90,19 +111,20 @@
 <script>
 import { resolvePage, normalize, outboundRE, endingSlashRE } from './util'
 import PageEdit from './PageEdit';
+import Modal from './Modal';
 
 export default {
   props: ['sidebarItems'],
   data() {
     return {
       editModeEnabled: false,
+      deleteModalVisible: false,
       saveSuccess: false,
+      deleteConfirmationText: null
     }
   },
 
-  components: {
-    PageEdit
-  },
+  components: { PageEdit, Modal },
 
   mounted() {
     console.log(this.$page)
@@ -124,6 +146,10 @@ export default {
         return this.$site.themeConfig.lastUpdated
       }
       return 'Last Updated'
+    },
+
+    title() {
+      return this.$page.title;
     },
 
     prev () {
@@ -174,6 +200,11 @@ export default {
   },
 
   methods: {
+    tryDelete() {
+      if(this.deleteConfirmationText === this.$page.title ) {
+        this.toggleDeleteModal(); 
+      }
+    },
     commitClicked() {
       this.$refs.pageEdit.commit();
     },
@@ -226,6 +257,10 @@ export default {
       } else {
         this.$router.push({});
       }
+    },
+    
+    toggleDeleteModal() {
+      this.deleteModalVisible = !this.deleteModalVisible;
     }
   }
 }
@@ -259,6 +294,9 @@ function find (page, items, offset) {
 <style lang="stylus">
 @import './styles/config.styl'
 @require './styles/wrapper.styl'
+
+.danger
+  color: #dc3545
 
 .page
   padding-bottom 2rem

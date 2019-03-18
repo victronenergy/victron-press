@@ -1,7 +1,7 @@
 <template>
   <div id="edit" ref="edit">
     <ClientOnly>
-      <editor
+      <editor 
         ref="editor"
         v-if="markdownLoaded"
         :options="editorOptions"
@@ -20,7 +20,10 @@
 <script>
 import axios from 'axios';
 import 'tui-editor/dist/tui-editor.css';
-import 'tui-editor/dist/tui-editor-contents.css';
+// import 'tui-editor/dist/tui-editor-contents.css';
+import 'tui-editor/dist/tui-editor-extScrollSync.js';
+import 'tui-editor/dist/tui-editor-extTable.js';
+
 import 'codemirror/lib/codemirror.css';
 
 import { resolvePage, normalize, outboundRE, endingSlashRE } from './util'
@@ -37,7 +40,8 @@ export default {
         initialEditType: 'markdown',
         previewStyle: 'vertical',
         exts: [
-          'scrollSync'
+          'scrollSync',
+          'table'
         ],
         hooks: {
           addImageBlobHook: function (blob, callback) {
@@ -87,7 +91,7 @@ export default {
       return axios.get(url)
         .then(response => {
           return response.data;
-        });
+        }); 
     },
     getMDContents() {
       let path = normalize(this.$page.path);
@@ -159,6 +163,8 @@ export default {
   box-sizing: border-box;
   border-bottom: 1px solid #3382c8;
   cursor: pointer;
+  text-align: center;
+  flex-shrink: 2;
 }
 
 </style>

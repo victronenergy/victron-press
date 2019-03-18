@@ -1,6 +1,6 @@
 <template>
-  <header class="navbar">
-    <SidebarButton @toggle-sidebar="$emit('toggle-sidebar')"/>
+  <header class="navbar" :class="{ 'has-sidebar-toggle': sidebarToggleEnabled }">
+    <SidebarButton v-if="sidebarToggleEnabled" @toggle-sidebar="$emit('toggle-sidebar')"/>
 
     <!-- <router-link
       :to="$localePath"
@@ -46,6 +46,13 @@ import NavLinks from './NavLinks.vue'
 
 export default {
   components: { SidebarButton, NavLinks, SearchBox, AlgoliaSearchBox },
+
+  props: {
+    sidebarToggleEnabled: {
+      type: Boolean,
+      default: true
+    }
+  },
 
   data () {
     return {
@@ -128,7 +135,8 @@ $navbar-horizontal-padding = 1.5rem
 
 @media (max-width: $MQMobile)
   .navbar
-    padding-left 4rem
+    &.has-sidebar-toggle
+      padding-left 4rem
     .can-hide
       display none
     .links

@@ -64,7 +64,9 @@ module.exports = {
         locales: {
           '/': {
             lastUpdated: 'Last updated',
-            tableOfContents: 'Table of contents'
+            tableOfContents: 'Table of contents',
+            pageDoesntExist: 'This page doesn\'t exist yet.', 
+            wantToCreatePage: 'Do you want to create it?' 
           }
         }
     },
