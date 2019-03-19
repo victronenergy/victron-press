@@ -1,6 +1,9 @@
 **/.git/
 **/.gitignore
 **/.gitkeep
+/data/
+!/data/docs/
+/data/docs/.vuepress/
 /node_modules/
 /vendor/
 /.php_cs.cache
