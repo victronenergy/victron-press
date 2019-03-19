@@ -1,5 +1,6 @@
 /data/
 !/data/docs/
+/data/docs/.vuepress/
 /node_modules/
 /vendor/
 /.env

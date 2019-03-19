@@ -85,12 +85,12 @@ RUN apt-get update && \
 
 WORKDIR /var/www
 
-COPY --from=backend /workspace/backend/src/ /var/www/backend/src/
-COPY --from=backend /workspace/vendor/ /var/www/vendor/
-COPY --from=backend /workspace/backend/web/.htaccess /workspace/backend/web/index.php /var/www/data/dist/
-COPY .env .
-RUN mkdir -p /var/www/data && \
-    chmod 755 /var/www/data && \
-    chown -R www-data:www-data /var/www
-COPY --from=frontend /workspace/data/dist /var/www/data/dist
-RUN chown -R www-data:www-data /var/www/data/dist
+COPY --from=backend /workspace/backend/src/ ./backend/src/
+COPY --from=backend /workspace/vendor/ ./vendor/
+COPY --from=backend /workspace/backend/web/.htaccess /workspace/backend/web/index.php ./data/dist/
+COPY .env ./
+RUN mkdir -p data && \
+    chmod 755 data && \
+    chown -R www-data:www-data .
+COPY --from=frontend /workspace/data/dist/ ./data/dist/
+RUN chown -R www-data:www-data data/dist
