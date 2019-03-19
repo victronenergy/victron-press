@@ -53,7 +53,7 @@ export default {
                 callback(data.headers['content-location'], 'alt-text');
               }).catch((error) => {
                 console.log(error);
-                window.alert(error.response.data);
+                window.alert('Invalid image');
               });
             };
             reader.readAsArrayBuffer(blob);
