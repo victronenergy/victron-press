@@ -86,12 +86,12 @@ class Application implements RequestHandlerInterface
         // Handlers for retrieving files
         $this->router->map('GET', '/{file:.+\.html}', [$this, 'handleNonExisting']);
         $this->router->map('GET', '/{file:.+\.md}', [$this, 'handleGetMarkdown']);
-        $this->router->map('GET', '/{file:.+\.(?:gif|jpg|jpeg|png|svg)}', [$this, 'handleGetImage']);
+        $this->router->map('GET', '/{file:.+\.(?:gif|jpg|jpeg|png|svg|webp)}', [$this, 'handleGetImage']);
 
         // Handlers for editing
         $this->router->map('PUT', '/{file:.+\.md}', [$this, 'handleSaveMarkdown']);
         $this->router->map('DELETE', '/{file:.+\.md}', [$this, 'handleDeleteMarkdown']);
-        $this->router->map('PUT', '/{file:.+\.(?:gif|jpg|jpeg|png|svg)}', [$this, 'handleUploadImage']);
+        $this->router->map('PUT', '/{file:.+\.(?:gif|jpg|jpeg|png|svg|webp)}', [$this, 'handleUploadImage']);
     }
 
     /**
@@ -202,6 +202,9 @@ class Application implements RequestHandlerInterface
         return new RedirectResponse($redirectUrl);
     }
 
+    /**
+     * Shows a "page not found" message and asks user if they want to create a new page.
+     */
     public function handleNonExisting(ServerRequestInterface $request, array $pathParams): ResponseInterface
     {
         return new HtmlResponse(file_get_contents(self::PATH . '/data/dist/404.html'));
@@ -378,7 +381,10 @@ class Application implements RequestHandlerInterface
         return new EmptyResponse($file === null ? 201 : 204, ['Content-Location' => '/' . $filePath]);
     }
 
-    public function handleDeleteMarkdown(ServerRequestInterface $request, $pathParams): ResponseInterface
+    /**
+     * Delete a documentation file.
+     */
+    public function handleDeleteMarkdown(ServerRequestInterface $request, array $pathParams): ResponseInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
 
@@ -434,13 +440,20 @@ class Application implements RequestHandlerInterface
 
         $filePath = $pathParams['file'];
         // TODO: sanity check the path
+        $mimeType = [
+            'gif'  => 'image/gif',
+            'jpeg' => 'image/jpeg',
+            'png'  => 'image/png',
+            'svg'  => 'image/svg+xml',
+            'webp' => 'image/webp',
+        ][pathinfo($filePath, PATHINFO_EXTENSION)];
 
         // Try to retrieve image from session
         if ($session->has('images')) {
             foreach ($session->get('images') as $image) {
                 if (('images/' . $image) === $filePath) {
                     return new TextResponse($this->filesystem->read($image), 200, [
-                        'Content-Type' => 'image/' . pathinfo($pathParams['file'], PATHINFO_EXTENSION),
+                        'Content-Type' => $mimeType,
                     ]);
                 }
             }
@@ -463,7 +476,7 @@ class Application implements RequestHandlerInterface
             throw $e;
         }
 
-        return (new GuzzleClient())->request('GET', $file['download_url']);
+        return (new GuzzleClient())->request('GET', $file['download_url'])->withHeader('Content-Type', $mimeType);
     }
 
     /**
@@ -478,17 +491,59 @@ class Application implements RequestHandlerInterface
             return new TextResponse('Not logged in.', 401);
         }
 
+        $contentType = $request->getHeader('Content-Type');
+        $contentType = end($contentType);
         $filePath = $pathParams['file'];
         $contents = $request->getBody()->__toString();
 
-        // Check if upload is an image
-        if (!@imagecreatefromstring($contents)) {
-            return new TextResponse('Invalid image type', 400);
+        // Check MIME type
+        if (!\in_array($contentType, [
+            'image/gif',
+            'image/jpeg',
+            'image/png',
+            'image/svg+xml',
+            'image/webp',
+        ])) {
+            return new TextResponse('Unsupported image type', 415);
+        }
+
+        // Check if upload is a valid image for its type
+        $isValid = false;
+        switch ($contentType) {
+            case 'image/gif':
+            case 'image/jpeg':
+            case 'image/png':
+            case 'image/webp':
+                if ($resource = @imagecreatefromstring($contents)) {
+                    $isValid = true;
+                    imagedestroy($resource);
+                }
+                break;
+            case 'image/svg+xml':
+                libxml_use_internal_errors(true);
+                if (simplexml_load_string($contents) && empty(libxml_get_errors())) {
+                    $isValid = true;
+                }
+                libxml_clear_errors();
+                break;
+        }
+        if (!$isValid) {
+            return new TextResponse('Invalid image', 400);
         }
 
         // Generate filename based on contents
-        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-        $filename = hash('sha256', $contents) . '.' . $ext;
+        // TODO: We want pretty file names using $filePath, but we also
+        //       want to prevent duplicate files using the hash. Right
+        //       now, we use just the hash. But maybe something like this
+        //       would be nice, combined with a check for a matching hash:
+        // $filename = substr(hash('sha256', $contents), 0, 8) . '-' . pathinfo($filePath, PATHINFO_FILENAME) . '.' . [
+        $filename = hash('sha256', $contents) . '.' . [
+            'image/gif'     => 'gif',
+            'image/jpeg'    => 'jpeg',
+            'image/png'     => 'png',
+            'image/svg+xml' => 'svg',
+            'image/webp'    => 'webp',
+        ][$contentType];
 
         // Save file in upload folder
         $this->filesystem->put($filename, $contents);
