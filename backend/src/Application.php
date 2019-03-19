@@ -280,6 +280,12 @@ class Application implements RequestHandlerInterface
         $contents = $request->getBody()->__toString();
         // TODO: check contents for being plain utf-8 text
 
+        // Get commit message from header
+        $commitMessage = implode("\n", $request->getHeader('Commit-Message'));
+        if (empty($commitMessage)) {
+            $commitMessage = null;
+        }
+
         // Retrieve user data from the session
         $userName = $session->get('user_name');
         $userEmail = $session->get('user_email');
@@ -335,7 +341,7 @@ class Application implements RequestHandlerInterface
                 getenv('GITHUB_REPO'),
                 $filePath,
                 $contents,
-                'Created ' . $filePath . ' via web editor',
+                $commitMessage ?? ('Created ' . $filePath . ' via web editor'),
                 getenv('GITHUB_BRANCH'),
                 ['name' => $userName, 'email' => $userEmail]
             );
@@ -345,7 +351,7 @@ class Application implements RequestHandlerInterface
                 getenv('GITHUB_REPO'),
                 $filePath,
                 $contents,
-                'Updated ' . $filePath . ' via web editor',
+                $commitMessage ?? ('Updated ' . $filePath . ' via web editor'),
                 $file['sha'],
                 getenv('GITHUB_BRANCH'),
                 ['name' => $userName, 'email' => $userEmail]
