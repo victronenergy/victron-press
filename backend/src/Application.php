@@ -101,7 +101,7 @@ class Application implements RequestHandlerInterface
         try {
             return $this->router->dispatch($request);
         } catch (NotFoundException $e) {
-            return new TextResponse('404 Not Found', 404);
+            return new TextResponse('404 ' . $e->getMessage(), 404);
         }
     }
 
