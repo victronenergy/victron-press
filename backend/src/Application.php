@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\EmptyResponse;
+use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\JsonResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 use Zend\Diactoros\Response\TextResponse;
@@ -59,7 +60,6 @@ class Application implements RequestHandlerInterface
         // Load and check required environment variables
         (Dotenv::create(self::PATH))->load();
         foreach ([
-            'APP_URL',
             'GITHUB_REPO',
             'GITHUB_TOKEN',
             'GITHUB_USER',
@@ -71,20 +71,26 @@ class Application implements RequestHandlerInterface
             }
         }
 
-        // Set up filesystem
+        // Set up filesystem for uploads
         $this->filesystem = new Filesystem(new Local(self::PATH . '/data/uploads'));
 
-        // Set up HTTP routes
+        // Set up HTTP routing and middleware
         $this->router = new Router();
+        $this->router->middleware(new SessionMiddleware(new PhpSessionPersistence()));
+
+        // API handlers
         $this->router->map('GET', '/api/v1/auth', [$this, 'handleAuth']);
         $this->router->map('GET', '/api/v1/oauth-callback', [$this, 'handleOAuthCallback']);
-        $this->router->map('GET', '/{file:.+\.md}', [$this, 'handleGetMarkdown']);
-        $this->router->map('PUT', '/{file:.+\.md}', [$this, 'handleSaveMarkdown']);
-        $this->router->map('GET', '/images/{file:.+}', [$this, 'handleGetImage']);
-        $this->router->map('POST', '/api/v1/upload', [$this, 'handleUploadImage']);
 
-        // Attach middlewares
-        $this->router->middleware(new SessionMiddleware(new PhpSessionPersistence()));
+        // Handlers for retrieving files
+        $this->router->map('GET', '/{file:.+\.html}', [$this, 'handleNonExisting']);
+        $this->router->map('GET', '/{file:.+\.md}', [$this, 'handleGetMarkdown']);
+        $this->router->map('GET', '/{file:.+\.(?:gif|jpg|jpeg|png|svg)}', [$this, 'handleGetImage']);
+
+        // Handlers for editing
+        $this->router->map('PUT', '/{file:.+\.md}', [$this, 'handleSaveMarkdown']);
+        $this->router->map('DELETE', '/{file:.+\.md}', [$this, 'handleDeleteMarkdown']);
+        $this->router->map('PUT', '/{file:.+\.(?:gif|jpg|jpeg|png|svg)}', [$this, 'handleUploadImage']);
     }
 
     /**
@@ -145,7 +151,7 @@ class Application implements RequestHandlerInterface
         $savedOAuthState = $session->get('oauth2state', null);
         $session->unset('oauth2state');
         if (empty($_GET['code']) || empty($_GET['state']) || $_GET['state'] !== $savedOAuthState) {
-            return new RedirectResponse(getenv('APP_URL'));
+            return new RedirectResponse('/');
         }
 
         // GitHub OAuth2 provider
@@ -178,8 +184,7 @@ class Application implements RequestHandlerInterface
                 $userName
             );
         } catch (\Exception $e) {
-            echo 'User ' . $userName . ' is not a collaborator.';
-            return new RedirectResponse(getenv('APP_URL'));
+            return new TextResponse($userName . ' is not a collaborator on ' . getenv('GITHUB_USER') . '/' . getenv('GITHUB_REPO'), 403);
         }
 
         // By setting the user_name we indicate the user is logged in.
@@ -189,17 +194,22 @@ class Application implements RequestHandlerInterface
         // Redirect the user back to the frontend application
         $redirectFile = $session->get('redirect_file', null);
         $session->unset('redirect_file');
-        $redirectUrl = getenv('APP_URL');
+        $redirectUrl = '/';
         if (!empty($redirectFile)) {
-            $redirectUrl .= '/' . preg_replace('/\.md$/i', '.html', $redirectFile) . '?editmode=true';
+            $redirectUrl .= preg_replace('/\.md$/i', '.html', $redirectFile) . '?editmode=true';
         }
         return new RedirectResponse($redirectUrl);
+    }
+
+    public function handleNonExisting(ServerRequestInterface $request, array $pathParams): ResponseInterface
+    {
+        return new HtmlResponse(file_get_contents(self::PATH . '/data/dist/404.html'));
     }
 
     /**
      * Read the contents of a documentation file.
      */
-    public function handleGetMarkdown(ServerRequestInterface $request, array $parameters): ResponseInterface
+    public function handleGetMarkdown(ServerRequestInterface $request, array $pathParams): ResponseInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
 
@@ -208,15 +218,24 @@ class Application implements RequestHandlerInterface
             return new TextResponse('Not logged in.', 401);
         }
 
-        // Retrieve the file URL from GitHub
-        $client = new GithubClient();
-        $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
-        $file = $client->api('repo')->contents()->show(
-            getenv('GITHUB_USER'),
-            getenv('GITHUB_REPO'),
-            $parameters['file'],
-            'master'
-        );
+        // Retrieve the file information from GitHub
+        $filePath = $pathParams['file'];
+        // TODO: sanity check the path
+        try {
+            $client = new GithubClient();
+            $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
+            $file = $client->api('repo')->contents()->show(
+                getenv('GITHUB_USER'),
+                getenv('GITHUB_REPO'),
+                $filePath,
+                getenv('GITHUB_BRANCH')
+            );
+        } catch (\Exception $e) {
+            if ($e->getCode() === 404) {
+                throw new NotFoundException('Markdown file does not exist in repository', $e);
+            }
+            throw $e;
+        }
 
         // Download and return the file contents
         return (new GuzzleClient())->request('GET', $file['download_url']);
@@ -225,7 +244,7 @@ class Application implements RequestHandlerInterface
     /**
      * Save the contents of a documentation file.
      */
-    public function handleSaveMarkdown(ServerRequestInterface $request, array $parameters): ResponseInterface
+    public function handleSaveMarkdown(ServerRequestInterface $request, array $pathParams): ResponseInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
 
@@ -234,28 +253,34 @@ class Application implements RequestHandlerInterface
             return new TextResponse('Not logged in.', 401);
         }
 
-        // Get parameters
-        $path = $parameters['file'];
+        // Retrieve the file information from GitHub
+        $filePath = $pathParams['file'];
+        // TODO: sanity check the path
+        $file = null;
+        try {
+            $client = new GithubClient();
+            $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
+            $file = $client->api('repo')->contents()->show(
+                getenv('GITHUB_USER'),
+                getenv('GITHUB_REPO'),
+                $filePath,
+                getenv('GITHUB_BRANCH')
+            );
+        } catch (\Exception $e) {
+            if ($e->getCode() !== 404) {
+                throw $e;
+            }
+        }
+
+        // Read the Markdown contents
         $contents = $request->getBody()->__toString();
-        // TODO: Check the path and contents for being valid MD stuff
-
-        // We use the global application token to commit with the name of the currently logged in user
-        $client = new GithubClient();
-        $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
-
-        // Retrieve the file SHA from GitHub
-        $sha = $client->api('repo')->contents()->show(
-            getenv('GITHUB_USER'),
-            getenv('GITHUB_REPO'),
-            $path,
-            'master'
-        )['sha'];
+        // TODO: check contents for being plain utf-8 text
 
         // Retrieve user data from the session
         $userName = $session->get('user_name');
         $userEmail = $session->get('user_email');
 
-        // Check if images are added.
+        // Check if any images were uploaded that now need to be committed
         $images_to_upload = [];
         if ($session->has('images')) {
             foreach ($session->get('images') as $image) {
@@ -271,7 +296,7 @@ class Application implements RequestHandlerInterface
             $commits = $client->api('repo')->commits()->all(
                 getenv('GITHUB_USER'),
                 getenv('GITHUB_REPO'),
-                ['sha' => 'master']
+                ['sha' => getenv('GITHUB_BRANCH')]
             );
             $latest_sha = $commits[0]['sha'];
 
@@ -286,37 +311,49 @@ class Application implements RequestHandlerInterface
 
             // Commit images to branch
             foreach ($images_to_upload as $image) {
-                $image_path = 'docs/images/' . $image;
+                $image_path = 'images/' . $image;
                 $client->api('repo')->contents()->create(
                     getenv('GITHUB_USER'),
                     getenv('GITHUB_REPO'),
                     $image_path,
                     $this->filesystem->read($image),
-                    'Added image ' . $image_path . ' for ' . $path,
+                    'Added image ' . $image_path . ' for ' . $filePath,
                     $reference,
                     ['name' => $userName, 'email' => $userEmail]
                 );
             }
         }
 
-        // Commit MD
-        $client->api('repo')->contents()->update(
-            getenv('GITHUB_USER'),
-            getenv('GITHUB_REPO'),
-            $path,
-            $contents,
-            'Updated ' . $path . ' via web editor',
-            $sha,
-            'master',
-            ['name' => $userName, 'email' => $userEmail]
-        );
+        // Commit Markdown file
+        if ($file === null) {
+            $client->api('repo')->contents()->create(
+                getenv('GITHUB_USER'),
+                getenv('GITHUB_REPO'),
+                $filePath,
+                $contents,
+                'Created ' . $filePath . ' via web editor',
+                getenv('GITHUB_BRANCH'),
+                ['name' => $userName, 'email' => $userEmail]
+            );
+        } else {
+            $client->api('repo')->contents()->update(
+                getenv('GITHUB_USER'),
+                getenv('GITHUB_REPO'),
+                $filePath,
+                $contents,
+                'Updated ' . $filePath . ' via web editor',
+                $file['sha'],
+                getenv('GITHUB_BRANCH'),
+                ['name' => $userName, 'email' => $userEmail]
+            );
+        }
 
         if (!empty($images_to_upload)) {
             // Merge image branch into master
             $client->api('repo')->merge(
                 getenv('GITHUB_USER'),
                 getenv('GITHUB_REPO'),
-                'master',
+                getenv('GITHUB_BRANCH'),
                 $branch,
                 'merge ' . $branch . ' into master.'
             );
@@ -337,6 +374,48 @@ class Application implements RequestHandlerInterface
             $session->unset('images');
         }
 
+        return new EmptyResponse($file === null ? 201 : 204, ['Content-Location' => '/' . $filePath]);
+    }
+
+    public function handleDeleteMarkdown(ServerRequestInterface $request, $pathParams): ResponseInterface
+    {
+        $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
+
+        // Check if the user is logged in
+        if (!$session->has('user_name')) {
+            return new TextResponse('Not logged in.', 401);
+        }
+
+        // Retrieve the file information from GitHub
+        $filePath = $pathParams['file'];
+        // TODO: sanity check the path
+        try {
+            $client = new GithubClient();
+            $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
+            $file = $client->api('repo')->contents()->show(
+                getenv('GITHUB_USER'),
+                getenv('GITHUB_REPO'),
+                $filePath,
+                getenv('GITHUB_BRANCH')
+            );
+        } catch (\Exception $e) {
+            if ($e->getCode() === 404) {
+                throw new NotFoundException('Markdown file does not exist in repository', $e);
+            }
+            throw $e;
+        }
+
+        // Delete the markdown file
+        $client->api('repo')->contents()->rm(
+            getenv('GITHUB_USER'),
+            getenv('GITHUB_REPO'),
+            $filePath,
+            'Removed ' . $filePath . ' via web editor',
+            $file['sha'],
+            getenv('GITHUB_BRANCH'),
+            ['name' => $userName, 'email' => $userEmail]
+        );
+
         return new EmptyResponse();
     }
 
@@ -346,9 +425,19 @@ class Application implements RequestHandlerInterface
     public function handleGetImage(ServerRequestInterface $request, array $pathParams): ResponseInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
+
+        // Check if the user is logged in
+        if (!$session->has('user_name')) {
+            return new TextResponse('Not logged in.', 401);
+        }
+
+        $filePath = $pathParams['file'];
+        // TODO: sanity check the path
+
+        // Try to retrieve image from session
         if ($session->has('images')) {
             foreach ($session->get('images') as $image) {
-                if ($pathParams['file'] == $image) {
+                if (('images/' . $image) === $filePath) {
                     return new TextResponse($this->filesystem->read($image), 200, [
                         'Content-Type' => 'image/' . pathinfo($pathParams['file'], PATHINFO_EXTENSION),
                     ]);
@@ -356,15 +445,22 @@ class Application implements RequestHandlerInterface
             }
         }
 
-        $client = new GithubClient();
-        $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
-
-        $file = $client->api('repo')->contents()->show(
-            getenv('GITHUB_USER'),
-            getenv('GITHUB_REPO'),
-            'docs/images/' . $pathParams['file'],
-            'master'
-        );
+        // Retrieve the file information from GitHub
+        try {
+            $client = new GithubClient();
+            $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
+            $file = $client->api('repo')->contents()->show(
+                getenv('GITHUB_USER'),
+                getenv('GITHUB_REPO'),
+                $filePath,
+                getenv('GITHUB_BRANCH')
+            );
+        } catch (\Exception $e) {
+            if ($e->getCode() === 404) {
+                throw new NotFoundException('Image does not exist in repository', $e);
+            }
+            throw $e;
+        }
 
         return (new GuzzleClient())->request('GET', $file['download_url']);
     }
@@ -372,31 +468,35 @@ class Application implements RequestHandlerInterface
     /**
      * Upload a new image.
      */
-    public function handleUploadImage(ServerRequestInterface $request): ResponseInterface
+    public function handleUploadImage(ServerRequestInterface $request, array $pathParams): ResponseInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
 
-        $params = json_decode($request->getBody()->__toString(), true);
-
-        // Check if upload is an image
-        $image_parts = explode(';base64,', $params['content']);
-        $img = $image_parts[1];
-        if (!imagecreatefromstring(base64_decode($img))) {
-            return new TextResponse('Something went wrong uploading the image', 400);
+        // Check if the user is logged in
+        if (!$session->has('user_name')) {
+            return new TextResponse('Not logged in.', 401);
         }
 
-        // Generate unique filename
-        $ext = pathinfo($params['name'], PATHINFO_EXTENSION);
-        $unique_filename = uniqid() . '.' . $ext;
+        $filePath = $pathParams['file'];
+        $contents = $request->getBody()->__toString();
+
+        // Check if upload is an image
+        if (!@imagecreatefromstring($contents)) {
+            return new TextResponse('Invalid image type', 400);
+        }
+
+        // Generate filename based on contents
+        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+        $filename = hash('sha256', $contents) . '.' . $ext;
 
         // Save file in upload folder
-        $this->filesystem->put($unique_filename, base64_decode($img));
+        $this->filesystem->put($filename, $contents);
 
         // Set image name in Session
         $image_array = $session->has('images') ? $session->get('images') : [];
-        array_push($image_array, $unique_filename);
+        array_push($image_array, $filename);
         $session->set('images', $image_array);
 
-        return new TextResponse(getenv('APP_URL') . '/images/' . $unique_filename);
+        return new EmptyResponse(201, ['Content-Location' => '/images/' . $filename]);
     }
 }

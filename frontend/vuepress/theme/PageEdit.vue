@@ -1,7 +1,7 @@
 <template>
   <div id="edit" ref="edit">
     <ClientOnly>
-      <editor 
+      <editor
         ref="editor"
         v-if="markdownLoaded"
         :options="editorOptions"
@@ -45,14 +45,18 @@ export default {
             var reader = new FileReader();
             reader.onloadend = function() {
               var base64data = reader.result;
-              axios.post('/api/v1/upload', {
-                  name: blob.name,
-                  content: base64data
+              axios.put(blob.name, reader.result, {
+                headers: {
+                  'Content-Type': blob.type,
+                },
               }).then((data) => {
-                callback(data.data, 'alt-text');
+                callback(data.headers['content-location'], 'alt-text');
+              }).catch((error) => {
+                console.log(error);
+                window.alert(error.response.data);
               });
             };
-            reader.readAsDataURL(blob);
+            reader.readAsArrayBuffer(blob);
           }
         }
       },
@@ -67,12 +71,12 @@ export default {
         resolve(scrollSync);
       });
     });
-    
+
     const importTable = new Promise(resolve => {
       return import('tui-editor/dist/tui-editor-extTable.js').then(({ default: extTable }) => {
         resolve(extTable);
       });
-    }); 
+    });
 
     Promise.all([importScrollSync, importTable])
   },
@@ -105,7 +109,7 @@ export default {
       return axios.get(url)
         .then(response => {
           return response.data;
-        }); 
+        });
     },
     getMDContents() {
       let path = normalize(this.$page.path);

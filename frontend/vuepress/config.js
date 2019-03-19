@@ -19,7 +19,6 @@ module.exports = {
         ],
     ],
     plugins: [require('./plugins/pdf')],
-    // title: 'Victron Energy Documentation',
     title: 'Victron Energy Documentation',
     description: 'Victron Energy Documentation',
     themeConfig: {
@@ -51,10 +50,6 @@ module.exports = {
 
         // Header navigation items
         nav: [
-            // {
-            //     text: 'Community',
-            //     link: 'https://community.victronenergy.com',
-            // },
             {
                 text: 'www.victronenergy.com',
                 link: 'https://victronenergy.com',
@@ -65,8 +60,8 @@ module.exports = {
           '/': {
             lastUpdated: 'Last updated',
             tableOfContents: 'Table of contents',
-            pageDoesntExist: 'This page doesn\'t exist yet.', 
-            wantToCreatePage: 'Do you want to create it?' 
+            pageDoesntExist: 'This page doesn\'t exist yet.',
+            wantToCreatePage: 'Do you want to create it?'
           }
         }
     },
