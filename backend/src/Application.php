@@ -60,11 +60,12 @@ class Application implements RequestHandlerInterface
         // Load and check required environment variables
         (Dotenv::create(self::PATH))->load();
         foreach ([
-            'GITHUB_REPO',
-            'GITHUB_TOKEN',
-            'GITHUB_USER',
             'OAUTH_CLIENT_ID',
             'OAUTH_CLIENT_SECRET',
+            'GITHUB_USER',
+            'GITHUB_REPO',
+            'GITHUB_BRANCH',
+            'GITHUB_TOKEN',
         ] as $envVariable) {
             if (empty(getenv($envVariable))) {
                 throw InvalidArgumentException('Missing required environment variable ' . $envVariable);
