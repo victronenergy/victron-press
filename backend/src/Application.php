@@ -10,7 +10,9 @@ use GuzzleHttp\Client as GuzzleClient;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use League\OAuth2\Client\Provider\Github as GitHubOAuth2Provider;
+use League\Route\Http\Exception\ForbiddenException;
 use League\Route\Http\Exception\NotFoundException;
+use League\Route\Http\Exception\UnauthorizedException;
 use League\Route\Router;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -101,6 +103,10 @@ class Application implements RequestHandlerInterface
     {
         try {
             return $this->router->dispatch($request);
+        } catch (UnauthorizedException $e) {
+            return new TextResponse('401 ' . $e->getMessage(), 401);
+        } catch (ForbiddenException $e) {
+            return new TextResponse('403 ' . $e->getMessage(), 403);
         } catch (NotFoundException $e) {
             return new TextResponse('404 ' . $e->getMessage(), 404);
         }
@@ -185,7 +191,7 @@ class Application implements RequestHandlerInterface
                 $userName
             );
         } catch (\Exception $e) {
-            return new TextResponse($userName . ' is not a collaborator on ' . getenv('GITHUB_USER') . '/' . getenv('GITHUB_REPO'), 403);
+            throw new ForbiddenException($userName . ' is not a collaborator on ' . getenv('GITHUB_USER') . '/' . getenv('GITHUB_REPO'), $e);
         }
 
         // By setting the user_name we indicate the user is logged in.
@@ -219,7 +225,7 @@ class Application implements RequestHandlerInterface
 
         // Check if the user is logged in
         if (!$session->has('user_name')) {
-            return new TextResponse('Not logged in.', 401);
+            throw new UnauthorizedException('Not logged in');
         }
 
         // Retrieve the file information from GitHub
@@ -254,7 +260,7 @@ class Application implements RequestHandlerInterface
 
         // Check if the user is logged in
         if (!$session->has('user_name')) {
-            return new TextResponse('Not logged in.', 401);
+            throw new UnauthorizedException('Not logged in');
         }
 
         // Retrieve the file information from GitHub
@@ -396,7 +402,7 @@ class Application implements RequestHandlerInterface
 
         // Check if the user is logged in
         if (!$session->has('user_name')) {
-            return new TextResponse('Not logged in.', 401);
+            throw new UnauthorizedException('Not logged in');
         }
 
         // Retrieve the file information from GitHub
@@ -439,13 +445,10 @@ class Application implements RequestHandlerInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
 
-        // Check if the user is logged in
-        if (!$session->has('user_name')) {
-            return new TextResponse('Not logged in.', 401);
-        }
-
         $filePath = $pathParams['file'];
         // TODO: sanity check the path
+
+        // Determine MIME type from the extension
         $mimeType = [
             'gif'  => 'image/gif',
             'jpeg' => 'image/jpeg',
@@ -454,13 +457,16 @@ class Application implements RequestHandlerInterface
             'webp' => 'image/webp',
         ][pathinfo($filePath, PATHINFO_EXTENSION)];
 
-        // Try to retrieve image from session
-        if ($session->has('images')) {
-            foreach ($session->get('images') as $image) {
-                if (('images/' . $image) === $filePath) {
-                    return new TextResponse($this->filesystem->read($image), 200, [
-                        'Content-Type' => $mimeType,
-                    ]);
+        // Only try to retrieve images from session if user is logged in
+        if ($session->has('user_name')) {
+            // Try to retrieve image from session
+            if ($session->has('images')) {
+                foreach ($session->get('images') as $image) {
+                    if (('images/' . $image) === $filePath) {
+                        return new TextResponse($this->filesystem->read($image), 200, [
+                            'Content-Type' => $mimeType,
+                        ]);
+                    }
                 }
             }
         }
@@ -494,7 +500,7 @@ class Application implements RequestHandlerInterface
 
         // Check if the user is logged in
         if (!$session->has('user_name')) {
-            return new TextResponse('Not logged in.', 401);
+            throw new UnauthorizedException('Not logged in');
         }
 
         $contentType = $request->getHeader('Content-Type');
