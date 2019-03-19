@@ -125,3 +125,11 @@ body table tr {
     page-break-inside: avoid;
     page-break-after:auto
 }
+
+.sidebar {
+  display: none !important;
+}
+
+body .page {
+  padding-left: 0 !important;
+}
