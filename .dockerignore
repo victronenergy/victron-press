@@ -1,6 +1,4 @@
-**/.git/
-**/.gitignore
-**/.gitkeep
+/.git/
 /data/
 !/data/docs/
 /data/docs/.vuepress/
