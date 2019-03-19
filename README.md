@@ -6,6 +6,11 @@ VueJS, and the backend, which is written in PHP. They are meant to be deployed
 together on a single webserver. The (built) frontend provides all the rendered
 documentation files, and the backend handles all routing for non-existant paths.
 
+This repository contains the application, while another repository (namely,
+[`www-documentation`](https://github.com/victronenergy/www-documentation))
+contains the Markdown files and accompanying images which make up the actual
+documentation.
+
 ### Requirements
  - Install the latest version of [Git](https://git-scm.com/downloads/).
  - Install the latest (not the LTS) version of [NodeJS](https://nodejs.org/en/download/current/).
@@ -68,6 +73,34 @@ There are multiple ways to work with the backend part of the repository:
 
 Configuration files for Composer, npm, Docker, Git, tests and linters are placed
 in the root directory.
+
+### Example request flow
+In this exampel we'll be editing `myfile.md`.
+ - The user visits `/myfile.html`, which contains the VuePress frontend application.
+ - The user presses the "Edit this page" button.
+ - The frontend calls `/api/v1/auth` to check if the user is logged in.
+   - If the user is not logged in, the API call returns a `redirectUrl` where
+     the user should be redirected to log in.
+   - After the login the user will be redirected back to the editor page and
+     this flow starts over again.
+ - The frontend loads `/myfile.md` using a GET call to retrieve the raw
+   Markdown.
+ - The user can now edit the page using the editor.
+   - If an image is inserted, for example `cat.jpg`, it is uploaded by the
+     frontend using a PUT-request to `/images/cat.jpg`, which redirects to the
+     final URL where the image can be accessed.
+ - Once the user presses "Save", the frontend does a PUT to `/myfile.md` to
+   save the modified contents.
+   - The backend commits this content to Git, together with any images that
+     were uploaded and referenced in the Markdown.
+ - The frontend notifies the user that his/her changes will be visible in a few
+   moments once the new VuePress build has finished.
+
+### Production deployment
+In production [a GitHub machine user](https://github.com/VictronPress) is used
+for committing and pushing changes to the `www-documentation` repository, as
+well as pulling the latest code and documentation from GitHub and deploying it
+to the production web server.
 
 ## Note for developers
 Always aim to leave the code in a better state than you found it in.
