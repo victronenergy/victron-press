@@ -20,9 +20,6 @@
 <script>
 import axios from 'axios';
 import 'tui-editor/dist/tui-editor.css';
-// import 'tui-editor/dist/tui-editor-contents.css';
-import 'tui-editor/dist/tui-editor-extScrollSync.js';
-import 'tui-editor/dist/tui-editor-extTable.js';
 
 import 'codemirror/lib/codemirror.css';
 
@@ -64,6 +61,22 @@ export default {
       saving: false
     }
   },
+  beforeMount() {
+    const importScrollSync = new Promise(resolve => {
+      return import('tui-editor/dist/tui-editor-extScrollSync.js').then(({ default: scrollSync }) => {
+        resolve(scrollSync);
+      });
+    });
+    
+    const importTable = new Promise(resolve => {
+      return import('tui-editor/dist/tui-editor-extTable.js').then(({ default: extTable }) => {
+        resolve(extTable);
+      });
+    }); 
+
+    Promise.all([importScrollSync, importTable])
+  },
+
   mounted() {
     this.isSubscribed().then(data => {
       if(data.success) {
@@ -78,6 +91,7 @@ export default {
       }
     });
   },
+
   methods: {
     isSubscribed() {
       let path = normalize(this.$page.path);
