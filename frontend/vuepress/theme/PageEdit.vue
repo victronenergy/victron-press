@@ -66,7 +66,7 @@ export default {
         }
       },
       editorValue: "",
-      markdownLoaded: false,
+      markdownLoaded: true,
       saving: false
     }
   },
@@ -89,18 +89,18 @@ export default {
     this.$emit('editmode-toggle', false); //sets sidebarstatus to false
   },
   mounted() {
-    this.isSubscribed().then(data => {
-      if(data.success) {
-        this.getMDContents().then((data) => {
-          this.editorValue = data;
-          this.markdownLoaded = true;
-        });
-      } else {
-        setTimeout(()=> {
-          window.location.replace(data.redirectUrl);
-        }, 1000)
-      }
-    });
+    // this.isSubscribed().then(data => {
+    //   if(data.success) {
+    //     this.getMDContents().then((data) => {
+    //       this.editorValue = data;
+    //       this.markdownLoaded = true;
+    //     });
+    //   } else {
+    //     setTimeout(()=> {
+    //       window.location.replace(data.redirectUrl);
+    //     }, 1000)
+    //   }
+    // });
   },
 
   computed: {
@@ -145,7 +145,14 @@ export default {
       if(this.saving) return;
 
       this.saving = true;
-      let path = normalize(this.$page.path);
+
+      let path; 
+      if(this.$page.path = "") { //page doesn't exist yet
+        path = window.location.pathname;
+      } else {
+        path = normalize(this.$page.path);
+      }
+
       if (endingSlashRE.test(path)) {
         path += 'README.md'
       } else {
