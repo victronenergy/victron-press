@@ -4,23 +4,10 @@
       <a @click="doEdit()" rel="noopener noreferrer">Back</a>
 
       <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">Delete this page</a>
-
-      <!-- <div class="edit-link" v-if="editLink">
-        <a v-if="!editModeEnabled" @click="doEdit()" rel="noopener noreferrer">{{ editLinkText }}</a>
-        <a v-else @click="doEdit()" rel="noopener noreferrer">Back</a>
-      </div>
-
-      <div style="display: flex; align-items: center;">
-        <div class="last-updated" v-if="lastUpdated" >
-          <span class="prefix">{{ lastUpdatedText }}: </span>
-          <span class="time">{{ lastUpdated }}</span>
-        </div>
-        <a class="button" @click="commitClicked()" v-if="editModeEnabled">Commit changes</a>
-      </div> -->
     </div>
 
     <slot name="top"/>
-    
+
 
     <div class="tip custom-block save-success-block" v-if="saveSuccess">
       <p class="custom-block-title">Success</p>
@@ -45,18 +32,18 @@
 
 
     <ClientOnly v-if="editModeEnabled && !saveSuccess">
-      <page-edit 
+      <page-edit
         ref="pageEdit"
         @saveSuccess="setSaveState"
       >
       </page-edit>
     </ClientOnly>
-    
+
     <Content v-else :custom="false"/>
 
-    
+
     <div class="page-edit">
-      <div class="edit-link" v-if="editLink">
+      <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
         <a v-if="!editModeEnabled" @click="doEdit()" rel="noopener noreferrer">{{ editLinkText }}</a>
         <a v-else @click="doEdit()" rel="noopener noreferrer">Back</a>
       </div>
@@ -127,7 +114,6 @@ export default {
   components: { PageEdit, Modal },
 
   mounted() {
-    console.log(this.$page)
     this.editModeEnabled = window.location.search.includes('editmode');
   },
 
@@ -136,6 +122,7 @@ export default {
       if (this.$page.lastUpdated) {
         return new Date(this.$page.lastUpdated).toLocaleString(this.$lang)
       }
+      return false
     },
 
     lastUpdatedText () {
@@ -174,26 +161,10 @@ export default {
       }
     },
 
-    editLink () {
-      const {
-        docsDir,
-        editorLink
-      } = this.$site.themeConfig;
-
-      let path = normalize(this.$page.path);
-      if (endingSlashRE.test(path)) {
-        path += 'README.md'
-      } else {
-        path += '.md'
-      }
-
-      return editorLink + docsDir + path;
-    },
-
     editLinkText () {
       return (
-        this.$themeLocaleConfig.editLinkText ||
-        this.$site.themeConfig.editLinkText ||
+        this.$themeLocaleConfig.editLink ||
+        this.$site.themeConfig.editLink ||
         `Edit this page`
       )
     }
@@ -202,7 +173,7 @@ export default {
   methods: {
     tryDelete() {
       if(this.deleteConfirmationText === this.$page.title ) {
-        this.toggleDeleteModal(); 
+        this.toggleDeleteModal();
       }
     },
     commitClicked() {
@@ -210,7 +181,7 @@ export default {
     },
     setSaveState(state) {
       this.saveSuccess = state;
-      
+
       if(state) {
         this.editModeEnabled = false;
       }
@@ -221,33 +192,6 @@ export default {
         this.$router.push({});
       }
     },
-    createEditLink (repo, docsRepo, docsDir, docsBranch, path) {
-      const bitbucket = /bitbucket.org/
-      if (bitbucket.test(repo)) {
-        const base = outboundRE.test(docsRepo)
-          ? docsRepo
-          : repo
-        return (
-          base.replace(endingSlashRE, '') +
-           `/${docsBranch}` +
-           (docsDir ? '/' + docsDir.replace(endingSlashRE, '') : '') +
-           path +
-           `?mode=edit&spa=0&at=${docsBranch}&fileviewer=file-view-default`
-        )
-      }
-
-      const base = outboundRE.test(docsRepo)
-        ? docsRepo
-        : `https://github.com/${docsRepo}`
-
-      return (
-        base.replace(endingSlashRE, '') +
-        `/edit/${docsBranch}` +
-        (docsDir ? '/' + docsDir.replace(endingSlashRE, '') : '') +
-        path
-      )
-    },
-
     doEdit() {
       this.saveSuccess = false;
       this.editModeEnabled = !this.editModeEnabled;
@@ -258,7 +202,7 @@ export default {
         this.$router.push({});
       }
     },
-    
+
     toggleDeleteModal() {
       this.deleteModalVisible = !this.deleteModalVisible;
     }

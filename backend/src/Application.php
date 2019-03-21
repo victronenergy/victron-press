@@ -86,6 +86,7 @@ class Application implements RequestHandlerInterface
         $this->router->map('GET', '/api/v1/oauth-callback', [$this, 'handleOAuthCallback']);
 
         // Handlers for retrieving files
+        $this->router->map('GET', '/{langcode:(?:en|nl)}/{file:.+\.html}', [$this, 'handleNonExistingLanguage']);
         $this->router->map('GET', '/{file:.+\.html}', [$this, 'handleNonExisting']);
         $this->router->map('GET', '/{file:.+\.md}', [$this, 'handleGetMarkdown']);
         $this->router->map('GET', '/{file:.+\.(?:gif|jpg|jpeg|png|svg|webp)}', [$this, 'handleGetImage']);
@@ -191,12 +192,16 @@ class Application implements RequestHandlerInterface
                 $userName
             );
         } catch (\Exception $e) {
-            throw new ForbiddenException($userName . ' is not a collaborator on ' . getenv('GITHUB_USER') . '/' . getenv('GITHUB_REPO'), $e);
+            throw new ForbiddenException(
+                $userName . ' is not a collaborator on ' . getenv('GITHUB_USER') . '/' . getenv('GITHUB_REPO'),
+                $e
+            );
         }
 
         // By setting the user_name we indicate the user is logged in.
         $session->set('user_name', $userName);
         $session->set('user_email', $userEmail);
+        $session->persistSessionFor(365 * 24 * 60 * 60);
 
         // Redirect the user back to the frontend application
         $redirectFile = $session->get('redirect_file', null);
@@ -206,6 +211,28 @@ class Application implements RequestHandlerInterface
             $redirectUrl .= preg_replace('/\.md$/i', '.html', $redirectFile) . '?editmode=true';
         }
         return new RedirectResponse($redirectUrl);
+    }
+
+    /**
+     * If a specific language version does not exists, redirect to the English version.
+     */
+    public function handleNonExistingLanguage(ServerRequestInterface $request, array $pathParams): ResponseInterface
+    {
+        $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
+
+        $langCode = $pathParams['langcode'];
+        $filePath = $pathParams['file'];
+        // TODO: sanity check the path
+
+        // Redirect if the language is "en", or if the user is not logged in and an English version exists
+        if ($langCode === 'en' || (
+            !$session->has('user_name') && file_exists(self::PATH . '/data/dist/' . $filePath)
+        )) {
+            return new RedirectResponse('/' . $filePath);
+        }
+
+        // For pages without an English equivalent, offer to create the page
+        return $this->handleNonExisting($request, $pathParams);
     }
 
     /**

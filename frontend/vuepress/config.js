@@ -19,31 +19,18 @@ module.exports = {
         ],
     ],
     plugins: [require('./plugins/pdf')],
-    title: 'Victron Energy Documentation',
-    description: 'Victron Energy Documentation',
     themeConfig: {
         // Disable search
         search: false,
 
-        // // Contribution link in header
+        // Contribution link in header
         repo: 'victronenergy/www-documentation',
-        repoLabel: 'Contribute',
-
-        // Details used for editing
-        docsRepo: 'victronenergy/www-documentation',
-        docsDir: 'docs',
-        docsBranch: 'master',
 
         // Custom editor integration
-        editLinks: true,
-        editLinkText: 'Edit this page',
-        editorLink: '/api/v1/editor?file=',
+        enableEditor: true,
 
         // Enable automatic in-page navigation
         sidebar: 'auto',
-
-        // "Last updated" data is fetched from Git
-        lastUpdated: 'Last updated',
 
         // Logo used
         logo: '/assets/img/victron-logo.png',
@@ -57,12 +44,34 @@ module.exports = {
         ],
 
         locales: {
-          '/': {
-            lastUpdated: 'Last updated',
-            tableOfContents: 'Table of contents',
-            pageDoesntExist: 'This page doesn\'t exist yet.',
-            wantToCreatePage: 'Do you want to create it?'
-          }
+            '/': {
+                lastUpdated: 'Last updated',
+                tableOfContents: 'Table of contents',
+                editLink: 'Edit this page',
+                repoLabel: 'Contribute',
+                pageDoesntExist: 'This page doesn\'t exist yet.',
+                wantToCreatePage: 'Do you want to create it?',
+            },
+            '/nl/': {
+                lastUpdated: 'Laatst bijgewerkt',
+                tableOfContents: 'Inhoudsopgave',
+                editLink: 'Bewerk deze pagina',
+                repoLabel: 'Bijdragen',
+                pageDoesntExist: 'Deze pagina bestaat nog niet.',
+                wantToCreatePage: 'Wil je hem aanmaken?',
+            }
         }
     },
+    locales: {
+        '/': {
+            lang: 'en-US',
+            title: 'Victron Energy Documentation',
+            description: 'Victron Energy Documentation',
+        },
+        '/nl/': {
+            lang: 'nl-NL',
+            title: 'Victron Energy documentatie',
+            description: 'Victron Energy documentatie',
+        }
+    }
 };
