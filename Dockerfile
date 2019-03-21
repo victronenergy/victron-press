@@ -7,7 +7,7 @@ RUN id www-data >/dev/null 2>&1 || useradd -s /usr/sbin/nologin -d /var/www www-
 
 # Install dependencies and create workspace directory
 RUN apt-get update && \
-    apt-get install -y sudo && \
+    apt-get install -y git sudo && \
     npm -g i npm && \
     mkdir -p /workspace/frontend/vuepress && \
     chown -R www-data:www-data /workspace
