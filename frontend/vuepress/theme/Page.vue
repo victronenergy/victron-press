@@ -188,9 +188,9 @@ export default {
         // axios.delete(url).then((response) => {
         //   this.$router.push({});
         // });
+        console.log('It should now call the API to delete it! :)');
 
-
-        // this.toggleDeleteModal();
+        this.toggleDeleteModal();
       }
     },
     commitClicked() {
