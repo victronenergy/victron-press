@@ -35,7 +35,7 @@ RUN rm -rf data/docs/.vuepress && \
 
 # Build frontend and move files to correct location
 RUN sudo -u www-data npm run build && \
-    mv data/dist/docs/* data/dist/ && \
+    cp -rl data/dist/docs/* data/dist && \
     rm -rf data/dist/docs data/dist/index.html
 
 # Backend build
