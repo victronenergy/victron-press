@@ -25,7 +25,8 @@ RUN chown -R www-data:www-data frontend/ && \
     find frontend/ -type d -exec chmod 755 {} \; && \
     find frontend/ -type f -exec chmod 644 {} \;
 
-# Copy documentation files and set correct permissions
+# Copy documentation files, Git history, and set correct permissions
+COPY .git/ ./.git/
 COPY data/docs/ ./data/docs/
 RUN rm -rf data/docs/.vuepress && \
     chown -R www-data:www-data data/docs/ && \
