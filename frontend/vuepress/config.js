@@ -45,18 +45,26 @@ module.exports = {
 
         locales: {
             '/': {
-                lastUpdated: 'Last updated',
                 tableOfContents: 'Table of contents',
-                editLink: 'Edit this page',
                 repoLabel: 'Contribute',
+                lastUpdated: 'Last updated',
+                loadingMarkdown: 'Loading Markdown...',
+                backLink: 'Back',
+                editLink: 'Edit this page',
+                deleteLink: 'Delete this page',
+                commitButton: 'Commit changes',
                 pageDoesntExist: 'This page doesn\'t exist yet.',
                 wantToCreatePage: 'Do you want to create it?',
             },
             '/nl/': {
-                lastUpdated: 'Laatst bijgewerkt',
                 tableOfContents: 'Inhoudsopgave',
-                editLink: 'Bewerk deze pagina',
                 repoLabel: 'Bijdragen',
+                lastUpdated: 'Laatst bijgewerkt',
+                loadingMarkdown: 'Markdown laden...',
+                backLink: 'Terug',
+                editLink: 'Bewerk deze pagina',
+                deleteLink: 'Verwijder deze pagina',
+                commitButton: 'Wijzigingen opslaan',
                 pageDoesntExist: 'Deze pagina bestaat nog niet.',
                 wantToCreatePage: 'Wil je hem aanmaken?',
             }

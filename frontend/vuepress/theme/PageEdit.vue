@@ -11,7 +11,10 @@
         previewStyle="vertical"
       />
       <div v-else>
-        <p style="max-width: 740px; margin: 0 auto;">Loading Markdown...</p>
+        <p style="max-width: 740px; margin: 0 auto;">
+          <span class="spinner"><span></span><span></span><span></span><span></span></span>
+          {{ loadingMarkdownText }}
+        </p>
       </div>
     </ClientOnly>
   </div>
@@ -34,8 +37,10 @@ export default {
   data() {
     return {
       editorOptions: {
+        usageStatistics: false,
         initialEditType: 'markdown',
         previewStyle: 'vertical',
+        language: this.$lang, // TODO: not available at time of instantiation?
         exts: [
           'scrollSync',
           'table'
@@ -96,6 +101,16 @@ export default {
         }, 1000)
       }
     });
+  },
+
+  computed: {
+    loadingMarkdownText () {
+      return (
+        this.$themeLocaleConfig.loadingMarkdown ||
+        this.$site.themeConfig.loadingMarkdown ||
+        'Loading Markdown...'
+      )
+    }
   },
 
   methods: {

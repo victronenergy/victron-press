@@ -1,9 +1,9 @@
 <template>
   <div class="page">
     <div class="page-edit" v-if="editModeEnabled">
-      <a @click="doEdit()" rel="noopener noreferrer">Back</a>
+      <a @click="doEdit()" rel="noopener noreferrer">{{ backLinkText }}</a>
 
-      <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">Delete this page</a>
+      <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">{{ deleteLinkText }}</a>
     </div>
 
     <slot name="top"/>
@@ -46,7 +46,7 @@
     <div class="page-edit">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
         <a v-if="!editModeEnabled" @click="doEdit()" rel="noopener noreferrer">{{ editLinkText }}</a>
-        <a v-else @click="doEdit()" rel="noopener noreferrer">Back</a>
+        <a v-else @click="doEdit()" rel="noopener noreferrer">{{backLinkText}}</a>
       </div>
 
       <div style="display: flex; align-items: center;">
@@ -54,7 +54,7 @@
           <span class="prefix">{{ lastUpdatedText }}: </span>
           <span class="time">{{ lastUpdated }}</span>
         </div>
-        <a class="button" @click="commitClicked()" v-if="editModeEnabled">Commit changes</a>
+        <a class="button" @click="commitClicked()" v-if="editModeEnabled">{{ commitButtonText }}</a>
       </div>
     </div>
 
@@ -127,16 +127,6 @@ export default {
       return false
     },
 
-    lastUpdatedText () {
-      if (typeof this.$themeLocaleConfig.lastUpdated === 'string') {
-        return this.$themeLocaleConfig.lastUpdated
-      }
-      if (typeof this.$site.themeConfig.lastUpdated === 'string') {
-        return this.$site.themeConfig.lastUpdated
-      }
-      return 'Last Updated'
-    },
-
     title() {
       return this.$page.title;
     },
@@ -163,11 +153,39 @@ export default {
       }
     },
 
+    lastUpdatedText () {
+      return (
+        this.$themeLocaleConfig.lastUpdated ||
+        this.$site.themeConfig.lastUpdated ||
+        'Last Updated'
+      )
+    },
+    backLinkText () {
+      return (
+        this.$themeLocaleConfig.backLink ||
+        this.$site.themeConfig.backLink ||
+        'Back'
+      )
+    },
     editLinkText () {
       return (
         this.$themeLocaleConfig.editLink ||
         this.$site.themeConfig.editLink ||
-        `Edit this page`
+        'Edit this page'
+      )
+    },
+    deleteLinkText () {
+      return (
+        this.$themeLocaleConfig.deleteLink ||
+        this.$site.themeConfig.deleteLink ||
+        'Delete this page'
+      )
+    },
+    commitButtonText () {
+      return (
+        this.$themeLocaleConfig.commitButton ||
+        this.$site.themeConfig.commitButton ||
+        'Commit changes'
       )
     }
   },
