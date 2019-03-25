@@ -274,8 +274,13 @@ class Application implements RequestHandlerInterface
             throw $e;
         }
 
-        // Download and return the file contents
-        return (new GuzzleClient())->request('GET', $file['download_url']);
+        // If the contents are already included, just return those
+        if (isset($file['content']) && $file['encoding'] === 'base64') {
+            return new TextResponse(\base64_decode($file['content']), 200, ['Content-Type' => 'text/markdown; charset=UTF-8']);
+        }
+
+        // Else, download and return the file contents
+        return (new GuzzleClient())->request('GET', $file['download_url'])->withHeader('Content-Type', 'text/markdown; charset=UTF-8');
     }
 
     /**
@@ -478,6 +483,7 @@ class Application implements RequestHandlerInterface
         // Determine MIME type from the extension
         $mimeType = [
             'gif'  => 'image/gif',
+            'jpg'  => 'image/jpeg',
             'jpeg' => 'image/jpeg',
             'png'  => 'image/png',
             'svg'  => 'image/svg+xml',
