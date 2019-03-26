@@ -248,13 +248,6 @@ class Application implements RequestHandlerInterface
      */
     public function handleGetMarkdown(ServerRequestInterface $request, array $pathParams): ResponseInterface
     {
-        $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
-
-        // Check if the user is logged in
-        if (!$session->has('user_name')) {
-            throw new UnauthorizedException('Not logged in');
-        }
-
         // Retrieve the file information from GitHub
         $filePath = $pathParams['file'];
         // TODO: sanity check the path
