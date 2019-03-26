@@ -5,9 +5,10 @@ const globby = require('globby');
 const path = require('path');
 const spawn = require('cross-spawn')
 
-const cwd = path.join(__dirname, '../data/docs');
+const inputDir = path.join(__dirname, '../data/docs');
+const outputDir = path.join(__dirname, '../data/dist');
 globby([`**/*.md`, `!.vuepress`], {
-    cwd,
+    cwd: inputDir,
     gitignore: true
 }).then((filePaths) => {
     let result = {};
@@ -32,5 +33,7 @@ globby([`**/*.md`, `!.vuepress`], {
         } catch (e) { /* not available if spawning git fails */ }
         result[basename][lang] = fResult;
     }
-    return fs.writeJson(path.join(__dirname, '../data/dist/index.json'), result);
+    return fs.ensureDir(outputDir).then(() => {
+        return fs.writeJson(path.join(__dirname, '../data/dist/index.json'), result);
+    });
 });
