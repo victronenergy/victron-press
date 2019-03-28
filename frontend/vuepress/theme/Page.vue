@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="page-edit" v-if="editModeEnabled">
-      <a @click="doEdit()" rel="noopener noreferrer">{{ backLinkText }}</a>
+      <a @click="stopEditing()" rel="noopener noreferrer">{{ backLinkText }}</a>
 
       <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">{{ deleteLinkText }}</a>
     </div>
@@ -34,8 +34,7 @@
     <ClientOnly v-if="editModeEnabled && !saveSuccess">
       <page-edit
         ref="pageEdit"
-        @editmode-toggle="$emit('editmode-toggle', true)"
-        @saveSuccess="setSaveState"
+        @saveSuccess="setSaveSuccess"
       >
       </page-edit>
     </ClientOnly>
@@ -46,7 +45,7 @@
     <div class="page-edit">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
         <a v-if="!editModeEnabled" @click="doEdit()" rel="noopener noreferrer">{{ editLinkText }}</a>
-        <a v-else @click="doEdit()" rel="noopener noreferrer">{{backLinkText}}</a>
+        <a v-else @click="stopEditing()" rel="noopener noreferrer">{{backLinkText}}</a>
       </div>
 
       <div style="display: flex; align-items: center;">
@@ -117,6 +116,11 @@ export default {
 
   mounted() {
     this.editModeEnabled = window.location.search.includes('editmode');
+    if(this.editModeEnabled) {
+      this.$emit('setSidebar', false);
+    } else {
+      this.$emit('setSidebar', true);
+    }
   },
 
   computed: {
@@ -214,29 +218,22 @@ export default {
     commitClicked() {
       this.$refs.pageEdit.commit();
     },
-    setSaveState(state) {
+    setSaveSuccess(state) {
       this.saveSuccess = state;
-
-      if(state) {
-        this.editModeEnabled = false;
-      }
-
-      if(this.editModeEnabled) {
-        this.$router.push({ query: Object.assign({}, { editmode: true }) })
-      } else {
-        this.$router.push({});
-      }
+      this.stopEditing();
     },
     doEdit() {
       this.saveSuccess = false;
-      this.editModeEnabled = !this.editModeEnabled;
-      this.$emit('editmode-toggle', this.editModeEnabled);
+      this.editModeEnabled = true;
+      this.$emit('setSidebar', false);
 
-      if(this.editModeEnabled) {
-        this.$router.push({ query: Object.assign({}, { editmode: true }) })
-      } else {
-        this.$router.push({});
-      }
+      this.$router.push({ query: Object.assign({}, { editmode: true }) })
+    },
+
+    stopEditing() {
+      this.editModeEnabled = false;
+      this.$emit('setSidebar', true);
+      this.$router.push({});
     },
 
     toggleDeleteModal() {

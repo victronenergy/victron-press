@@ -47,7 +47,7 @@
       v-else
       :class="{ 'no-sidebar': !sidebarEnabled }"
       :sidebar-items="sidebarItems"
-      @editmode-toggle="setSidebar"
+      @setSidebar="setSidebar"
     >
       <slot
         name="page-top"
@@ -158,7 +158,7 @@ export default {
 
   methods: {
     setSidebar(sidebarStatus) {
-      this.sidebarEnabled = !sidebarStatus;
+      this.sidebarEnabled = sidebarStatus;
     },
 
     toggleSidebar (to) {

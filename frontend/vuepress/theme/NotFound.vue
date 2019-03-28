@@ -10,7 +10,7 @@
 
     <ClientOnly>
       <div class="editor-container">
-        <h3>{{pageTitle}}</h3>
+        <!-- <h3>{{pageTitle}}</h3> -->
         <page-edit 
           v-if="editModeEnabled"
           ref="pageEdit"
@@ -46,12 +46,12 @@ export default {
       return this.$themeLocaleConfig.wantToCreatePage;
     },
     pageTitle() {
-      const title = window.location.pathname; //Deze is goed!
+      // const title = window.location.pathname; //Deze is goed!
     
-      return title;
+      // return title;
     },
     url() {
-      return normalize(this.pageTitle) + '.md';
+      // return normalize(this.pageTitle) + '.md';
     }
 
 

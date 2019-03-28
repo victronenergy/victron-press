@@ -66,7 +66,7 @@ export default {
         }
       },
       editorValue: "",
-      markdownLoaded: true,
+      markdownLoaded: false,
       saving: false
     }
   },
@@ -86,9 +86,10 @@ export default {
     Promise.all([importScrollSync, importTable])
   },
   created(){
-    this.$emit('editmode-toggle', false); //sets sidebarstatus to false
+    
   },
   mounted() {
+
     // this.isSubscribed().then(data => {
     //   if(data.success) {
     //     this.getMDContents().then((data) => {
@@ -146,8 +147,11 @@ export default {
 
       this.saving = true;
 
+
+      console.log('this.$page ', this.$page);
+
       let path; 
-      if(this.$page.path = "") { //page doesn't exist yet
+      if(this.$page.path === "") { //page doesn't exist yet
         path = window.location.pathname;
       } else {
         path = normalize(this.$page.path);
@@ -159,13 +163,16 @@ export default {
         path += '.md'
       }
 
+
+
       return axios.put(
         path,
         this.editorValue
       ).then(response => {
         if(response.status == 200 || response.status == 201 || response.status == 204) {
           this.saving = false;
-          this.$emit('saveSuccess', true);
+
+          this.$emit('saveSuccess', true); //deze zet ook de editmode weer op false.
         }
         console.log('posted content, response:', response)
       })
