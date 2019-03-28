@@ -25,19 +25,14 @@ RUN chown -R www-data:www-data frontend/ && \
     find frontend/ -type d -exec chmod 755 {} \; && \
     find frontend/ -type f -exec chmod 644 {} \;
 
-# Copy documentation files, Git history, and set correct permissions
+# Copy documentation files, Git history, set correct permissions and build the frontend
 COPY .git/ ./.git/
 COPY data/docs/ ./data/docs/
 RUN rm -rf data/docs/.vuepress && \
     chown -R www-data:www-data data/docs/ && \
     find data/docs/ -type d -exec chmod 755 {} \; && \
     find data/docs/ -type f -exec chmod 644 {} \; && \
-    sudo -u www-data npm run build:symlink
-
-# Build frontend and move files to correct location
-RUN sudo -u www-data npm run build && \
-    cp -rl data/dist/docs/* data/dist && \
-    rm -rf data/dist/docs data/dist/index.html
+    sudo -u www-data npm run build
 
 # Backend build
 FROM php:7.3-cli-alpine AS backend
