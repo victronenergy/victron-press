@@ -182,20 +182,24 @@ class Application implements RequestHandlerInterface
         $userName = $user->getNickname() ?? 'nobody';
         $userEmail = $user->getEmail() ?? ($userName . '@users.noreply.github.com');
 
-        // Use the global application token to check if the logged in user has access to the project
-        $client = new GithubClient();
-        $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
-        try {
-            (/** @var \Github\Api\Repo */ $api = $client->api('repo'))->collaborators()->check(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
-                $userName
-            );
-        } catch (\Exception $e) {
-            throw new ForbiddenException(
-                $userName . ' is not a collaborator on ' . getenv('GITHUB_USER') . '/' . getenv('GITHUB_REPO'),
-                $e
-            );
+        // Only check access using the GitHub API if the user is not the owner,
+        // because the GitHub API considers the owner not to be a collaborator
+        if ($userName !== getenv('GITHUB_USER')) {
+            // Use the global application token to check if the logged in user has access to the project
+            $client = new GithubClient();
+            $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
+            try {
+                (/** @var \Github\Api\Repo */ $api = $client->api('repo'))->collaborators()->check(
+                    getenv('GITHUB_USER'),
+                    getenv('GITHUB_REPO'),
+                    $userName
+                );
+            } catch (\Exception $e) {
+                throw new ForbiddenException(
+                    $userName . ' is not a collaborator on ' . getenv('GITHUB_USER') . '/' . getenv('GITHUB_REPO'),
+                    $e
+                );
+            }
         }
 
         // By setting the user_name we indicate the user is logged in.
