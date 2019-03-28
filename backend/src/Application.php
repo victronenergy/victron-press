@@ -86,7 +86,7 @@ class Application implements RequestHandlerInterface
         $this->router->map('GET', '/api/v1/oauth-callback', [$this, 'handleOAuthCallback']);
 
         // Handlers for retrieving files
-        $this->router->map('GET', '/{langcode:(?:en|nl)}/{file:.+\.html}', [$this, 'handleNonExistingLanguage']);
+        $this->router->map('GET', '/{langcode:(?:[a-z]{2})}/{file:.+\.html}', [$this, 'handleNonExistingLanguage']);
         $this->router->map('GET', '/{file:.+\.html}', [$this, 'handleNonExisting']);
         $this->router->map('GET', '/{file:.+\.md}', [$this, 'handleGetMarkdown']);
         $this->router->map('GET', '/{file:.+\.(?:gif|jpg|jpeg|png|svg|webp)}', [$this, 'handleGetImage']);
