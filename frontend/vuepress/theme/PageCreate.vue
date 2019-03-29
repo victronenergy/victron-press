@@ -100,15 +100,13 @@ export default {
 
       this.saving = true;
 
-
-      console.log('this.$page ', this.$page);
-
       let path; 
       if(this.$page.path === "") { //page doesn't exist yet
-        path = window.location.pathname;
+        path = normalize(window.location.pathname);
       } else {
         path = normalize(this.$page.path);
       }
+
 
       if (endingSlashRE.test(path)) {
         path += 'README.md'

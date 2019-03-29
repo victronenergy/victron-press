@@ -203,14 +203,14 @@ export default {
         } else {
           path += '.md'
         }
-        const url = '/api/v1/auth?file=' + path.split('/')[1];
-
+        // const url = 'file=' + path.split('/')[1];
+        //http://localhost:8080/berend.md
 
         /* Disabled for safety reasons, will enable once create page works */
-        // axios.delete(url).then((response) => {
-        //   this.$router.push({});
-        // });
-        console.log('It should now call the API to delete it! :)');
+        axios.delete(path).then((response) => {
+          console.log('response: ', response);
+          this.$router.push({});
+        });
 
         this.toggleDeleteModal();
       }

@@ -90,18 +90,18 @@ export default {
   },
   mounted() {
 
-    // this.isSubscribed().then(data => {
-    //   if(data.success) {
-    //     this.getMDContents().then((data) => {
-    //       this.editorValue = data;
-    //       this.markdownLoaded = true;
-    //     });
-    //   } else {
-    //     setTimeout(()=> {
-    //       window.location.replace(data.redirectUrl);
-    //     }, 1000)
-    //   }
-    // });
+    this.isSubscribed().then(data => {
+      if(data.success) {
+        this.getMDContents().then((data) => {
+          this.editorValue = data;
+          this.markdownLoaded = true;
+        });
+      } else {
+        setTimeout(()=> {
+          window.location.replace(data.redirectUrl);
+        }, 1000)
+      }
+    });
   },
 
   computed: {
