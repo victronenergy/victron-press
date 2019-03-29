@@ -10,6 +10,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use League\OAuth2\Client\Provider\Github as GitHubOAuth2Provider;
+Use League\Route\Http\Exception as HttpException;
 use League\Route\Http\Exception\ForbiddenException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Http\Exception\UnauthorizedException;
@@ -104,12 +105,8 @@ class Application implements RequestHandlerInterface
     {
         try {
             return $this->router->dispatch($request);
-        } catch (UnauthorizedException $e) {
-            return new TextResponse('401 ' . $e->getMessage(), 401);
-        } catch (ForbiddenException $e) {
-            return new TextResponse('403 ' . $e->getMessage(), 403);
-        } catch (NotFoundException $e) {
-            return new TextResponse('404 ' . $e->getMessage(), 404);
+        } catch (HttpException $e) {
+            return new TextResponse($e->getStatusCode() . ' ' . $e->getMessage(), $e->getStatusCode());
         }
     }
 
@@ -452,6 +449,10 @@ class Application implements RequestHandlerInterface
             }
             throw $e;
         }
+
+        // Retrieve user data from the session
+        $userName = $session->get('user_name');
+        $userEmail = $session->get('user_email');
 
         // Delete the markdown file
         $client->api('repo')->contents()->rm(
