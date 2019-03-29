@@ -9,13 +9,14 @@
     </div>
 
     <ClientOnly>
-      <div class="editor-container">
+      <div class="editor-container" 
+           v-if="editModeEnabled">
         <!-- <h3>{{pageTitle}}</h3> -->
-        <page-edit 
-          v-if="editModeEnabled"
-          ref="pageEdit"
-        >
-        </page-edit>
+        <page-create ref="pageCreate"/>
+
+        <div style="display: flex; align-items: center;">
+        <a class="button" @click="commitClicked()" v-if="editModeEnabled">Commit</a>
+      </div>
       </div>
     </ClientOnly>
   </div>
@@ -23,12 +24,12 @@
 
 <script>
 import Navbar from './Navbar.vue';
-import PageEdit from './PageEdit';
+import PageCreate from './PageCreate';
 import { resolvePage, normalize, outboundRE, endingSlashRE } from './util'
 
 
 export default {
-  components: { Navbar, PageEdit },
+  components: { Navbar, PageCreate },
   data() {
     return {
       editModeEnabled: false,
@@ -37,6 +38,9 @@ export default {
     }
   },
   methods: {
+    commitClicked() {
+      this.$refs.pageCreate.commit();
+    },
   },
   computed: {
     title() {
