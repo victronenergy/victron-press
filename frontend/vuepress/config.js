@@ -19,6 +19,11 @@ module.exports = {
         ],
     ],
     plugins: [require('./plugins/pdf')],
+    markdown: {
+        config: md => {
+            md.use(require('../markdown-it/markdown-it-floating-image'))
+        },
+    },
     themeConfig: {
         // Disable search
         search: false,
