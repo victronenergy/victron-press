@@ -2,9 +2,8 @@
   <div class="theme-container">
     <Navbar :sidebarToggleEnabled="false" />
 
-    <div class="content" v-if="!editModeEnabled">
+    <div class="content" v-if="!editModeEnabled && !hasSaved">
       <h1>{{title}}</h1>
-      <!-- <router-link to="/">{{copy}}</router-link> -->
       <a @click="editModeEnabled = true">{{copy}}</a>
     </div>
 
@@ -12,11 +11,19 @@
       <div class="editor-container" 
            v-if="editModeEnabled">
         <!-- <h3>{{pageTitle}}</h3> -->
-        <page-create ref="pageCreate"/>
+        <page-create
+          @saveSuccess="onHasSaved()"
+          ref="pageCreate"/>
 
         <div style="display: flex; align-items: center;">
-        <a class="button" @click="commitClicked()" v-if="editModeEnabled">Commit</a>
+          <a class="button" @click="commitClicked()" v-if="editModeEnabled">Commit</a>
+        </div>
       </div>
+      <div v-else-if="hasSaved"> 
+        <div class="tip custom-block save-success-block">
+          <p class="custom-block-title">Success</p>
+          <p>The page was created successfully. The documentation is now rebuilding and the page should be visible in a couple of minutes.</p>
+        </div>
       </div>
     </ClientOnly>
   </div>
@@ -41,6 +48,11 @@ export default {
     commitClicked() {
       this.$refs.pageCreate.commit();
     },
+    onHasSaved() {
+      this.hasSaved = true;
+      this.editModeEnabled = false;
+      console.log('not found says: Saved!')
+    }
   },
   computed: {
     title() {

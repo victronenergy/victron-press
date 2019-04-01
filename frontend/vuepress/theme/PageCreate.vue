@@ -114,12 +114,20 @@ export default {
         path += '.md'
       }
 
-      return axios.put(
-        path,
-        this.editorValue
+      return axios({
+          method: 'put',
+          url: path,
+          headers: {
+            'Commit-Message': `Created page '${path}'`
+          },
+          data: {
+            ...this.editorValue
+          }
+        }
       ).then(response => {
         if(response.status == 200 || response.status == 201 || response.status == 204) {
           this.saving = false;
+          this.createMode = false;
 
           this.$emit('saveSuccess', true); //deze zet ook de editmode weer op false.
         }

@@ -1,6 +1,24 @@
 <template>
   <div id="edit" ref="edit">
     <ClientOnly>
+
+      <modal @close="toggleCommitModal" v-if="commitModalVisible">
+        <h3 slot="header">Commit change</h3>
+        <div slot="body">
+          <p>Typ hier je commit message.</p>
+          <input type="text" placeholder="Commit message" v-model="customCommitMessage">
+
+        </div>
+
+        <div slot="footer" style="display: flex; justify-content: space-between; align-items: center;">
+          <a @click="toggleCommitModal">Cancel</a>
+          <a v-if="!saving" class="button" style="margin: 0;" :class="{ 'disabled': customCommitMessage.length === 0 }" @click="commit()">Commit</a>
+          <a v-if="saving" class="button disabled" style="margin: 0;">Saving...</a>
+        </div>
+      </modal>
+
+
+
       <editor
         ref="editor"
         v-if="markdownLoaded"
@@ -26,6 +44,7 @@ import 'tui-editor/dist/tui-editor.css';
 
 import 'codemirror/lib/codemirror.css';
 
+import Modal from './Modal';
 import { resolvePage, normalize, outboundRE, endingSlashRE } from './util'
 
 
@@ -33,6 +52,7 @@ export default {
   name: "PageEdit",
   components: {
     Editor: () => import('@toast-ui/vue-editor/src/Editor'), //dynamic vue import for ssr
+    Modal
   },
   data() {
     return {
@@ -65,8 +85,10 @@ export default {
           }
         }
       },
+      customCommitMessage: "",
       editorValue: "",
       markdownLoaded: false,
+      commitModalVisible: false,
       saving: false
     }
   },
@@ -89,7 +111,6 @@ export default {
     
   },
   mounted() {
-
     this.isSubscribed().then(data => {
       if(data.success) {
         this.getMDContents().then((data) => {
@@ -142,14 +163,15 @@ export default {
           return response.data;
         });
     },
+    toggleCommitModal() {
+      this.commitModalVisible = !this.commitModalVisible
+    },
     commit() {
       if(this.saving) return;
-
+      if (this.customCommitMessage.length === 0) return;
+      
       this.saving = true;
-
-
       console.log('this.$page ', this.$page);
-
       let path; 
       if(this.$page.path === "") { //page doesn't exist yet
         path = window.location.pathname;
@@ -163,11 +185,11 @@ export default {
         path += '.md'
       }
 
-
-
-      return axios.put(
-        path,
-        this.editorValue
+      return axios.put( path, this.editorValue, { 
+          headers: {
+          'Commit-Message': this.customCommitMessage
+          }
+        }
       ).then(response => {
         if(response.status == 200 || response.status == 201 || response.status == 204) {
           this.saving = false;

@@ -18,6 +18,14 @@ module.exports = {
             },
         ],
     ],
+      // markdown: {
+      //   config: md => {
+      //     md.set({
+      //       breaks: true
+      //     })
+      //     md.use(require('tui-editor/dist/tui-editor-extTable.js'))
+      //   }
+      // },
     plugins: [require('./plugins/pdf')],
     themeConfig: {
         // Disable search
@@ -37,7 +45,7 @@ module.exports = {
 
         // Header navigation items
         nav: [
-            {
+            { 
                 text: 'www.victronenergy.com',
                 link: 'https://victronenergy.com',
             },

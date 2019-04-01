@@ -216,7 +216,8 @@ export default {
       }
     },
     commitClicked() {
-      this.$refs.pageEdit.commit();
+      // this.$refs.pageEdit.commit();
+      this.$refs.pageEdit.toggleCommitModal();
     },
     setSaveSuccess(state) {
       this.saveSuccess = state;
