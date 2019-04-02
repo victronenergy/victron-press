@@ -13,6 +13,12 @@
       <p class="custom-block-title">Success</p>
       <p>The changes were saved successfully. The documentation is now rebuilding and your changes should be visible in a couple of minutes.</p>
     </div>
+    
+    
+    <div class="tip custom-block save-success-block" v-if="deleteSuccess">
+      <p class="custom-block-title">Success</p>
+      <p>This page was deleted successfully. The documentation is now rebuilding and your changes should be visible in a couple of minutes.</p>
+    </div>
 
 
     <modal @close="toggleDeleteModal" v-if="deleteModalVisible">
@@ -21,7 +27,6 @@
         <p>Are you sure you want to delete this page? It cannot be undone. Please type in the title of this page to confirm.</p>
         <p><strong>{{title}}</strong></p>
         <input type="text" placeholder="Type page title here" v-model="deleteConfirmationText">
-
       </div>
 
       <div slot="footer" style="display: flex; justify-content: space-between; align-items: center;">
@@ -108,7 +113,9 @@ export default {
       editModeEnabled: false,
       deleteModalVisible: false,
       saveSuccess: false,
-      deleteConfirmationText: null
+      deleteSuccess: false,
+      deleteConfirmationText: null,
+      isDeleting: false
     }
   },
 
@@ -132,7 +139,11 @@ export default {
     },
 
     title() {
-      return this.$page.title;
+      if(window) {
+        return window.location.pathname.split('/')[1].split('.')[0]; //a bit brittle...
+      } else {
+        return "no-title";
+      }
     },
 
     prev () {
@@ -196,7 +207,9 @@ export default {
 
   methods: {
     tryDelete() {
-      if(this.deleteConfirmationText === this.$page.title ) {
+      if(this.deleteConfirmationText === this.title ) {
+        this.isDeleting = true;
+
         let path = normalize(this.$page.path);
         if (endingSlashRE.test(path)) {
           path += 'README.md'
@@ -209,6 +222,10 @@ export default {
         /* Disabled for safety reasons, will enable once create page works */
         axios.delete(path).then((response) => {
           console.log('response: ', response);
+          this.editModeEnabled = false;
+          this.isDeleting = false;
+          this.deleteSuccess = true;
+          this.$emit('setSidebar', true);
           this.$router.push({});
         });
 

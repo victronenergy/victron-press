@@ -114,15 +114,10 @@ export default {
         path += '.md'
       }
 
-      return axios({
-          method: 'put',
-          url: path,
+      return axios.put(path, this.editorValue, {
           headers: {
             'Commit-Message': `Created page '${path}'`
           },
-          data: {
-            ...this.editorValue
-          }
         }
       ).then(response => {
         if(response.status == 200 || response.status == 201 || response.status == 204) {
@@ -139,7 +134,7 @@ export default {
 </script>
 
 <style>
-#edit {
+#create {
   margin: 0 auto;
   padding: 2rem 2.5rem;
 
@@ -148,6 +143,7 @@ export default {
 #tui-editor {
   height: calc(100vh - 300px);
   min-height: 600px;
+  
 }
 
 

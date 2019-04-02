@@ -15,11 +15,11 @@
           @saveSuccess="onHasSaved()"
           ref="pageCreate"/>
 
-        <div style="display: flex; align-items: center;">
-          <a class="button" @click="commitClicked()" v-if="editModeEnabled">Commit</a>
+        <div style="display: flex; align-items: center;" class="cta-container">
+          <a class="button" @click="commitClicked()" v-if="editModeEnabled">Publish page</a>
         </div>
       </div>
-      <div v-else-if="hasSaved"> 
+      <div v-else-if="hasSaved" class="save-success-container"> 
         <div class="tip custom-block save-success-block">
           <p class="custom-block-title">Success</p>
           <p>The page was created successfully. The documentation is now rebuilding and the page should be visible in a couple of minutes.</p>
@@ -83,5 +83,15 @@ export default {
 
 .editor-container {
   padding-top: 80px;
+}
+
+.save-success-container {
+  padding-top: 80px;
+}
+
+.cta-container {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem; 
 }
 </style>

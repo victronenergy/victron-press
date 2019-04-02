@@ -5,7 +5,7 @@
       <modal @close="toggleCommitModal" v-if="commitModalVisible">
         <h3 slot="header">Commit change</h3>
         <div slot="body">
-          <p>Typ hier je commit message.</p>
+          <p>Please write a short commit message about your changes.</p>
           <input type="text" placeholder="Commit message" v-model="customCommitMessage">
 
         </div>
@@ -137,6 +137,8 @@ export default {
 
   methods: {
     isSubscribed() {
+      console.log(this.$page);
+
       let path = normalize(this.$page.path);
       if (endingSlashRE.test(path)) {
         path += 'README.md'
