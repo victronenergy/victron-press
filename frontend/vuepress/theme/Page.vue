@@ -139,7 +139,7 @@ export default {
     },
 
     title() {
-      if(window) {
+      if(window) { //client only
         return window.location.pathname.split('/')[1].split('.')[0]; //a bit brittle...
       } else {
         return "no-title";
@@ -206,7 +206,22 @@ export default {
   },
 
   methods: {
+    isSubscribed() {
+      console.log(this.$page);
+      let path = normalize(this.$page.path);
+      if (endingSlashRE.test(path)) {
+        path += 'README.md'
+      } else {
+        path += '.md'
+      }
+      const url = '/api/v1/auth?file=' + path.split('/')[1];
+      return axios.get(url)
+        .then(response => {
+          return response.data;
+        });
+    },
     tryDelete() {
+      // this.isSubscribed();
       if(this.deleteConfirmationText === this.title ) {
         this.isDeleting = true;
 

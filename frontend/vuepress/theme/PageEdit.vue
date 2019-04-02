@@ -137,8 +137,6 @@ export default {
 
   methods: {
     isSubscribed() {
-      console.log(this.$page);
-
       let path = normalize(this.$page.path);
       if (endingSlashRE.test(path)) {
         path += 'README.md'
@@ -146,6 +144,8 @@ export default {
         path += '.md'
       }
       const url = '/api/v1/auth?file=' + path.split('/')[1];
+
+      console.log(url) // /api/v1/auth?file=TEST.md
 
       return axios.get(url)
         .then(response => {

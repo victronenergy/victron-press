@@ -21,7 +21,6 @@ import 'codemirror/lib/codemirror.css';
 
 import { resolvePage, normalize, outboundRE, endingSlashRE } from './util'
 
-
 export default {
   name: "PageCreates",
   components: {
@@ -81,6 +80,16 @@ export default {
     
   },
   mounted() {
+    this.isSubscribed().then((data) => {
+      console.log('dit is de data:', data)
+      if(data.success) {
+        console.log('proceed...')
+      } else {
+        setTimeout(()=> {
+          window.location.replace(data.redirectUrl);
+        }, 1000)
+      }
+    })
   },
 
   computed: {
@@ -94,6 +103,23 @@ export default {
   },
 
   methods: {
+    isSubscribed() {
+      let path = normalize(window.location.pathname.split('/')[1].split('.')[0]);
+
+      if (endingSlashRE.test(path)) {
+        path += 'README.md'
+      } else {
+        path += '.md'
+      }
+
+      const url = '/api/v1/auth?file=' + path; 
+      console.log('url: ', url);
+
+      return axios.get(url)
+        .then(response => {
+          return response.data;
+        });
+    },
     commit() {
         console.log('commit called in createpage!')
       if(this.saving) return;

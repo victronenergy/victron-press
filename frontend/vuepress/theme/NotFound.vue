@@ -44,6 +44,9 @@ export default {
       hasSaved: false
     }
   },
+  mounted() {
+    this.editModeEnabled = window.location.search.includes('editmode');
+  },
   methods: {
     commitClicked() {
       this.$refs.pageCreate.commit();
