@@ -29,7 +29,7 @@ module.exports = {
     plugins: [require('./plugins/pdf')],
     markdown: {
         config: md => {
-            md.use(require('../markdown-it/markdown-it-floating-image'))
+            md.use(require('../../frontend/markdown-it-plugins/markdown-it-floating-image'))
         },
     },
     themeConfig: {
@@ -50,7 +50,7 @@ module.exports = {
 
         // Header navigation items
         nav: [
-            { 
+            {
                 text: 'www.victronenergy.com',
                 link: 'https://victronenergy.com',
             },
