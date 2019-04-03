@@ -49,7 +49,7 @@
 
     <div class="page-edit">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
-        <a v-if="!editModeEnabled && !deleteSuccess" @click="doEdit()" rel="noopener noreferrer">{{ editLinkText }}</a>
+        <a v-if="!editModeEnabled && !deleteSuccess" @click="doEdit()" rel="noopener noreferrer">{{ translate('editLink') }}</a>
         <a v-else @click="stopEditing()" rel="noopener noreferrer">{{ translate('backLink') }}</a>
       </div>
 
