@@ -1,39 +1,39 @@
 <template>
   <div class="page">
     <div class="page-edit" v-if="editModeEnabled">
-      <a @click="stopEditing()" rel="noopener noreferrer">{{ backLinkText }}</a>
-
-      <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">{{ deleteLinkText }}</a>
+      <a @click="stopEditing()" rel="noopener noreferrer">{{translate('backLink')}}</a>
+      <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">{{translate('deleteLink')}}</a>
     </div>
  
     <slot name="top"/>
 
 
+
     <div class="tip custom-block save-success-block" v-if="saveSuccess">
-      <p class="custom-block-title">Success</p>
-      <p>The changes were saved successfully. The documentation is now rebuilding and your changes should be visible in a couple of minutes.</p>
+      <p class="custom-block-title">{{ translate('success') }}</p>
+      <p>{{ translate('saveSuccessMessage') }}</p>
     </div>
     
     
     <div class="tip custom-block save-success-block" v-if="deleteSuccess">
-      <p class="custom-block-title">Success</p>
-      <p>This page was deleted successfully. The documentation is now rebuilding and your changes should be visible in a couple of minutes.</p>
+      <p class="custom-block-title">{{ translate('success') }}</p>
+      <p>{{ translate('deleteSuccessMessage') }}</p>
     </div>
 
 
     <modal @close="toggleDeleteModal" v-if="deleteModalVisible">
-      <h3 slot="header">Delete page</h3>
+      <h3 slot="header">{{translate('deletePageModalTitle')}}</h3>
       <div slot="body">
-        <p>Are you sure you want to delete this page? It cannot be undone. Please type in the title of this page to confirm.</p>
+        <p>{{translate('deletePageModalCopy')}}</p>
         <p><strong>{{title}}</strong></p>
-        <input type="text" placeholder="Type page title here" v-model="deleteConfirmationText">
+        <input type="text" :placeholder="translate('deletePageModalPlaceholder')" v-model="deleteConfirmationText">
       </div>
 
       <div slot="footer" style="display: flex; justify-content: space-between; align-items: center;">
-        <a class="button danger" :class="{ 'disabled': deleteConfirmationText !== title }" @click="tryDelete">Delete this file</a>
-        <a @click="toggleDeleteModal">Cancel</a>
+        <a class="button danger" :class="{ 'disabled': deleteConfirmationText !== title }" @click="tryDelete">{{ translate('deletePageModalCTA') }}</a>
+        <a @click="toggleDeleteModal">{{ translate('cancel') }}</a>
       </div>
-    </modal>
+    </modal> 
 
 
     <ClientOnly v-if="editModeEnabled && !saveSuccess">
@@ -50,15 +50,15 @@
     <div class="page-edit">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
         <a v-if="!editModeEnabled && !deleteSuccess" @click="doEdit()" rel="noopener noreferrer">{{ editLinkText }}</a>
-        <a v-else @click="stopEditing()" rel="noopener noreferrer">{{backLinkText}}</a>
+        <a v-else @click="stopEditing()" rel="noopener noreferrer">{{ translate('backLink') }}</a>
       </div>
 
       <div style="display: flex; align-items: center;">
         <div class="last-updated" v-if="lastUpdated" >
-          <span class="prefix">{{ lastUpdatedText }}: </span>
+          <span class="prefix">{{ translate('lastUpdated') }}: </span>
           <span class="time">{{ lastUpdated }}</span>
         </div>
-        <a class="button" @click="commitClicked()" v-if="editModeEnabled">{{ commitButtonText }}</a>
+        <a class="button" @click="commitClicked()" v-if="editModeEnabled">{{ translate('commitButton') }}</a>
       </div>
     </div>
 
@@ -122,6 +122,7 @@ export default {
   components: { PageEdit, Modal },
 
   mounted() {
+    // this.translate('downloadAsPdf', 'Download as Pdfff');
     this.editModeEnabled = window.location.search.includes('editmode');
     if(this.editModeEnabled) {
       this.$emit('setSidebar', false);
@@ -167,42 +168,6 @@ export default {
         return resolveNext(this.$page, this.sidebarItems)
       }
     },
-
-    lastUpdatedText () {
-      return (
-        this.$themeLocaleConfig.lastUpdated ||
-        this.$site.themeConfig.lastUpdated ||
-        'Last Updated'
-      )
-    },
-    backLinkText () {
-      return (
-        this.$themeLocaleConfig.backLink ||
-        this.$site.themeConfig.backLink ||
-        'Back'
-      )
-    },
-    editLinkText () {
-      return (
-        this.$themeLocaleConfig.editLink ||
-        this.$site.themeConfig.editLink ||
-        'Edit this page'
-      )
-    },
-    deleteLinkText () {
-      return (
-        this.$themeLocaleConfig.deleteLink ||
-        this.$site.themeConfig.deleteLink ||
-        'Delete this page'
-      )
-    },
-    commitButtonText () {
-      return (
-        this.$themeLocaleConfig.commitButton ||
-        this.$site.themeConfig.commitButton ||
-        'Commit changes'
-      )
-    }
   },
 
   methods: {

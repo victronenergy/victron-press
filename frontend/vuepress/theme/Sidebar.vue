@@ -6,7 +6,7 @@
     <nav class="downloads" v-if="this.$route.path.length > 5">
       <div class="nav-item">
           <a class="sidebar-link" :href="this.$route.path.replace('html', 'pdf')">
-              <i class="sg-vrm-icon_44_file-16px"></i> Download as PDF
+              <i class="sg-vrm-icon_44_file-16px"></i> {{ translate('downloadAsPdf') }}
           </a>
       </div>
     </nav>

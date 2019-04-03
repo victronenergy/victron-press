@@ -18,14 +18,6 @@ module.exports = {
             },
         ],
     ],
-      // markdown: {
-      //   config: md => {
-      //     md.set({
-      //       breaks: true
-      //     })
-      //     md.use(require('tui-editor/dist/tui-editor-extTable.js'))
-      //   }
-      // },
     plugins: [require('./plugins/pdf')],
     markdown: {
         config: md => {
@@ -68,6 +60,15 @@ module.exports = {
                 commitButton: 'Commit changes',
                 pageDoesntExist: 'This page doesn\'t exist yet.',
                 wantToCreatePage: 'Do you want to create it?',
+                downloadAsPdf: 'Download as PDF',
+                success: 'Success',
+                saveSuccessMessage: 'The changes were saved successfully. The documentation is now rebuilding and your changes should be visible in a couple of minutes.',
+                deleteSuccessMessage: 'This page was deleted successfully. The documentation is now rebuilding and your changes should be visible in a couple of minutes.',
+                deletePageModalTitle: 'Delete page',
+                deletePageModalCopy: 'Are you sure you want to delete this page? It cannot be undone. Please type in the title of this page to confirm.',
+                deletePageModalPlaceholder: 'Type page title here',
+                deletePageModalCTA: 'Delete this file',
+                cancel: 'Cancel'
             },
             '/nl/': {
                 lang: "nl-NL",
