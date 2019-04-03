@@ -8,7 +8,7 @@
       :class="{ open }"
       @click="$emit('toggle')"
     >
-      <span>{{tableOfContentsText}}</span>
+      <span>{{ translate('tableOfContents') }}</span>
       <!-- <span>{{ item.title }}</span> -->
       <span
         class="arrow"
@@ -39,15 +39,6 @@ export default {
   name: 'SidebarGroup',
   props: ['item', 'first', 'open', 'collapsable'],
   components: { SidebarLink, DropdownTransition },
-  computed: {
-    tableOfContentsText() {
-      return (
-        this.$themeLocaleConfig.tableOfContents ||
-        this.$site.themeConfig.tableOfContents ||
-        `Table of contents`
-      )
-    }
-  }
 }
 </script>
 

@@ -68,7 +68,13 @@ module.exports = {
                 deletePageModalCopy: 'Are you sure you want to delete this page? It cannot be undone. Please type in the title of this page to confirm.',
                 deletePageModalPlaceholder: 'Type page title here',
                 deletePageModalCTA: 'Delete this file',
-                cancel: 'Cancel'
+                cancel: 'Cancel',
+                publishPage: 'Publish page',
+                publishPageSuccess: 'The page was created successfully. The documentation is now rebuilding and the page should be visible in a couple of minutes.',
+                saving: 'Saving...',
+                commit: 'Commit',
+                commitMesasgeHeader: 'Commit change',
+                commitMessageExplanation: 'Please write a short commit message about your changes.'
             },
             '/nl/': {
                 lang: "nl-NL",

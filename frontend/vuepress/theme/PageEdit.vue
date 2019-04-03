@@ -3,17 +3,16 @@
     <ClientOnly>
 
       <modal @close="toggleCommitModal" v-if="commitModalVisible">
-        <h3 slot="header">Commit change</h3>
+        <h3 slot="header">{{ translate('commitMesasgeHeader') }}</h3>
         <div slot="body">
-          <p>Please write a short commit message about your changes.</p>
+          <p>{{ translate('commitMessageExplanation') }}</p>
           <input type="text" placeholder="Commit message" v-model="customCommitMessage">
-
         </div>
 
         <div slot="footer" style="display: flex; justify-content: space-between; align-items: center;">
-          <a @click="toggleCommitModal">Cancel</a>
-          <a v-if="!saving" class="button" style="margin: 0;" :class="{ 'disabled': customCommitMessage.length === 0 }" @click="commit()">Commit</a>
-          <a v-if="saving" class="button disabled" style="margin: 0;">Saving...</a>
+          <a @click="toggleCommitModal">{{ translate('cancel') }}</a>
+          <a v-if="!saving" class="button" style="margin: 0;" :class="{ 'disabled': customCommitMessage.length === 0 }" @click="commit()">{{ translate('commit') }}</a>
+          <a v-if="saving" class="button disabled" style="margin: 0;">{{ translate('saving') }}</a>
         </div>
       </modal>
 

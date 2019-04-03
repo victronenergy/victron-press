@@ -3,8 +3,8 @@
     <Navbar :sidebarToggleEnabled="false" />
 
     <div class="content" v-if="!editModeEnabled && !hasSaved">
-      <h1>{{title}}</h1>
-      <a @click="editModeEnabled = true">{{copy}}</a>
+      <h1>{{ translate('pageDoesntExist') }}</h1>
+      <a @click="editModeEnabled = true">{{ translate('wantToCreatePage') }}</a>
     </div>
 
     <ClientOnly>
@@ -16,13 +16,13 @@
           ref="pageCreate"/>
 
         <div style="display: flex; align-items: center;" class="cta-container">
-          <a class="button" @click="commitClicked()" v-if="editModeEnabled">Publish page</a>
+          <a class="button" @click="commitClicked()" v-if="editModeEnabled">{{ translate('publishPage') }}</a>
         </div>
       </div>
       <div v-else-if="hasSaved" class="save-success-container"> 
         <div class="tip custom-block save-success-block">
-          <p class="custom-block-title">Success</p>
-          <p>The page was created successfully. The documentation is now rebuilding and the page should be visible in a couple of minutes.</p>
+          <p class="custom-block-title">{{ translate('success') }}</p>
+          <p>{{ translate('publishPageSuccess') }}</p>
         </div>
       </div>
     </ClientOnly>
@@ -58,12 +58,6 @@ export default {
     }
   },
   computed: {
-    title() {
-      return this.$themeLocaleConfig.pageDoesntExist;
-    },
-    copy() {
-      return this.$themeLocaleConfig.wantToCreatePage;
-    },
     pageTitle() {
       // const title = window.location.pathname; //Deze is goed!
     
