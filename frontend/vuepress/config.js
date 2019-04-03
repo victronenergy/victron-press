@@ -70,6 +70,7 @@ module.exports = {
                 wantToCreatePage: 'Do you want to create it?',
             },
             '/nl/': {
+                lang: "nl-NL",
                 tableOfContents: 'Inhoudsopgave',
                 repoLabel: 'Bijdragen',
                 lastUpdated: 'Laatst bijgewerkt',

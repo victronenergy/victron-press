@@ -5,7 +5,7 @@
 
       <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">{{ deleteLinkText }}</a>
     </div>
-
+ 
     <slot name="top"/>
 
 
@@ -49,7 +49,7 @@
 
     <div class="page-edit">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
-        <a v-if="!editModeEnabled" @click="doEdit()" rel="noopener noreferrer">{{ editLinkText }}</a>
+        <a v-if="!editModeEnabled && !deleteSuccess" @click="doEdit()" rel="noopener noreferrer">{{ editLinkText }}</a>
         <a v-else @click="stopEditing()" rel="noopener noreferrer">{{backLinkText}}</a>
       </div>
 
