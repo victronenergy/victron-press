@@ -10,7 +10,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use League\OAuth2\Client\Provider\Github as GitHubOAuth2Provider;
-Use League\Route\Http\Exception as HttpException;
+use League\Route\Http\Exception as HttpException;
 use League\Route\Http\Exception\ForbiddenException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Http\Exception\UnauthorizedException;
@@ -71,7 +71,7 @@ class Application implements RequestHandlerInterface
             'GITHUB_TOKEN',
         ] as $envVariable) {
             if (empty(getenv($envVariable))) {
-                throw InvalidArgumentException('Missing required environment variable ' . $envVariable);
+                throw new \InvalidArgumentException('Missing required environment variable ' . $envVariable);
             }
         }
 
@@ -270,11 +270,17 @@ class Application implements RequestHandlerInterface
 
         // If the contents are already included, just return those
         if (isset($file['content']) && $file['encoding'] === 'base64') {
-            return new TextResponse(\base64_decode($file['content']), 200, ['Content-Type' => 'text/markdown; charset=UTF-8']);
+            return new TextResponse(
+                base64_decode($file['content']),
+                200,
+                ['Content-Type' => 'text/markdown; charset=UTF-8']
+            );
         }
 
         // Else, download and return the file contents
-        return (new GuzzleClient())->request('GET', $file['download_url'])->withHeader('Content-Type', 'text/markdown; charset=UTF-8');
+        return (new GuzzleClient())->request('GET', $file['download_url'])
+            ->withHeader('Content-Type', 'text/markdown; charset=UTF-8')
+        ;
     }
 
     /**
