@@ -221,9 +221,15 @@ export default {
       this.stopEditing();
     },
     tryEdit() {
-        this.isSubscribed().then(data => {
-          console.log(data)
-        });
+      this.isSubscribed().then(data => {
+        if(data.success === true) {
+          console.log('ik keur het goed.')
+          this.doEdit();
+        } else {
+          this.$router.push({ name: 'explanation' });
+          console.log('force block on dthat snibba')
+        }
+      }); 
     },
     doEdit() {
       this.saveSuccess = false;

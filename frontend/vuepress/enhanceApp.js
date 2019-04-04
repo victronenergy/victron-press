@@ -1,6 +1,5 @@
-import Explanation from './theme/Explanation.vue';
-console.log('Explanation: ', Explanation);
-
+import Unauthorized from './theme/Unauthorized.vue';
+import Forbidden from './theme/Forbidden.vue';
 
 const mixin = {
   methods: {
@@ -25,8 +24,14 @@ export default ({
   Vue.mixin(mixin);
 
   router.addRoutes([{
-    name: 'explanation',
-    path: '/explanation.html',
-    component: Explanation
-  }])
+    name: 'unauthorized',
+    path: '/401.html',
+    component: Unauthorized
+  },
+  {
+    name: 'forbidden',
+    path: '/403.html',
+    component: Forbidden
+  } 
+  ])
 }
