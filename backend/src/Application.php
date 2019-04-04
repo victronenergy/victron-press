@@ -56,6 +56,13 @@ class Application implements RequestHandlerInterface
     protected $router;
 
     /**
+     * Configuration values.
+     *
+     * @var array
+     */
+    protected $config = [];
+
+    /**
      * Constructs a new application instance.
      */
     public function __construct()
@@ -70,7 +77,8 @@ class Application implements RequestHandlerInterface
             'GITHUB_BRANCH',
             'GITHUB_TOKEN',
         ] as $envVariable) {
-            if (empty(getenv($envVariable))) {
+            $this->config[$envVariable] = getenv($envVariable);
+            if (empty($this->config[$envVariable])) {
                 throw new \InvalidArgumentException('Missing required environment variable ' . $envVariable);
             }
         }
@@ -129,8 +137,8 @@ class Application implements RequestHandlerInterface
 
             // GitHub OAuth2 provider
             $provider = new GitHubOAuth2Provider([
-                'clientId'     => getenv('OAUTH_CLIENT_ID'),
-                'clientSecret' => getenv('OAUTH_CLIENT_SECRET'),
+                'clientId'     => $this->config['OAUTH_CLIENT_ID'],
+                'clientSecret' => $this->config['OAUTH_CLIENT_SECRET'],
             ]);
 
             // Generate a redirect URI
@@ -161,8 +169,8 @@ class Application implements RequestHandlerInterface
 
         // GitHub OAuth2 provider
         $provider = new GitHubOAuth2Provider([
-            'clientId'     => getenv('OAUTH_CLIENT_ID'),
-            'clientSecret' => getenv('OAUTH_CLIENT_SECRET'),
+            'clientId'     => $this->config['OAUTH_CLIENT_ID'],
+            'clientSecret' => $this->config['OAUTH_CLIENT_SECRET'],
         ]);
 
         // Try to get an access token (using the authorization code grant)
@@ -181,19 +189,20 @@ class Application implements RequestHandlerInterface
 
         // Only check access using the GitHub API if the user is not the owner,
         // because the GitHub API considers the owner not to be a collaborator
-        if ($userName !== getenv('GITHUB_USER')) {
+        if ($userName !== $this->config['GITHUB_USER']) {
             // Use the global application token to check if the logged in user has access to the project
             $client = new GithubClient();
-            $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
+            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
             try {
                 (/** @var \Github\Api\Repo */ $api = $client->api('repo'))->collaborators()->check(
-                    getenv('GITHUB_USER'),
-                    getenv('GITHUB_REPO'),
+                    $this->config['GITHUB_USER'],
+                    $this->config['GITHUB_REPO'],
                     $userName
                 );
             } catch (\Exception $e) {
                 throw new ForbiddenException(
-                    $userName . ' is not a collaborator on ' . getenv('GITHUB_USER') . '/' . getenv('GITHUB_REPO'),
+                    $userName . ' is not a collaborator on ' .
+                        $this->config['GITHUB_USER'] . '/' . $this->config['GITHUB_REPO'],
                     $e
                 );
             }
@@ -254,12 +263,12 @@ class Application implements RequestHandlerInterface
         // TODO: sanity check the path
         try {
             $client = new GithubClient();
-            $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
+            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
             $file = $client->api('repo')->contents()->show(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
                 $filePath,
-                getenv('GITHUB_BRANCH')
+                $this->config['GITHUB_BRANCH']
             );
         } catch (\Exception $e) {
             if ($e->getCode() === 404) {
@@ -301,12 +310,12 @@ class Application implements RequestHandlerInterface
         $file = null;
         try {
             $client = new GithubClient();
-            $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
+            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
             $file = $client->api('repo')->contents()->show(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
                 $filePath,
-                getenv('GITHUB_BRANCH')
+                $this->config['GITHUB_BRANCH']
             );
         } catch (\Exception $e) {
             if ($e->getCode() !== 404) {
@@ -342,9 +351,9 @@ class Application implements RequestHandlerInterface
         if (!empty($images_to_upload)) {
             // Get latest commit SHA
             $commits = $client->api('repo')->commits()->all(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
-                ['sha' => getenv('GITHUB_BRANCH')]
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
+                ['sha' => $this->config['GITHUB_BRANCH']]
             );
             $latest_sha = $commits[0]['sha'];
 
@@ -352,8 +361,8 @@ class Application implements RequestHandlerInterface
             $branch = 'heads/images' . time();
             $reference = 'refs/' . $branch;
             $client->api('gitData')->references()->create(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
                 ['ref' => $reference, 'sha' => $latest_sha]
             );
 
@@ -361,8 +370,8 @@ class Application implements RequestHandlerInterface
             foreach ($images_to_upload as $image) {
                 $image_path = 'images/' . $image;
                 $client->api('repo')->contents()->create(
-                    getenv('GITHUB_USER'),
-                    getenv('GITHUB_REPO'),
+                    $this->config['GITHUB_USER'],
+                    $this->config['GITHUB_REPO'],
                     $image_path,
                     $this->filesystem->read($image),
                     'Added image ' . $image_path . ' for ' . $filePath,
@@ -375,23 +384,23 @@ class Application implements RequestHandlerInterface
         // Commit Markdown file
         if ($file === null) {
             $client->api('repo')->contents()->create(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
                 $filePath,
                 $contents,
                 $commitMessage ?? ('Created ' . $filePath . ' via web editor'),
-                getenv('GITHUB_BRANCH'),
+                $this->config['GITHUB_BRANCH'],
                 ['name' => $userName, 'email' => $userEmail]
             );
         } else {
             $client->api('repo')->contents()->update(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
                 $filePath,
                 $contents,
                 $commitMessage ?? ('Updated ' . $filePath . ' via web editor'),
                 $file['sha'],
-                getenv('GITHUB_BRANCH'),
+                $this->config['GITHUB_BRANCH'],
                 ['name' => $userName, 'email' => $userEmail]
             );
         }
@@ -399,17 +408,17 @@ class Application implements RequestHandlerInterface
         if (!empty($images_to_upload)) {
             // Merge image branch into master
             $client->api('repo')->merge(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
-                getenv('GITHUB_BRANCH'),
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
+                $this->config['GITHUB_BRANCH'],
                 $branch,
                 'merge ' . $branch . ' into master.'
             );
 
             // Delete image branch
             $client->api('gitData')->references()->remove(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
                 $branch
             );
 
@@ -442,12 +451,12 @@ class Application implements RequestHandlerInterface
         // TODO: sanity check the path
         try {
             $client = new GithubClient();
-            $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
+            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
             $file = $client->api('repo')->contents()->show(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
                 $filePath,
-                getenv('GITHUB_BRANCH')
+                $this->config['GITHUB_BRANCH']
             );
         } catch (\Exception $e) {
             if ($e->getCode() === 404) {
@@ -462,12 +471,12 @@ class Application implements RequestHandlerInterface
 
         // Delete the markdown file
         $client->api('repo')->contents()->rm(
-            getenv('GITHUB_USER'),
-            getenv('GITHUB_REPO'),
+            $this->config['GITHUB_USER'],
+            $this->config['GITHUB_REPO'],
             $filePath,
             'Removed ' . $filePath . ' via web editor',
             $file['sha'],
-            getenv('GITHUB_BRANCH'),
+            $this->config['GITHUB_BRANCH'],
             ['name' => $userName, 'email' => $userEmail]
         );
 
@@ -500,9 +509,13 @@ class Application implements RequestHandlerInterface
             if ($session->has('images')) {
                 foreach ($session->get('images') as $image) {
                     if (('images/' . $image) === $filePath) {
-                        return new TextResponse($this->filesystem->read($image), 200, [
-                            'Content-Type' => $mimeType,
-                        ]);
+                        if ($fileContent = $this->filesystem->read($image)) {
+                            return new TextResponse($fileContent, 200, [
+                                'Content-Type' => $mimeType,
+                            ]);
+                        }
+                        // Image was previously uploaded but no longer on disk
+                        // TODO: Handle this error
                     }
                 }
             }
@@ -511,12 +524,12 @@ class Application implements RequestHandlerInterface
         // Retrieve the file information from GitHub
         try {
             $client = new GithubClient();
-            $client->authenticate(getenv('GITHUB_TOKEN'), null, GithubClient::AUTH_URL_TOKEN);
+            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
             $file = $client->api('repo')->contents()->show(
-                getenv('GITHUB_USER'),
-                getenv('GITHUB_REPO'),
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
                 $filePath,
-                getenv('GITHUB_BRANCH')
+                $this->config['GITHUB_BRANCH']
             );
         } catch (\Exception $e) {
             if ($e->getCode() === 404) {
