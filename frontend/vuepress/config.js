@@ -74,7 +74,10 @@ module.exports = {
                 saving: 'Saving...',
                 commit: 'Commit',
                 commitMesasgeHeader: 'Commit change',
-                commitMessageExplanation: 'Please write a short commit message about your changes.'
+                commitMessageExplanation: 'Please write a short commit message about your changes.',
+                unauthorizedHeader: 'Contribute to Victron Documentation',
+                unauthorizedCopy: 'To make changes to the Victron Documentation, your must give Victron access to your Github account.',
+                continue: 'Continue'
             },
             '/nl/': {
                 lang: "nl-NL",

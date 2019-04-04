@@ -26,11 +26,13 @@ export default ({
   router.addRoutes([{
     name: 'unauthorized',
     path: '/401.html',
+    props:  true,
     component: Unauthorized
-  },
+  },  
   {
     name: 'forbidden',
     path: '/403.html',
+    // props: { redirectLink },
     component: Forbidden
   } 
   ])

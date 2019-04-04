@@ -49,7 +49,7 @@
 
     <div class="page-edit">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
-        <a v-if="!editModeEnabled && !deleteSuccess" @click="tryEdit()" rel="noopener noreferrer">{{ translate('editLink') }}</a>
+        <a v-if="!editModeEnabled && !deleteSuccess" @click="tryEdit" rel="noopener noreferrer">{{ translate('editLink') }}</a>
         <a v-else @click="stopEditing()" rel="noopener noreferrer">{{ translate('backLink') }}</a>
       </div>
 
@@ -172,7 +172,6 @@ export default {
 
   methods: {
     isSubscribed() {
-      console.log(this.$page);
       let path = normalize(this.$page.path);
       if (endingSlashRE.test(path)) {
         path += 'README.md'
@@ -226,8 +225,8 @@ export default {
           console.log('ik keur het goed.')
           this.doEdit();
         } else {
-          this.$router.push({ name: 'explanation' });
           console.log('force block on dthat snibba')
+          this.$router.push({ name: 'unauthorized', props: data });
         }
       }); 
     },
