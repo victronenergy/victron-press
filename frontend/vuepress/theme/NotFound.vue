@@ -9,7 +9,7 @@
 
     {{editModeEnabled}}
 
-    <router-link :to="{ name: 'berend' }">go!</router-link>
+    
     <!-- <router-view></router-view> -->
 
 

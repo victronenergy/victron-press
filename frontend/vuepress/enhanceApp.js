@@ -25,7 +25,7 @@ export default ({
   Vue.mixin(mixin);
 
   router.addRoutes([{
-    name: 'berend',
+    name: 'explanation',
     path: '/explanation.html',
     component: Explanation
   }])
