@@ -87,7 +87,22 @@ module.exports = {
                 deleteLink: 'Verwijder deze pagina',
                 commitButton: 'Wijzigingen opslaan',
                 pageDoesntExist: 'Deze pagina bestaat nog niet.',
-                wantToCreatePage: 'Wil je hem aanmaken?',
+                wantToCreatePage: 'Wilt u hem aanmaken?',
+                downloadAsPdf: 'Download als PDF',
+                success: 'Succes',
+                saveSuccessMessage: 'De veranderingen zijn succesvol opgeslagen. De documentatie is nu aan het herbouwen en de veranderingen zouden over enkele minuten zichtbaar moeten zijn.',
+                deleteSuccessMessage: 'Deze pagina is succesvol verwijderd. De documentatie is nu aan het herbouwen en de veranderingen zouden over enkele minuten zichtbaar moeten zijn.',
+                deletePageModalTitle: 'Verwijder pagina',
+                deletePageModalCopy: 'Weet u zeker dat u deze pagina wilt verwijderen? Dit kan niet ongedaan gemaakt worden. Typ de titel van deze pagina over om te bevestigen.',
+                deletePageModalPlaceholder: 'Typ paginatitel hier',
+                deletePageModalCTA: 'Verwijder deze pagina',
+                cancel: 'Annuleren',
+                publishPage: 'Pagina publiceren',
+                publishPageSuccess: 'De pagina is succesvol aangemaakt. De documentatie is nu aan het herbouwen en de veranderingen zouden over enkele minuten zichtbaar moeten zijn.',
+                saving: 'Opslaan...',
+                commit: 'Commit',
+                commitMesasgeHeader: 'Commit verandering',
+                commitMessageExplanation: 'Schrijf een korte commit message over uw veranderingen.'
             }
         }
     },

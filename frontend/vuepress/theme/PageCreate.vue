@@ -151,6 +151,7 @@ export default {
           this.createMode = false;
 
           this.$emit('saveSuccess', true); //deze zet ook de editmode weer op false.
+          this.$router.push({});
         }
         console.log('posted content, response:', response)
       })
