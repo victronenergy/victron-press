@@ -1,3 +1,7 @@
+import Explanation from './theme/Explanation.vue';
+console.log('Explanation: ', Explanation);
+
+
 const mixin = {
   methods: {
     translate(input) {
@@ -15,8 +19,14 @@ const mixin = {
 export default ({
   Vue, // the version of Vue being used in the VuePress app
   // options, // the options for the root Vue instance
-  // router, // the router instance for the app
+  router, // the router instance for the app
   // siteData // site metadata
 }) => {
-  Vue.mixin(mixin)
+  Vue.mixin(mixin);
+
+  router.addRoutes([{
+    name: 'berend',
+    path: '/explanation.html',
+    component: Explanation
+  }])
 }

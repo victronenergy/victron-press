@@ -7,6 +7,12 @@
       <a @click="editModeEnabled = true">{{ translate('wantToCreatePage') }}</a>
     </div>
 
+    {{editModeEnabled}}
+
+    <router-link :to="{ name: 'berend' }">go!</router-link>
+    <!-- <router-view></router-view> -->
+
+
     <ClientOnly>
       <div class="editor-container" 
            v-if="editModeEnabled">

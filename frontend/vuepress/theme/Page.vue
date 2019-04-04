@@ -49,7 +49,7 @@
 
     <div class="page-edit">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
-        <a v-if="!editModeEnabled && !deleteSuccess" @click="doEdit()" rel="noopener noreferrer">{{ translate('editLink') }}</a>
+        <a v-if="!editModeEnabled && !deleteSuccess" @click="tryEdit()" rel="noopener noreferrer">{{ translate('editLink') }}</a>
         <a v-else @click="stopEditing()" rel="noopener noreferrer">{{ translate('backLink') }}</a>
       </div>
 
@@ -219,6 +219,11 @@ export default {
     setSaveSuccess(state) {
       this.saveSuccess = state;
       this.stopEditing();
+    },
+    tryEdit() {
+        this.isSubscribed().then(data => {
+          console.log(data)
+        });
     },
     doEdit() {
       this.saveSuccess = false;
