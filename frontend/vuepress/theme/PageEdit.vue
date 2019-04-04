@@ -16,18 +16,18 @@
         </div>
       </modal>
 
-
-
       <editor
         ref="editor"
-        v-if="markdownLoaded"
+        v-if="editorLoadable"
+        v-show="editorVisible"
         :options="editorOptions"
+        @load="onEditorLoad"
         v-model="editorValue"
         id="tui-editor"
         height="calc(100vh - 350px)"
         previewStyle="vertical"
       />
-      <div v-else>
+      <div v-show="!editorVisible">
         <p style="max-width: 740px; margin: 0 auto;">
           <span class="spinner"><span></span><span></span><span></span><span></span></span>
           {{ loadingMarkdownText }}
@@ -86,40 +86,62 @@ export default {
       },
       customCommitMessage: "",
       editorValue: "",
-      markdownLoaded: false,
+      editorLoadable: false,
+      editorVisible: false,
       commitModalVisible: false,
       saving: false
     }
   },
   beforeMount() {
-    const importScrollSync = new Promise(resolve => {
-      return import('tui-editor/dist/tui-editor-extScrollSync.js').then(({ default: scrollSync }) => {
-        resolve(scrollSync);
-      });
-    });
+    // Load TUI.Editor plugins
+    import('tui-editor/dist/tui-editor-extScrollSync.js');
+    import('tui-editor/dist/tui-editor-extTable.js');
 
-    const importTable = new Promise(resolve => {
-      return import('tui-editor/dist/tui-editor-extTable.js').then(({ default: extTable }) => {
-        resolve(extTable);
-      });
+    // Load markdown-it plugins (to be attached later in onEditorLoad)
+    this.editorMarkdownPlugins = [
+      // Plugins used by VuePress
+      // import('vuepress/lib/markdown/component'),
+      // import('vuepress/lib/markdown/highlightLines'),
+      // import('vuepress/lib/markdown/preWrapper'),
+      // import('vuepress/lib/markdown/snippet'),
+      // import('vuepress/lib/markdown/hoist'),
+      // import('vuepress/lib/markdown/containers'),
+      import('markdown-it-emoji'),
+      // Custom plugins
+      import('../../markdown-it-plugins/markdown-it-floating-image.js'),
+    ];
+    this.editorLoaded = new Promise((resolve, reject) => {
+      this.editorLoadedResolve = resolve;
     });
-
-    Promise.all([importScrollSync, importTable])
   },
   created(){
-    
+
   },
   mounted() {
+    // First, check if we're authorized
     this.isSubscribed().then(data => {
       if(data.success) {
+        // Start loading the editor
+        this.editorLoadable = true;
+
+        // Retrieve the raw Markdown contents from the server
         this.getMDContents().then((data) => {
-          this.editorValue = data;
-          this.markdownLoaded = true;
+          // Wait for the editor to load
+          this.editorLoaded
+            .then((editor) => {
+              // Load all markdown-it plugins into the editor
+              Promise.all(this.editorMarkdownPlugins.map(x => x.then(({ default: plugin }) => {
+                editor.constructor.markdownit.use(plugin);
+                editor.constructor.markdownitHighlight.use(plugin);
+              }))).then(() => {
+                // Editor is ready, load the content and show
+                this.editorValue = data;
+                this.editorVisible = true;
+              });
+            })
         });
       } else {
-        setTimeout(()=> {
           window.location.replace(data.redirectUrl);
-        }, 1000)
       }
     });
   },
@@ -135,6 +157,9 @@ export default {
   },
 
   methods: {
+    onEditorLoad(editor) {
+      this.editorLoadedResolve(editor);
+    },
     isSubscribed() {
       let path = normalize(this.$page.path);
       if (endingSlashRE.test(path)) {
@@ -142,11 +167,7 @@ export default {
       } else {
         path += '.md'
       }
-      const url = '/api/v1/auth?file=' + path.split('/')[1];
-
-      console.log(url) // /api/v1/auth?file=TEST.md
-
-      return axios.get(url)
+      return axios.get('/api/v1/auth?file=' + encodeURIComponent(path))
         .then(response => {
           return response.data;
         });
@@ -158,7 +179,6 @@ export default {
       } else {
         path += '.md'
       }
-
       return axios.get(path)
         .then(response => {
           return response.data;
@@ -170,10 +190,10 @@ export default {
     commit() {
       if(this.saving) return;
       if (this.customCommitMessage.length === 0) return;
-      
+
       this.saving = true;
       console.log('this.$page ', this.$page);
-      let path; 
+      let path;
       if(this.$page.path === "") { //page doesn't exist yet
         path = window.location.pathname;
       } else {
@@ -186,7 +206,7 @@ export default {
         path += '.md'
       }
 
-      return axios.put( path, this.editorValue, { 
+      return axios.put( path, this.editorValue, {
           headers: {
           'Commit-Message': this.customCommitMessage
           }
