@@ -7,6 +7,12 @@
       <a @click="editModeEnabled = true">{{ translate('wantToCreatePage') }}</a>
     </div>
 
+    {{editModeEnabled}}
+
+    
+    <!-- <router-view></router-view> -->
+
+
     <ClientOnly>
       <div class="editor-container" 
            v-if="editModeEnabled">
@@ -54,7 +60,6 @@ export default {
     onHasSaved() {
       this.hasSaved = true;
       this.editModeEnabled = false;
-      console.log('not found says: Saved!')
     }
   },
   computed: {

@@ -49,7 +49,7 @@
 
     <div class="page-edit">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
-        <a v-if="!editModeEnabled && !deleteSuccess" @click="doEdit()" rel="noopener noreferrer">{{ translate('editLink') }}</a>
+        <a v-if="!editModeEnabled && !deleteSuccess" @click="tryEdit" rel="noopener noreferrer">{{ translate('editLink') }}</a>
         <a v-else @click="stopEditing()" rel="noopener noreferrer">{{ translate('backLink') }}</a>
       </div>
 
@@ -172,7 +172,6 @@ export default {
 
   methods: {
     isSubscribed() {
-      console.log(this.$page);
       let path = normalize(this.$page.path);
       if (endingSlashRE.test(path)) {
         path += 'README.md'
@@ -201,7 +200,6 @@ export default {
 
         /* Disabled for safety reasons, will enable once create page works */
         axios.delete(path).then((response) => {
-          console.log('response: ', response);
           this.editModeEnabled = false;
           this.isDeleting = false;
           this.deleteSuccess = true;
@@ -219,6 +217,15 @@ export default {
     setSaveSuccess(state) {
       this.saveSuccess = state;
       this.stopEditing();
+    },
+    tryEdit() {
+      this.isSubscribed().then(data => {
+        if(data.success === true) {
+          this.doEdit();
+        } else {
+          this.$router.push({ name: 'unauthorized', query: { redirectUrl: data.redirectUrl } });
+        }
+      }); 
     },
     doEdit() {
       this.saveSuccess = false;
