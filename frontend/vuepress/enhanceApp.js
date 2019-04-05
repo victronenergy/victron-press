@@ -34,7 +34,7 @@ export default ({ Vue, options, router, siteData }) => {
     ]);
 
     /* global process */
-    if (process.env.SENTRY_DSN_FRONTEND) {
+    if (process && process.env && process.env.SENTRY_DSN_FRONTEND) {
         Sentry.init({
             dsn: process.env.SENTRY_DSN_FRONTEND,
             integrations: [
