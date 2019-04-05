@@ -1,9 +1,12 @@
-import Unauthorized from './theme/Unauthorized.vue';
 import Forbidden from './theme/Forbidden.vue';
+import Unauthorized from './theme/Unauthorized.vue';
+import Tooltip from 'vue-directive-tooltip';
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
 
 export default ({ Vue, options, router, siteData }) => {
+    Vue.use(Tooltip);
+
     Vue.mixin({
         methods: {
             translate(input) {

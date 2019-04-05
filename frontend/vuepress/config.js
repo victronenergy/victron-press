@@ -26,7 +26,15 @@ module.exports = {
     plugins: [require('./plugins/pdf')],
     markdown: {
         config: md => {
-            md.use(require('../../frontend/markdown-it-plugins/markdown-it-floating-image'))
+            md.use(require('markdown-it-abbr'));
+            md.use(require('../../frontend/markdown-it-plugins/floating-image'));
+            md.use(require('../../frontend/markdown-it-plugins/predefined-tooltip'), {
+                tooltips: {
+                    ':CCGX': "'Color Control GX'",
+                    ':data': "'something something tooltip'",
+                },
+                position: 'top',
+            });
         },
     },
     themeConfig: {
