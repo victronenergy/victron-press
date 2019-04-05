@@ -13,6 +13,11 @@
       <p class="custom-block-title">{{ translate('success') }}</p>
       <p>{{ translate('saveSuccessMessage') }}</p>
     </div>
+
+    <div class="tip custom-block save-success-block danger" v-if="saveFailed">
+      <p class="custom-block-title">{{ translate('saveFailedHeader') }}</p>
+      <p>{{ translate('saveFailedCopy') }}</p>
+    </div>
     
     
     <div class="tip custom-block save-success-block" v-if="deleteSuccess">
@@ -36,10 +41,11 @@
     </modal> 
 
 
-    <ClientOnly v-if="editModeEnabled && !saveSuccess">
+    <ClientOnly v-if="editModeEnabled && !saveSuccess && !saveFailed">
       <page-edit
         ref="pageEdit"
         @saveSuccess="setSaveSuccess"
+        @saveFailed="setSaveFailed"
       >
       </page-edit>
     </ClientOnly>
@@ -113,6 +119,7 @@ export default {
       editModeEnabled: false,
       deleteModalVisible: false,
       saveSuccess: false,
+      saveFailed: false,
       deleteSuccess: false,
       deleteConfirmationText: null,
       isDeleting: false
@@ -218,6 +225,10 @@ export default {
       this.saveSuccess = state;
       this.stopEditing();
     },
+    setSaveFailed(state) {
+     this.saveFailed = state;
+      this.stopEditing(); 
+    },
     tryEdit() {
       this.isSubscribed().then(data => {
         if(data.success === true) {
@@ -229,6 +240,7 @@ export default {
     },
     doEdit() {
       this.saveSuccess = false;
+      this.saveFailed = false,
       this.editModeEnabled = true;
       this.$emit('setSidebar', false);
 

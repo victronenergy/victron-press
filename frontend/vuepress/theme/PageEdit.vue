@@ -218,7 +218,10 @@ export default {
           this.$emit('saveSuccess', true); //deze zet ook de editmode weer op false.
         }
         console.log('posted content, response:', response)
-      })
+      }).catch(response => {
+        this.saving = false;
+        this.$emit('saveFailed', true);
+      });
     }
   },
 }

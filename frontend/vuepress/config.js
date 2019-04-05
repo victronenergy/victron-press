@@ -80,6 +80,8 @@ module.exports = {
                 continue: 'Continue',
                 forbiddenHeader: 'You don\'t have the right permissions',
                 forbiddenCopy: 'You\'ve successfully logged into Github, but your account doesn\'t have the required rights. Please contact Victron Energy and ask them to give collaborator rights to your Github account.',
+                saveFailedHeader: 'Failed to edit the page',
+                saveFailedCopy: 'Something went wrong while editing this page. Please try again later.'
             },
             '/nl/': {
                 lang: "nl-NL",
