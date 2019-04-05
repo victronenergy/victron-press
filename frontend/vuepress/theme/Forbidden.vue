@@ -19,3 +19,14 @@ export default {
   }
 }
 </script>
+
+
+<style scoped>
+
+.content {
+  text-align: center;
+  padding-top: 100px;
+}
+
+</style>
+
