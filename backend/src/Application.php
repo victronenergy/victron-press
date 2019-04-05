@@ -128,6 +128,9 @@ class Application implements RequestHandlerInterface
             'success' => $session->has('user_name'),
         ];
         if (!$result['success']) {
+            // Regenerate the session
+            $session = $session->regenerate();
+
             // If a file was specified, save it in the session so we may
             // redirect the user back there once they completed the log in
             if (!empty($request->getQueryParams()['file'])) {
