@@ -1,9 +1,12 @@
-import Unauthorized from './theme/Unauthorized.vue';
 import Forbidden from './theme/Forbidden.vue';
+import Unauthorized from './theme/Unauthorized.vue';
+import Tooltip from 'vue-directive-tooltip';
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
 
 export default ({ Vue, options, router, siteData }) => {
+    Vue.use(Tooltip);
+
     Vue.mixin({
         methods: {
             translate(input) {
@@ -34,15 +37,21 @@ export default ({ Vue, options, router, siteData }) => {
     ]);
 
     /* global process */
-    if (process.env.SENTRY_DSN_FRONTEND) {
-        Sentry.init({
-            dsn: process.env.SENTRY_DSN_FRONTEND,
-            integrations: [
-                new SentryIntegrations.Vue({
-                    Vue,
-                    attachProps: true,
-                }),
-            ],
-        });
+    try {
+        if (process.env.SENTRY_DSN_FRONTEND) {
+            Sentry.init({
+                dsn: process.env.SENTRY_DSN_FRONTEND,
+                integrations: [
+                    new SentryIntegrations.Vue({
+                        Vue,
+                        attachProps: true,
+                    }),
+                ],
+            });
+        }
+    } catch (e) {
+        if (!(e instanceof ReferenceError)) {
+            throw e;
+        }
     }
 };

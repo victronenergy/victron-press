@@ -8,7 +8,7 @@
     </div>
 
     <ClientOnly>
-      <div class="editor-container" 
+      <div class="editor-container"
            v-if="editModeEnabled">
         <!-- <h3>{{pageTitle}}</h3> -->
         <page-create
@@ -19,7 +19,7 @@
           <a class="button" @click="commitClicked()" v-if="editModeEnabled">{{ translate('publishPage') }}</a>
         </div>
       </div>
-      <div v-else-if="hasSaved" class="save-success-container"> 
+      <div v-else-if="hasSaved" class="save-success-container">
         <div class="tip custom-block save-success-block">
           <p class="custom-block-title">{{ translate('success') }}</p>
           <p>{{ translate('publishPageSuccess') }}</p>
@@ -49,7 +49,7 @@ export default {
   },
   methods: {
     commitClicked() {
-      this.$refs.pageCreate.commit();
+      this.$refs.pageCreate.toggleCommitModal();
     },
     onHasSaved() {
       this.hasSaved = true;
@@ -59,7 +59,7 @@ export default {
   computed: {
     pageTitle() {
       // const title = window.location.pathname; //Deze is goed!
-    
+
       // return title;
     },
     url() {
@@ -88,6 +88,6 @@ export default {
 .cta-container {
   max-width: 740px;
   margin: 0 auto;
-  padding: 2rem 2.5rem; 
+  padding: 2rem 2.5rem;
 }
 </style>

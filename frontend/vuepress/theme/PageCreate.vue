@@ -1,9 +1,33 @@
 <template>
   <div id="create" ref="create">
     <ClientOnly>
+      <modal @close="toggleCommitModal" v-if="commitModalVisible">
+        <h3 slot="header">{{ translate('commitMesasgeHeader') }}</h3>
+        <div slot="body">
+          <p>{{ translate('commitMessageExplanation') }}</p>
+          <input type="text" placeholder="Commit message" v-model="customCommitMessage">
+        </div>
+
+        <div
+          slot="footer"
+          style="display: flex; justify-content: space-between; align-items: center;"
+        >
+          <a @click="toggleCommitModal">{{ translate('cancel') }}</a>
+          <a
+            v-if="!saving"
+            class="button"
+            style="margin: 0;"
+            :class="{ 'disabled': customCommitMessage.length === 0 }"
+            @click="commit()"
+          >{{ translate('commit') }}</a>
+          <a v-if="saving" class="button disabled" style="margin: 0;">{{ translate('saving') }}</a>
+        </div>
+      </modal>
+
       <editor
         ref="editor"
         :options="editorOptions"
+        @load="onEditorLoad"
         v-model="editorValue"
         id="tui-editor"
         height="calc(100vh - 350px)"
@@ -14,165 +38,176 @@
 </template>
 
 <script>
-import axios from 'axios';
-import 'tui-editor/dist/tui-editor.css';
+import axios from "axios";
+import "tui-editor/dist/tui-editor.css";
 
-import 'codemirror/lib/codemirror.css';
+import "codemirror/lib/codemirror.css";
 
-import { resolvePage, normalize, outboundRE, endingSlashRE } from './util'
+import Modal from "./Modal";
+import { resolvePage, normalize, outboundRE, endingSlashRE } from "./util";
 
 export default {
   name: "PageCreates",
   components: {
-    Editor: () => import('@toast-ui/vue-editor/src/Editor'), //dynamic vue import for ssr
+    Editor: () => import("@toast-ui/vue-editor/src/Editor"), //dynamic vue import for ssr
+    Modal
   },
   data() {
     return {
       editorOptions: {
         usageStatistics: false,
-        initialEditType: 'markdown',
-        previewStyle: 'vertical',
+        initialEditType: "markdown",
+        previewStyle: "vertical",
         language: this.$lang, // TODO: not available at time of instantiation?
-        exts: [
-          'scrollSync',
-          'table'
-        ],
+        exts: ["scrollSync", "table"],
         hooks: {
-          addImageBlobHook: function (blob, callback) {
+          addImageBlobHook: function(blob, callback) {
             var reader = new FileReader();
             reader.onloadend = function() {
               var base64data = reader.result;
-              axios.put(blob.name, reader.result, {
-                headers: {
-                  'Content-Type': blob.type,
-                },
-              }).then((data) => {
-                callback(data.headers['content-location'], 'alt-text');
-              }).catch((error) => {
-                console.log(error);
-                window.alert('Invalid image');
-              });
+              axios
+                .put(blob.name, reader.result, {
+                  headers: {
+                    "Content-Type": blob.type
+                  }
+                })
+                .then(data => {
+                  callback(data.headers["content-location"], "alt-text");
+                })
+                .catch(error => {
+                  console.log(error);
+                  window.alert("Invalid image");
+                });
             };
             reader.readAsArrayBuffer(blob);
           }
         }
       },
+      customCommitMessage: "",
       editorValue: "",
+      commitModalVisible: false,
       saving: false
-    }
+    };
   },
+
   beforeMount() {
-    const importScrollSync = new Promise(resolve => {
-      return import('tui-editor/dist/tui-editor-extScrollSync.js').then(({ default: scrollSync }) => {
-        resolve(scrollSync);
-      });
-    });
+    // Load TUI.Editor plugins
+    import("tui-editor/dist/tui-editor-extScrollSync.js");
+    import("tui-editor/dist/tui-editor-extTable.js");
 
-    const importTable = new Promise(resolve => {
-      return import('tui-editor/dist/tui-editor-extTable.js').then(({ default: extTable }) => {
-        resolve(extTable);
-      });
+    // Load markdown-it plugins (to be attached later in onEditorLoad)
+    this.editorMarkdownPlugins = [
+      // Plugins used by VuePress
+      // import('vuepress/lib/markdown/component'),
+      // import('vuepress/lib/markdown/highlightLines'),
+      // import('vuepress/lib/markdown/preWrapper'),
+      // import('vuepress/lib/markdown/snippet'),
+      // import('vuepress/lib/markdown/hoist'),
+      // import('vuepress/lib/markdown/containers'),
+      import("markdown-it-emoji"),
+      // Custom plugins
+      import("markdown-it-abbr"),
+      import("../../markdown-it-plugins/floating-image.js")
+      //import('../../markdown-it-plugins/predefined-tooltip.js'),
+    ];
+    this.editorLoaded = new Promise((resolve, reject) => {
+      this.editorLoadedResolve = resolve;
     });
+  },
 
-    Promise.all([importScrollSync, importTable])
-  },
-  created(){
-    
-  },
+  created() {},
+
   mounted() {
-    this.isSubscribed().then((data) => {
-      console.log('dit is de data:', data)
-      if(data.success) {
-        console.log('proceed...')
+    // First, check if we're authorized
+    this.isSubscribed().then(data => {
+      if (data.success) {
+        // Wait for the editor to load
+        this.editorLoaded.then(editor => {
+          // Load all markdown-it plugins into the editor
+          this.editorMarkdownPlugins.foreach(x =>
+            x.then(({ default: plugin }) => {
+              editor.constructor.markdownit.use(plugin);
+              editor.constructor.markdownitHighlight.use(plugin);
+            })
+          )
+        });
       } else {
-        setTimeout(()=> {
-          window.location.replace(data.redirectUrl);
-        }, 1000)
+        window.location.replace(data.redirectUrl);
       }
-    })
-  },
-
-  computed: {
-    loadingMarkdownText () {
-      return (
-        this.$themeLocaleConfig.loadingMarkdown ||
-        this.$site.themeConfig.loadingMarkdown ||
-        'Loading Markdown...'
-      )
-    }
+    });
   },
 
   methods: {
+    onEditorLoad(editor) {
+      this.editorLoadedResolve(editor);
+    },
+
     isSubscribed() {
-      let path = normalize(window.location.pathname.split('/')[1].split('.')[0]);
-
+      let path = normalize(window.location.pathname);
       if (endingSlashRE.test(path)) {
-        path += 'README.md'
+        path += "README.md";
       } else {
-        path += '.md'
+        path += ".md";
       }
-
-      const url = '/api/v1/auth?file=' + path; 
-      console.log('url: ', url);
-
-      return axios.get(url)
+      return axios
+        .get("/api/v1/auth?file=" + encodeURIComponent(path))
         .then(response => {
           return response.data;
         });
     },
-    commit() {
-        console.log('commit called in createpage!')
-      if(this.saving) return;
 
+    commit() {
+      // Lock
+      if (this.saving) return;
+      if (this.customCommitMessage.length === 0) return;
       this.saving = true;
 
-      let path; 
-      if(this.$page.path === "") { //page doesn't exist yet
-        path = normalize(window.location.pathname);
-      } else {
-        path = normalize(this.$page.path);
-      }
-
-
+      let path = normalize(window.location.pathname);
       if (endingSlashRE.test(path)) {
-        path += 'README.md'
+        path += "README.md";
       } else {
-        path += '.md'
+        path += ".md";
       }
 
-      return axios.put(path, this.editorValue, {
+      return axios
+        .put(path, this.editorValue, {
           headers: {
-            'Commit-Message': `Created page '${path}'`
-          },
-        }
-      ).then(response => {
-        if(response.status == 200 || response.status == 201 || response.status == 204) {
-          this.saving = false;
-          this.createMode = false;
+            "Commit-Message": this.customCommitMessage
+          }
+        })
+        .then(response => {
+          if (
+            response.status == 200 ||
+            response.status == 201 ||
+            response.status == 204
+          ) {
+            this.saving = false;
+            this.createMode = false;
 
-          this.$emit('saveSuccess', true); //deze zet ook de editmode weer op false.
-          this.$router.push({});
-        }
-        console.log('posted content, response:', response)
-      })
-    }
-  },
-}
+            this.$emit("saveSuccess", true); //deze zet ook de editmode weer op false.
+            this.$router.push({});
+          }
+          console.log("posted content, response:", response);
+        });
+    },
+
+    toggleCommitModal() {
+      this.commitModalVisible = !this.commitModalVisible;
+    },
+  }
+};
 </script>
 
 <style>
 #create {
   margin: 0 auto;
   padding: 2rem 2.5rem;
-
 }
 
 #tui-editor {
   height: calc(100vh - 300px);
   min-height: 600px;
-  
 }
-
 
 .button:hover {
   background-color: #599bd5;
@@ -195,5 +230,4 @@ export default {
   text-align: center;
   flex-shrink: 2;
 }
-
 </style>

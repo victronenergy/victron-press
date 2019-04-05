@@ -64,10 +64,6 @@ export default {
             } else {
               // Try to stay on the same page
               link = currentLink.replace(this.$localeConfig.path, path)
-              // fallback to homepage
-              if (!routes.some(route => route.path === link)) {
-                link = path
-              }
             }
             return { text, link }
           })
