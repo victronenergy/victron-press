@@ -32,9 +32,10 @@ fs.ensureDir(outputDir)
                 },
             };
             try {
-                const [commitHash, commitTime] = spawn.sync('git', ['log', '-1', '--format=%H,%ct', filePath], {cwd: inputDir}).stdout.toString('utf-8').split(',');
-                fResult.lastUpdated = parseInt(commitTime);
+                const [commitHash, authorTime, authorName] = spawn.sync('git', ['log', '-1', '--format=%H,%at,%aN', filePath], {cwd: inputDir}).stdout.toString('utf-8').trim().split(',', 3);
+                fResult.lastUpdated = parseInt(authorTime);
                 fResult.commitHash = commitHash;
+                fResult.lastAuthor = authorName;
             } catch (e) { /* not available if spawning git fails */ }
             result[basename][lang] = fResult;
         }
