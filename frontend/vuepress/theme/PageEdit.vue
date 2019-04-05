@@ -234,6 +234,10 @@ export default {
 
 }
 
+.te-mode-switch-section {
+  display: none !important;
+}
+
 #tui-editor {
   height: calc(100vh - 300px);
   min-height: 600px;
