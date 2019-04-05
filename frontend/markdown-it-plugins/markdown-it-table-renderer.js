@@ -137,11 +137,10 @@ function table_renderer(state, startLine, endLine, silent) {
     token = state.push('th_open', 'th', 1);
 
     var content = "";
-    lineText = getLine(state, startLine);
-    if (lineText.indexOf("@cols=") !== -1) {
-      var index = lineText.indexOf("@cols=") + 6;
-      var colspan = lineText.substring(index, index + 1);
-      content = (lineText.split('@cols=2:')[1]).replace(" |", "");
+    if (columns[i].trim().indexOf("@cols=") !== -1) {
+      var index = columns[i].trim().indexOf("@cols=") + 6;
+      var colspan = columns[i].trim().substring(index, index + 1);
+      content = (columns[i].trim().split(':')[1]);
       token.attrs    = attrs = [ [ 'colspan', colspan ] ];
     }
 
@@ -153,7 +152,7 @@ function table_renderer(state, startLine, endLine, silent) {
 
     token = state.push('inline', '', 0);
     token.content = columns[i].trim();
-    if (lineText.indexOf("@cols=") !== -1) {
+    if (columns[i].trim().indexOf("@cols=") !== -1) {
       token.content = content;
     }
     token.map = [startLine, startLine + 1];
@@ -186,9 +185,11 @@ function table_renderer(state, startLine, endLine, silent) {
     for (i = 0; i < alignCount; i += 1) {
       token = state.push('td_open', 'td', 1);
 
-      if (lineText.indexOf("@cols=") !== -1) {
-        var tdIndex = lineText.indexOf("@cols=") + 6;
-        var tdColspan = lineText.substring(tdIndex, tdIndex + 1)
+      var tdContent = "";
+      if (columns[i].trim().indexOf("@cols=") !== -1) {
+        var tdIndex = columns[i].trim().indexOf("@cols=") + 6;
+        var tdColspan = columns[i].trim().substring(tdIndex, tdIndex + 1);
+        tdContent = columns[i] ? (columns[i].trim().split(':')[1]) : "";
         token.attrs    = attrs = [ [ 'colspan', tdColspan ] ];
       }
 
@@ -199,6 +200,9 @@ function table_renderer(state, startLine, endLine, silent) {
 
       token = state.push('inline', '', 0);
       token.content = columns[i] ? columns[i].trim() : '';
+      if (columns[i].trim().indexOf("@cols=") !== -1) {
+        token.content = tdContent;
+      }
       token.children = [];
 
       token = state.push('td_close', 'td', -1);
