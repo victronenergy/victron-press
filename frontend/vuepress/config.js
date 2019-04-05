@@ -1,3 +1,5 @@
+const Dotenv = require('dotenv-webpack');
+
 module.exports = {
     base: '/',
     head: [
@@ -18,6 +20,9 @@ module.exports = {
             },
         ],
     ],
+    configureWebpack: config => {
+        return { plugins: [new Dotenv()] };
+    },
     plugins: [require('./plugins/pdf')],
     markdown: {
         config: md => {
