@@ -7,12 +7,6 @@
       <a @click="editModeEnabled = true">{{ translate('wantToCreatePage') }}</a>
     </div>
 
-    {{editModeEnabled}}
-
-    
-    <!-- <router-view></router-view> -->
-
-
     <ClientOnly>
       <div class="editor-container" 
            v-if="editModeEnabled">
