@@ -26,7 +26,8 @@ module.exports = {
     plugins: [require('./plugins/pdf')],
     markdown: {
         config: md => {
-            md.use(require('../../frontend/markdown-it-plugins/markdown-it-floating-image'))
+            md.use(require('../../frontend/markdown-it-plugins/markdown-it-floating-image')),
+            md.use(require('../../frontend/markdown-it-plugins/markdown-it-table-renderer'))
         },
     },
     themeConfig: {
