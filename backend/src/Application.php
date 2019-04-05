@@ -11,7 +11,6 @@ use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use League\OAuth2\Client\Provider\Github as GitHubOAuth2Provider;
 use League\Route\Http\Exception as HttpException;
-use League\Route\Http\Exception\ForbiddenException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Http\Exception\UnauthorizedException;
 use League\Route\Router;
@@ -200,11 +199,7 @@ class Application implements RequestHandlerInterface
                     $userName
                 );
             } catch (\Exception $e) {
-                throw new ForbiddenException(
-                    $userName . ' is not a collaborator on ' .
-                        $this->config['GITHUB_USER'] . '/' . $this->config['GITHUB_REPO'],
-                    $e
-                );
+                return new RedirectResponse('/403.html');
             }
         }
 
