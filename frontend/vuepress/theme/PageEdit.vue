@@ -108,7 +108,9 @@ export default {
       // import('vuepress/lib/markdown/containers'),
       import('markdown-it-emoji'),
       // Custom plugins
-      import('../../markdown-it-plugins/markdown-it-floating-image.js'),
+      import('markdown-it-abbr'),
+      import('../../markdown-it-plugins/floating-image.js'),
+      //import('../../markdown-it-plugins/predefined-tooltip.js'),
     ];
     this.editorLoaded = new Promise((resolve, reject) => {
       this.editorLoadedResolve = resolve;
