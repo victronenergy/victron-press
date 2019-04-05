@@ -6,7 +6,7 @@
       <h1>{{ translate('unauthorizedHeader') }}</h1>
       <p>{{ translate('unauthorizedCopy') }}</p>
       <br>
-      <div class="button">{{ translate('continue') }}</div>
+      <a class="button" :href="redirectUrl">{{ translate('continue') }}</a>
     </div>
   </div>  
 </template>
@@ -15,10 +15,13 @@
 import Navbar from './Navbar.vue';
 export default {
   components: { Navbar },
-  props: ['redirectLink'],
+  props: ['redirectUrl'],
   created() {
-    console.log('ik ben gemaakt')
-    console.log('redirectLink: ', this.redirectLink);
+  },
+  computed: {
+    redirectUrl() {
+      return this.$route.query.redirectUrl;
+    }
   }
 }
 </script>

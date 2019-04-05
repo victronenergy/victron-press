@@ -225,8 +225,9 @@ export default {
           console.log('ik keur het goed.')
           this.doEdit();
         } else {
-          console.log('force block on dthat snibba')
-          this.$router.push({ name: 'unauthorized', props: data });
+          console.log('force block on dthat snibba');
+          console.log(data)
+          this.$router.push({ name: 'unauthorized', query: { redirectUrl: data.redirectUrl } });
         }
       }); 
     },

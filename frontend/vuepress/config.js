@@ -77,7 +77,9 @@ module.exports = {
                 commitMessageExplanation: 'Please write a short commit message about your changes.',
                 unauthorizedHeader: 'Contribute to Victron Documentation',
                 unauthorizedCopy: 'To make changes to the Victron Documentation, your must give Victron access to your Github account.',
-                continue: 'Continue'
+                continue: 'Continue',
+                forbiddenHeader: 'You don\'t have the right permissions',
+                forbiddenCopy: 'You\'ve successfully logged into Github, but your account doesn\'t have the required rights. Please contact Victron Energy and ask them to give collaborator rights to your Github account.',
             },
             '/nl/': {
                 lang: "nl-NL",
