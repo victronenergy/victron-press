@@ -34,15 +34,21 @@ export default ({ Vue, options, router, siteData }) => {
     ]);
 
     /* global process */
-    if (process && process.env && process.env.SENTRY_DSN_FRONTEND) {
-        Sentry.init({
-            dsn: process.env.SENTRY_DSN_FRONTEND,
-            integrations: [
-                new SentryIntegrations.Vue({
-                    Vue,
-                    attachProps: true,
-                }),
-            ],
-        });
+    try {
+        if (process.env.SENTRY_DSN_FRONTEND) {
+            Sentry.init({
+                dsn: process.env.SENTRY_DSN_FRONTEND,
+                integrations: [
+                    new SentryIntegrations.Vue({
+                        Vue,
+                        attachProps: true,
+                    }),
+                ],
+            });
+        }
+    } catch (e) {
+        if (!(e instanceof ReferenceError)) {
+            throw e;
+        }
     }
 };
