@@ -137,13 +137,14 @@ function table_renderer(state, startLine, endLine, silent) {
     token = state.push('th_open', 'th', 1);
 
     var content = "";
-    if (columns[i].trim().indexOf("@cols=") !== -1) {
-      var index = columns[i].trim().indexOf("@cols=") + 6;
-      var colspan = columns[i].trim().substring(index, index + 1);
-      content = (columns[i].trim().split(':')[1]);
-      token.attrs    = attrs = [ [ 'colspan', colspan ] ];
+    if(columns[i]) {
+      if (columns[i].trim().indexOf("@cols=") !== -1) {
+        var index = columns[i].trim().indexOf("@cols=") + 6;
+        var colspan = columns[i].trim().substring(index, index + 1);
+        content = (columns[i].trim().split(':')[1]);
+        token.attrs = attrs = [['colspan', colspan]];
+      }
     }
-
     token.map = [startLine, startLine + 1];
     if (aligns[i]) {
       // FIXED: change property style to align
@@ -151,9 +152,11 @@ function table_renderer(state, startLine, endLine, silent) {
     }
 
     token = state.push('inline', '', 0);
-    token.content = columns[i].trim();
-    if (columns[i].trim().indexOf("@cols=") !== -1) {
-      token.content = content;
+    token.content = columns[i] ? columns[i].trim() : "";
+    if(columns[i]) {
+      if (columns[i].trim().indexOf("@cols=") !== -1) {
+        token.content = content;
+      }
     }
     token.map = [startLine, startLine + 1];
     token.children = [];
@@ -186,13 +189,14 @@ function table_renderer(state, startLine, endLine, silent) {
       token = state.push('td_open', 'td', 1);
 
       var tdContent = "";
-      if (columns[i].trim().indexOf("@cols=") !== -1) {
-        var tdIndex = columns[i].trim().indexOf("@cols=") + 6;
-        var tdColspan = columns[i].trim().substring(tdIndex, tdIndex + 1);
-        tdContent = columns[i] ? (columns[i].trim().split(':')[1]) : "";
-        token.attrs    = attrs = [ [ 'colspan', tdColspan ] ];
+      if(columns[i]) {
+        if (columns[i].trim().indexOf("@cols=") !== -1) {
+          var tdIndex = columns[i].trim().indexOf("@cols=") + 6;
+          var tdColspan = columns[i].trim().substring(tdIndex, tdIndex + 1);
+          tdContent = columns[i] ? (columns[i].trim().split(':')[1]) : "";
+          token.attrs    = attrs = [ [ 'colspan', tdColspan ] ];
+        }
       }
-
       if (aligns[i]) {
         // FIXED: change property style to align
         token.attrs = [['align', aligns[i]]];
@@ -200,8 +204,10 @@ function table_renderer(state, startLine, endLine, silent) {
 
       token = state.push('inline', '', 0);
       token.content = columns[i] ? columns[i].trim() : '';
-      if (columns[i].trim().indexOf("@cols=") !== -1) {
-        token.content = tdContent;
+      if(columns[i]) {
+        if (columns[i].trim().indexOf("@cols=") !== -1) {
+          token.content = tdContent;
+        }
       }
       token.children = [];
 
