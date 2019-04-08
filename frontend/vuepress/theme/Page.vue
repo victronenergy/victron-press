@@ -1,8 +1,20 @@
 <template>
-  <div class="page">
-    <div class="page-edit" v-if="editModeEnabled">
-      <a @click="stopEditing()" rel="noopener noreferrer">{{translate('backLink')}}</a>
-      <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">{{translate('deleteLink')}}</a>
+  <div class="page" :class="{ 'edit-mode': editModeEnabled }">
+    <div class="edit-options-bar" v-if="editModeEnabled">
+      <!-- <a @click="stopEditing()" rel="noopener noreferrer">{{translate('backLink')}}</a>
+      <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">{{translate('deleteLink')}}</a> -->
+      
+      <div class="last-updated" v-if="lastUpdated" >
+        <span class="prefix">{{ translate('lastUpdated') }}: </span>
+        <span class="time">{{ lastUpdated }}</span>
+      </div>
+
+      <div class="button-group">
+        <div class="button-group-item danger" @click="toggleDeleteModal">{{translate('deleteLink')}}</div>
+        <div class="button-group-item" @click="stopEditing">{{ translate('cancel') }}</div>
+        <div class="button-group-item" @click="commitClicked">{{ translate('commitButton') }}</div>
+      </div>
+
     </div>
  
     <slot name="top"/>
@@ -53,7 +65,7 @@
     <Content v-else :custom="false"/>
 
 
-    <div class="page-edit">
+    <div class="page-edit" v-if="!editModeEnabled">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
         <a v-if="!editModeEnabled && !deleteSuccess" @click="tryEdit" rel="noopener noreferrer">{{ translate('editLink') }}</a>
         <a v-else @click="stopEditing()" rel="noopener noreferrer">{{ translate('backLink') }}</a>
@@ -295,6 +307,31 @@ function find (page, items, offset) {
 .page
   padding-bottom 2rem
 
+.page.edit-mode
+  padding-bottom 0
+
+.edit-options-bar 
+  padding 20px 24px
+  text-align right
+  
+  .last-updated
+    display inline-block
+    margin-right 30px
+
+  .button-group
+    display inline-block
+    
+.last-updated
+  font-size 0.9em
+  .prefix
+    font-weight 500
+    color lighten($textColor, 25%)
+  .time
+    font-weight 400
+    color #aaa
+
+
+
 .page-edit
   @extend $wrapper
   display flex
@@ -311,13 +348,6 @@ function find (page, items, offset) {
   .last-updated
     float right
     text-align right
-    font-size 0.9em
-    .prefix
-      font-weight 500
-      color lighten($textColor, 25%)
-    .time
-      font-weight 400
-      color #aaa
 
 .page-nav
   @extend $wrapper

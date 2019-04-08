@@ -32,7 +32,7 @@
         @load="onEditorLoad"
         v-model="editorValue"
         id="tui-editor"
-        height="calc(100vh - 350px)"
+        height="calc(100vh - 149px)"
         previewStyle="vertical"
       />
       <div v-show="!editorVisible">
@@ -260,7 +260,7 @@ export default {
 <style>
 #edit {
   margin: 0 auto;
-  padding: 2rem 2.5rem;
+  /* padding: 2rem 2.5rem; */
 }
 
 .te-mode-switch-section {
@@ -268,7 +268,6 @@ export default {
 }
 
 #tui-editor {
-  height: calc(100vh - 300px);
   min-height: 600px;
 }
 

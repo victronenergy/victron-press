@@ -11,13 +11,23 @@
       <div class="editor-container"
            v-if="editModeEnabled">
         <!-- <h3>{{pageTitle}}</h3> -->
+
+        <div class="create-options-bar">
+          <div class="button-group">
+            <!-- <div class="button-group-item danger" @click="toggleDeleteModal">{{translate('deleteLink')}}</div> -->
+            <div class="button-group-item" @click="editModeEnabled = false">{{ translate('cancel') }}</div>
+            <div class="button-group-item" @click="commitClicked">{{ translate('publishPage') }}</div>
+          </div>
+        </div>
+
+
         <page-create
           @saveSuccess="onHasSaved()"
           ref="pageCreate"/>
 
-        <div style="display: flex; align-items: center;" class="cta-container">
+        <!-- <div style="display: flex; align-items: center;" class="cta-container">
           <a class="button" @click="commitClicked()" v-if="editModeEnabled">{{ translate('publishPage') }}</a>
-        </div>
+        </div> -->
       </div>
       <div v-else-if="hasSaved" class="save-success-container">
         <div class="tip custom-block save-success-block">
@@ -76,6 +86,12 @@ export default {
   text-align: center;
   padding-top: 80px;
 }
+
+.create-options-bar {
+  padding: 20px 24px;
+  text-align: right;
+}
+
 
 .editor-container {
   padding-top: 80px;

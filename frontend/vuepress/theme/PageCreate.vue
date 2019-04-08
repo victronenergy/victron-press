@@ -30,7 +30,7 @@
         @load="onEditorLoad"
         v-model="editorValue"
         id="tui-editor"
-        height="calc(100vh - 350px)"
+        height="calc(100vh - 155px)"
         previewStyle="vertical"
       />
     </ClientOnly>
@@ -200,12 +200,12 @@ export default {
 
 <style>
 #create {
-  margin: 0 auto;
-  padding: 2rem 2.5rem;
+  /* margin: 0 auto;
+  padding: 2rem 2.5rem; */
 }
 
+
 #tui-editor {
-  height: calc(100vh - 300px);
   min-height: 600px;
 }
 
