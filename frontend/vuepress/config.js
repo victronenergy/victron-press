@@ -53,14 +53,6 @@ module.exports = {
         // Logo used
         logo: '/assets/img/victron-logo.png',
 
-        // Header navigation items
-        // nav: [
-        //    {
-        //        text: 'www.victronenergy.com',
-        //        link: 'https://victronenergy.com',
-        //    },
-        // ],
-
         locales: {
             '/': {
                 tableOfContents: 'Table of contents',
