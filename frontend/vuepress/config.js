@@ -32,7 +32,6 @@ module.exports = {
             md.use(require('../../frontend/markdown-it-plugins/predefined-tooltip'), {
                 tooltips: {
                     ':CCGX': "'Color Control GX'",
-                    ':data': "'something something tooltip'",
                 },
                 position: 'top',
             });
@@ -54,14 +53,6 @@ module.exports = {
         // Logo used
         logo: '/assets/img/victron-logo.png',
 
-        // Header navigation items
-        nav: [
-            {
-                text: 'www.victronenergy.com',
-                link: 'https://victronenergy.com',
-            },
-        ],
-
         locales: {
             '/': {
                 tableOfContents: 'Table of contents',
@@ -76,15 +67,15 @@ module.exports = {
                 wantToCreatePage: 'Do you want to create it?',
                 downloadAsPdf: 'Download as PDF',
                 success: 'Success',
-                saveSuccessMessage: 'The changes were saved successfully. The documentation is now rebuilding and your changes should be visible in a couple of minutes.',
-                deleteSuccessMessage: 'This page was deleted successfully. The documentation is now rebuilding and your changes should be visible in a couple of minutes.',
+                saveSuccessMessage: 'The changes were saved successfully. The documentation is now rebuilding and your changes will be visible in a couple of minutes and a refresh of the page.',
+                deleteSuccessMessage: 'This page was deleted successfully. The documentation is now rebuilding and your changes will be visible in a couple of minutes and a refresh of the page.',
                 deletePageModalTitle: 'Delete page',
                 deletePageModalCopy: 'Are you sure you want to delete this page? It cannot be undone. Please type in the title of this page to confirm.',
                 deletePageModalPlaceholder: 'Type page title here',
                 deletePageModalCTA: 'Delete this file',
                 cancel: 'Cancel',
                 publishPage: 'Publish page',
-                publishPageSuccess: 'The page was created successfully. The documentation is now rebuilding and the page should be visible in a couple of minutes.',
+                publishPageSuccess: 'The page was created successfully. The documentation is now rebuilding and the page will be visible in a couple of minutes and a refresh of the page.',
                 saving: 'Saving...',
                 commit: 'Commit',
                 commitMesasgeHeader: 'Commit change',
@@ -111,15 +102,15 @@ module.exports = {
                 wantToCreatePage: 'Wilt u hem aanmaken?',
                 downloadAsPdf: 'Download als PDF',
                 success: 'Succes',
-                saveSuccessMessage: 'De veranderingen zijn succesvol opgeslagen. De documentatie is nu aan het herbouwen en de veranderingen zouden over enkele minuten zichtbaar moeten zijn.',
-                deleteSuccessMessage: 'Deze pagina is succesvol verwijderd. De documentatie is nu aan het herbouwen en de veranderingen zouden over enkele minuten zichtbaar moeten zijn.',
+                saveSuccessMessage: 'De veranderingen zijn succesvol opgeslagen. De documentatie is nu aan het herbouwen en de veranderingen zijn over enkele minuten zichtbaar na het opnieuw laden van de pagina.',
+                deleteSuccessMessage: 'Deze pagina is succesvol verwijderd. De documentatie is nu aan het herbouwen en de veranderingen zijn over enkele minuten zichtbaar na het opnieuw laden van de pagina.',
                 deletePageModalTitle: 'Verwijder pagina',
                 deletePageModalCopy: 'Weet u zeker dat u deze pagina wilt verwijderen? Dit kan niet ongedaan gemaakt worden. Typ de titel van deze pagina over om te bevestigen.',
                 deletePageModalPlaceholder: 'Typ paginatitel hier',
                 deletePageModalCTA: 'Verwijder deze pagina',
                 cancel: 'Annuleren',
                 publishPage: 'Pagina publiceren',
-                publishPageSuccess: 'De pagina is succesvol aangemaakt. De documentatie is nu aan het herbouwen en de veranderingen zouden over enkele minuten zichtbaar moeten zijn.',
+                publishPageSuccess: 'De pagina is succesvol aangemaakt. De documentatie is nu aan het herbouwen en de veranderingen zijn over enkele minuten zichtbaar na het opnieuw laden van de pagina.',
                 saving: 'Opslaan...',
                 commit: 'Commit',
                 commitMesasgeHeader: 'Commit verandering',
