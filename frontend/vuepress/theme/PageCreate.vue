@@ -44,7 +44,7 @@ import "tui-editor/dist/tui-editor.css";
 import "codemirror/lib/codemirror.css";
 
 import Modal from "./Modal";
-import { resolvePage, normalize, outboundRE, endingSlashRE } from "./util";
+import { resolvePage, normalize, makeRelative, outboundRE, endingSlashRE } from "./util";
 
 export default {
   name: "PageCreates",
@@ -72,7 +72,7 @@ export default {
                   }
                 })
                 .then(data => {
-                  callback(data.headers["content-location"], "alt-text");
+                  callback(makeRelative(window.location.pathname, data.headers["content-location"]), "alt-text");
                 })
                 .catch(error => {
                   console.log(error);

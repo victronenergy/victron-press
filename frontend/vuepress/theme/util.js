@@ -42,6 +42,22 @@ export function ensureExt (path) {
   return normalized + '.html' + hash
 }
 
+export function makeRelative(pathSelf, pathTarget) {
+  let pathSelfNormalized = normalize(pathSelf);
+  if (!endingSlashRE.test(pathSelfNormalized)) {
+    pathSelfNormalized = pathSelfNormalized.replace(/\/[^/]+$/, '/');
+  }
+  pathSelfNormalized = pathSelfNormalized.replace(/\/+$/, '');
+  let pathSelfArray = pathSelfNormalized.split('/').slice(1);
+  let pathTargetArray = pathTarget.split('/').slice(1);
+  const targetBasename = pathTargetArray.pop();
+  while(pathSelfArray.length > 0 && pathTargetArray.length > 0 && pathSelfArray[0] === pathTargetArray[0]) {
+    pathSelfArray.shift();
+    pathTargetArray.shift();
+  }
+  return ('../'.repeat(pathSelfArray.length) || './') + pathTargetArray.map(x => x + '/').join('') + targetBasename;
+}
+
 export function isActive (route, path) {
   const routeHash = route.hash
   const linkHash = getHash(path)
