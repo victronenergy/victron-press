@@ -42,7 +42,7 @@ module.exports = {
         search: false,
 
         // Contribution link in header
-        repo: 'victronenergy/www-documentation',
+        // repo: 'victronenergy/www-documentation',
 
         // Custom editor integration
         enableEditor: true,
@@ -116,6 +116,41 @@ module.exports = {
                 commitMesasgeHeader: 'Commit verandering',
                 commitMessageExplanation: 'Schrijf een korte commit message over uw veranderingen.'
             }
+            '/fr/': {
+                lang: "fr-FR",
+                tableOfContents: 'Table des matières',
+                repoLabel: 'Contribuer',
+                lastUpdated: 'Dernière mise à jour',
+                loadingMarkdown: 'Chargement de Markdown ...',
+                backLink: 'Retour',
+                editLink: 'Modifier cette page',
+                deleteLink: 'Supprimer cette page',
+                commitButton: 'Commit modifications',
+                pageDoesntExist: 'Cette page n\’existe pas encore.',
+                wantToCreatePage: 'Voulez vous le créer?',
+                downloadAsPdf: 'Télécharger en PDF',
+                success: 'Succès',
+                saveSuccessMessage: 'Les modifications ont été enregistrées avec succès. La documentation est en cours de reconstruction et vos modifications seront visibles dans quelques minutes et une actualisation de la page.',
+                deleteSuccessMessage: 'Cette page a été supprimée avec succès. La documentation est en cours de reconstruction et vos modifications seront visibles dans quelques minutes et une actualisation de la page.',
+                deletePageModalTitle: 'Supprimer la page',
+                deletePageModalCopy: 'Êtes-vous sûr de vouloir supprimer cette page? Ça ne peut pas être défait. Veuillez saisir le titre de cette page pour confirmer.',
+                deletePageModalPlaceholder: 'Tapez le titre de la page ici',
+                deletePageModalCTA: 'Supprimer ce fichier',
+                cancel: 'Annuler',
+                publishPage: 'Publier la page',
+                publishPageSuccess: 'La page a été créée avec succès. La documentation est en cours de reconstruction et la page sera visible dans quelques minutes et une actualisation de la page.',
+                saving: 'Saving...',
+                commit: 'Commit',
+                commitMesasgeHeader: 'Engager le changement',
+                commitMessageExplanation: 'Veuillez écrire un court message de validation concernant vos modifications.',
+                unauthorizedHeader: 'Contribuer à la documentation de Victron',
+                unauthorizedCopy: 'Pour apporter des modifications à la documentation Victron, vous devez donner à Victron accès à votre compte Github.',
+                continue: 'Continuer',
+                forbiddenHeader: 'Vous n\’avez pas les bonnes permissions',
+                forbiddenCopy: 'Vous avez réussi à vous connecter à Github, mais votre compte n\’a pas les droits requis. Veuillez contacter Victron Energy et leur demander d\'accorder des droits de collaborateur sur votre compte Github.',
+                saveFailedHeader: 'Échec de la modification de la page',
+                saveFailedCopy: 'Quelque chose s\'est mal passé lors de l\'édition de cette page. Veuillez réessayer plus tard.'
+            },
         }
     },
     locales: {
@@ -128,6 +163,11 @@ module.exports = {
             lang: 'nl-NL',
             title: 'Victron Energy documentatie',
             description: 'Victron Energy documentatie',
+        }
+        '/fr/': {
+            lang: 'fr-FR',
+            title: 'Victron Energy documentation',
+            description: 'Victron Energy documentation',
         }
     }
 };
