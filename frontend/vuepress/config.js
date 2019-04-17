@@ -114,8 +114,15 @@ module.exports = {
                 saving: 'Opslaan...',
                 commit: 'Commit',
                 commitMesasgeHeader: 'Commit verandering',
-                commitMessageExplanation: 'Schrijf een korte commit message over uw veranderingen.'
-            }
+                commitMessageExplanation: 'Schrijf een korte commit message over uw veranderingen.',
+                unauthorizedHeader: 'Meewerken aan Victron Documentatie',
+                unauthorizedCopy: 'Om wijzigingen door te kunnen voeren aan de Victron Documentatie moet u Victron toegang geven tot uw Github account.',
+                continue: 'Doorgaan',
+                forbiddenHeader: 'U beschikt niet over de vereiste rechten',
+                forbiddenCopy: 'U bent succesvol ingelogd op Github, maar uw account beschikt niet over de vereiste rechten. Neem contact op met Victron Energy en vraag om uw Github account \'collaborator\' rechten te geven.',
+                saveFailedHeader: 'Aanpassen van pagina mislukt',
+                saveFailedCopy: 'Er is iets mis gegaan bij het aanpassen van de pagina. Probeert u het later opnieuw.'
+            },
             '/fr/': {
                 lang: "fr-FR",
                 tableOfContents: 'Table des matières',
@@ -163,7 +170,7 @@ module.exports = {
             lang: 'nl-NL',
             title: 'Victron Energy documentatie',
             description: 'Victron Energy documentatie',
-        }
+        },
         '/fr/': {
             lang: 'fr-FR',
             title: 'Victron Energy documentation',
