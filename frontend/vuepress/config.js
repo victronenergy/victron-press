@@ -94,7 +94,8 @@ module.exports = {
                 forbiddenHeader: 'You don\'t have the right permissions',
                 forbiddenCopy: 'You\'ve successfully logged into Github, but your account doesn\'t have the required rights. Please contact Victron Energy and ask them to give collaborator rights to your Github account.',
                 saveFailedHeader: 'Failed to edit the page',
-                saveFailedCopy: 'Something went wrong while editing this page. Please try again later.'
+                saveFailedCopy: 'Something went wrong while editing this page. Please try again later.',
+                viewOnGithub: 'View on GitHub'
             },
             '/nl/': {
                 lang: "nl-NL",
@@ -129,7 +130,8 @@ module.exports = {
                 forbiddenHeader: 'U beschikt niet over de vereiste rechten',
                 forbiddenCopy: 'U bent succesvol ingelogd op Github, maar uw account beschikt niet over de vereiste rechten. Neem contact op met Victron Energy en vraag om uw Github account \'collaborator\' rechten te geven.',
                 saveFailedHeader: 'Aanpassen van pagina mislukt',
-                saveFailedCopy: 'Er is iets mis gegaan bij het aanpassen van de pagina. Probeert u het later opnieuw.'
+                saveFailedCopy: 'Er is iets mis gegaan bij het aanpassen van de pagina. Probeert u het later opnieuw.',
+                viewOnGithub: 'Bekijk op GitHub'
             },
             '/fr/': {
                 lang: "fr-FR",
@@ -164,7 +166,8 @@ module.exports = {
                 forbiddenHeader: 'Vous n’avez pas les bonnes permissions',
                 forbiddenCopy: 'Vous avez réussi à vous connecter à Github, mais votre compte n’a pas les droits requis. Veuillez contacter Victron Energy et leur demander d\'accorder des droits de collaborateur sur votre compte Github.',
                 saveFailedHeader: 'Échec de la modification de la page',
-                saveFailedCopy: 'Quelque chose s\'est mal passé lors de l\'édition de cette page. Veuillez réessayer plus tard.'
+                saveFailedCopy: 'Quelque chose s\'est mal passé lors de l\'édition de cette page. Veuillez réessayer plus tard.',
+                viewOnGithub: 'Voir sur GitHub'
             },
         }
     },

@@ -10,6 +10,7 @@
       </div>
 
       <div class="button-group">
+        <a :href="gitHubUrl" class="button-group-item">{{translate('viewOnGithub')}}</a>
         <div class="button-group-item danger" @click="toggleDeleteModal">{{translate('deleteLink')}}</div>
         <div class="button-group-item" @click="stopEditing">{{ translate('cancel') }}</div>
         <div class="button-group-item" @click="commitClicked">{{ translate('commitButton') }}</div>
@@ -151,6 +152,15 @@ export default {
   },
 
   computed: {
+    gitHubUrl() {
+      let path = normalize(this.$page.path);
+      if (endingSlashRE.test(path)) {
+        path += 'README.md'
+      } else {
+        path += '.md'
+      }
+      return `https://github.com/${process.env.GITHUB_USER}/${process.env.GITHUB_REPO}/blob/${process.env.GITHUB_BRANCH}${path}`
+    },
     lastUpdated () {
       if (this.$page.lastUpdated) {
         return new Date(this.$page.lastUpdated).toLocaleString(this.$lang)
