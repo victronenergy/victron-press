@@ -167,8 +167,7 @@ module.exports = function floating_image_plugin(md, options) {
             token.attrs = attrs = [
                 ['src', href],
                 ['alt', ''],
-                ['style', 'float: ' + float],
-                ['class', 'floating-image'],
+                ['class', 'floating-image floating-image-' + float ],
             ];
             token.children = tokens;
             token.content = content;

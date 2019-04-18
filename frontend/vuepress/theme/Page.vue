@@ -10,9 +10,9 @@
       </div>
 
       <div class="button-group">
+        <div class="button-group-item" @click="stopEditing">{{ translate('cancel') }}</div>
         <a :href="gitHubUrl" class="button-group-item">{{translate('viewOnGithub')}}</a>
         <div class="button-group-item danger" @click="toggleDeleteModal">{{translate('deleteLink')}}</div>
-        <div class="button-group-item" @click="stopEditing">{{ translate('cancel') }}</div>
         <div class="button-group-item" @click="commitClicked">{{ translate('commitButton') }}</div>
       </div>
 
