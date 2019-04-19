@@ -10,7 +10,7 @@
       :key="item.link"
     >
       <DropdownLink
-        v-if="item.type === 'links'"
+        v-if="item.type === 'links' && $page.path !== ''"
         :item="item"
       />
       <NavLink
