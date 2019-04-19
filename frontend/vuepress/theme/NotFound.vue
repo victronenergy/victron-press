@@ -4,7 +4,7 @@
 
     <div class="content" v-if="!editModeEnabled && !hasSaved">
       <h1>{{ translate('pageDoesntExist') }}</h1>
-      <a @click="editModeEnabled = true">{{ translate('wantToCreatePage') }}</a>
+      <a v-if="canCreatePage" @click="editModeEnabled = true">{{ translate('wantToCreatePage') }}</a>
     </div>
 
     <ClientOnly>
@@ -69,6 +69,13 @@ export default {
     }
   },
   computed: {
+    canCreatePage(){
+      function confirmEnding(string, target) {
+        return (string.substr(-target.length) === target) ? true : false;
+      }
+      return confirmEnding(window.location.href, '.html');
+    },
+
     pageTitle() {
       // const title = window.location.pathname; //Deze is goed!
 
