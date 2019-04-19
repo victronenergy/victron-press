@@ -66,7 +66,7 @@ export default {
               link = currentLink.replace(this.$localeConfig.path, path)
             }
 
-            if(this.$site.pages.find(page => page.path === link)) {
+            if(this.$site.pages.find(page => page.path === link) || this.$page.path === '') {
               return { text, link };
             } else {
               return //if page doesn't exsist, add as 'undefined'...
