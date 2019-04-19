@@ -54,7 +54,7 @@ provides an API used by the frontend to read and commit documentation files.
 There are multiple ways to work with the backend part of the repository:
 
  - You can run `composer build` to build the frontend and copy the required backend files to `/data/dist`.
-   - You can then run `php -S localhost:80 -t data/dist backend/router.php` to start a development webserver.
+   - You can then run `php -S localhost:8080 -t data/dist backend/router.php` to start a development webserver.
  - You can run `composer test` to run the backend tests.
  - You can run `composer lint` to lint the PHP application.
  - You can run `composer fix` to automatically fix PHP linting issues.

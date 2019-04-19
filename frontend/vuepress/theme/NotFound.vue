@@ -44,6 +44,8 @@ import Navbar from './Navbar.vue';
 import PageCreate from './PageCreate';
 import { resolvePage, normalize, outboundRE, endingSlashRE } from './util'
 
+//als wel  eindigd op .html, toon 'create this page'
+
 
 export default {
   components: { Navbar, PageCreate },

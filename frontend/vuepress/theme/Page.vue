@@ -66,7 +66,7 @@
     <Content v-else :custom="false"/>
 
 
-    <div class="page-edit" v-if="!editModeEnabled">
+    <div class="page-edit" v-if="!editModeEnabled && editAllowed">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
         <a v-if="!editModeEnabled && !deleteSuccess" @click="tryEdit" rel="noopener noreferrer">{{ translate('editLink') }}</a>
         <a v-else @click="stopEditing()" rel="noopener noreferrer">{{ translate('backLink') }}</a>
@@ -152,6 +152,13 @@ export default {
   },
 
   computed: {
+    editAllowed() {
+      if(this.$page.frontmatter.hasOwnProperty('editAllowed')) {
+        return this.$page.frontmatter.editAllowed;
+      } else {
+        return true;
+      }
+    },
     gitHubUrl() {
       let path = normalize(this.$page.path);
       if (endingSlashRE.test(path)) {
