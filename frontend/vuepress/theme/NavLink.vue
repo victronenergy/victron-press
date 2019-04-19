@@ -29,7 +29,7 @@ export default {
 
   computed: {
     link () {
-      return ensureExt(this.item.link)
+      return this.item.link ? ensureExt(this.item.link) : ''
     },
 
     exact () {
