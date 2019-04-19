@@ -65,12 +65,19 @@ export default {
               // Try to stay on the same page
               link = currentLink.replace(this.$localeConfig.path, path)
             }
-            return { text, link }
+
+            if(this.$site.pages.find(page => page.path === link)) {
+              return { text, link };
+            } else {
+              return //if page doesn't exsist, add as 'undefined'...
+            }
+          }).filter(item => {
+            return item != null; //...and remove the undefineds from the array. Could be prettier but this works.
           })
         }
         return [...this.userNav, languageDropdown]
       }
-      return this.userNav
+      return this.userNav;
     },
 
     userLinks () {
