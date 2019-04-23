@@ -33,7 +33,7 @@ COPY data/docs/README.md ./data/docs/README.md
 RUN chown -R www-data:www-data .env data/docs/ && \
     chmod 755 data/docs && \
     chmod 644 .env data/docs/README.md && \
-    sudo -u www-data npm run build && \
+    sudo -u www-data npm run build:html && \
     rm -rf data/dist
 
 # Copy documentation files and Git history
