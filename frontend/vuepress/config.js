@@ -21,7 +21,9 @@ module.exports = {
         ],
     ],
     configureWebpack: config => {
-        return { plugins: [new Dotenv()] };
+        return {
+            plugins: [new Dotenv()],
+        };
     },
     plugins: [require('./plugins/pdf')],
     markdown: {

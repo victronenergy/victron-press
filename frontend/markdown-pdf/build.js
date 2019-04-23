@@ -6,7 +6,7 @@ const path = require('path');
 const markdownpdf = require('markdown-pdf')
 
 const inputDir = path.join(__dirname, '../../data/docs');
-const outputDir = path.join(__dirname, '../../data/dist');
+const outputDir = path.join(__dirname, '../../data/build/pdf');
 
 fs.ensureDir(outputDir)
     .then(() => {

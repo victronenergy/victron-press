@@ -6,7 +6,7 @@ const path = require('path');
 const spawn = require('cross-spawn')
 
 const inputDir = path.join(__dirname, '../data/docs');
-const outputDir = path.join(__dirname, '../data/dist');
+const outputDir = path.join(__dirname, '../data/build/index');
 
 fs.ensureDir(outputDir)
     .then(() => {
@@ -42,5 +42,5 @@ fs.ensureDir(outputDir)
         return result;
     })
     .then((result) => {
-        return fs.writeJson(path.join(__dirname, '../data/dist/index.json'), result);
+        return fs.writeJson(path.join(outputDir, 'index.json'), result);
     });

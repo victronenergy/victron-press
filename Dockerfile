@@ -25,10 +25,20 @@ RUN chown -R www-data:www-data frontend/ && \
     find frontend/ -type d -exec chmod 755 {} \; && \
     find frontend/ -type f -exec chmod 644 {} \;
 
-# Copy documentation files, Git history, and environment variables
-COPY .git/ ./.git/
-COPY data/docs/ ./data/docs/
+# Copy environment variables and single documentation file
 COPY .env ./
+COPY data/docs/README.md ./data/docs/README.md
+
+# Run build to initialize cache
+RUN chown -R www-data:www-data .env data/docs/ && \
+    chmod 755 data/docs && \
+    chmod 644 .env data/docs/README.md && \
+    sudo -u www-data npm run build && \
+    rm -rf data/dist
+
+# Copy documentation files and Git history
+COPY data/docs/ ./data/docs/
+COPY .git/ ./.git/
 
 # Set correct permissions and build the frontend
 RUN rm -rf data/docs/.vuepress && \
