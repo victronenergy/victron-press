@@ -127,9 +127,17 @@ export default {
       import("markdown-it-emoji"),
       // Custom plugins
       import("markdown-it-abbr"),
-      import("../../markdown-it-plugins/floating-image.js")
+      [import("markdown-it-video"), {
+        youtube: { width: 640, height: 390 },
+        vimeo: { width: 500, height: 281 },
+        vine: { width: 600, height: 600, embed: 'simple' },
+        prezi: { width: 550, height: 400 },
+      }],
+      import("../../markdown-it-plugins/floating-image.js"),
       //import('../../markdown-it-plugins/predefined-tooltip.js'),
-    ];
+    ].map(plugin =>
+      typeof plugin[Symbol.iterator] === "function" ? plugin : [plugin]
+    );
     this.editorLoaded = new Promise((resolve, reject) => {
       this.editorLoadedResolve = resolve;
     });
@@ -150,10 +158,10 @@ export default {
           this.editorLoaded.then(editor => {
             // Load all markdown-it plugins into the editor
             Promise.all(
-              this.editorMarkdownPlugins.map(x =>
-                x.then(({ default: plugin }) => {
-                  editor.constructor.markdownit.use(plugin);
-                  editor.constructor.markdownitHighlight.use(plugin);
+              this.editorMarkdownPlugins.map(([pluginPromise, ...options]) =>
+                pluginPromise.then(({ default: plugin }) => {
+                  editor.constructor.markdownit.use(plugin, ...options);
+                  editor.constructor.markdownitHighlight.use(plugin, ...options);
                 })
               )
             ).then(() => {

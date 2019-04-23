@@ -27,6 +27,12 @@ module.exports = {
     markdown: {
         config: md => {
             md.use(require('markdown-it-abbr'));
+            md.use(require('markdown-it-video'), {
+                youtube: { width: 640, height: 390 },
+                vimeo: { width: 500, height: 281 },
+                vine: { width: 600, height: 600, embed: 'simple' },
+                prezi: { width: 550, height: 400 },
+            });
             md.use(require('../../frontend/markdown-it-plugins/floating-image'));
             md.use(require('../../frontend/markdown-it-plugins/markdown-it-table-renderer'))
             md.use(require('../../frontend/markdown-it-plugins/predefined-tooltip'), {
