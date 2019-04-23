@@ -1,4 +1,4 @@
-
+// Renders tables with colspan support similar to how Toast does it
 'use strict';
 
 function getLine(state, line) {
