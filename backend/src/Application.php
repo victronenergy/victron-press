@@ -95,9 +95,9 @@ class Application implements RequestHandlerInterface
 
         // Handlers for retrieving files
         $this->router->map('GET', '/{langcode:(?:[a-z]{2})}/{file:.+\.html}', [$this, 'handleNonExistingLanguage']);
-        $this->router->map('GET', '/{file:.+\.html}', [$this, 'handleNonExisting']);
         $this->router->map('GET', '/{file:.+\.md}', [$this, 'handleGetMarkdown']);
         $this->router->map('GET', '/{file:.+\.(?:gif|jpg|jpeg|png|svg|webp)}', [$this, 'handleGetImage']);
+        $this->router->map('GET', '/{file:.*}', [$this, 'handleNonExisting']);
 
         // Handlers for editing
         $this->router->map('PUT', '/{file:.+\.md}', [$this, 'handleSaveMarkdown']);
