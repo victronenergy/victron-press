@@ -271,6 +271,10 @@ export default {
   min-height: 600px;
 }
 
+.te-md-container .te-preview {
+  max-width: none;
+}
+
 .button:hover {
   background-color: #599bd5;
 }
