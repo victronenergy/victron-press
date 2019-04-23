@@ -71,6 +71,7 @@ export default {
       editorOptions: {
         usageStatistics: false,
         initialEditType: "markdown",
+        hideModeSwitch: true,
         previewStyle: "vertical",
         language: this.$lang, // TODO: not available at time of instantiation?
         exts: ["scrollSync", "table"],
@@ -261,10 +262,6 @@ export default {
 #edit {
   margin: 0 auto;
   /* padding: 2rem 2.5rem; */
-}
-
-.te-mode-switch-section {
-  display: none !important;
 }
 
 #tui-editor {

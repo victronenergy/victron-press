@@ -57,6 +57,7 @@ export default {
       editorOptions: {
         usageStatistics: false,
         initialEditType: "markdown",
+        hideModeSwitch: true,
         previewStyle: "vertical",
         language: this.$lang, // TODO: not available at time of instantiation?
         exts: ["scrollSync", "table"],
