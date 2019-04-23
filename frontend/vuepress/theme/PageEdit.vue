@@ -67,13 +67,16 @@ export default {
   },
 
   data() {
+    const self = this;
     return {
       editorOptions: {
         usageStatistics: false,
         initialEditType: "markdown",
         hideModeSwitch: true,
         previewStyle: "vertical",
-        language: this.$lang, // TODO: not available at time of instantiation?
+        get language() {
+          return self.$lang.replace('-', '_');
+        },
         exts: ["scrollSync", "table"],
         hooks: {
           addImageBlobHook: function(blob, callback) {
