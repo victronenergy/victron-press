@@ -51,6 +51,7 @@ export default {
   components: { Navbar, PageCreate },
   data() {
     return {
+      canCreatePage: false,
       editModeEnabled: false,
       isSaving: false,
       hasSaved: false
@@ -58,6 +59,7 @@ export default {
   },
   mounted() {
     this.editModeEnabled = window.location.search.includes('editmode');
+    this.canCreatePage = !!window.location.href.match(/\.html$/);
   },
   methods: {
     commitClicked() {
@@ -69,13 +71,6 @@ export default {
     }
   },
   computed: {
-    canCreatePage(){
-      function confirmEnding(string, target) {
-        return (string.substr(-target.length) === target) ? true : false;
-      }
-      return confirmEnding(window.location.href, '.html');
-    },
-
     pageTitle() {
       // const title = window.location.pathname; //Deze is goed!
 
