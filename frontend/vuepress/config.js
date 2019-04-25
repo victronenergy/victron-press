@@ -25,6 +25,9 @@ module.exports = {
             plugins: [new Dotenv()],
         };
     },
+    chainWebpack: (config) => {
+        config.resolve.symlinks(false);
+    },
     plugins: [require('./plugins/pdf')],
     markdown: {
         config: md => {

@@ -108,8 +108,9 @@ export default {
       import("markdown-it-emoji"),
       // Custom plugins
       import("markdown-it-abbr"),
-      import("../../markdown-it-plugins/floating-image.js")
-      //import('../../markdown-it-plugins/predefined-tooltip.js'),
+      import("../../../../frontend/markdown-it-plugins/video-thumb"),
+      import("../../../../frontend/markdown-it-plugins/floating-image"),
+      //import('../../../../frontend/markdown-it-plugins/predefined-tooltip.js'),
     ];
     this.editorLoaded = new Promise((resolve, reject) => {
       this.editorLoadedResolve = resolve;

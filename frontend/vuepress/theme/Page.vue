@@ -3,7 +3,7 @@
     <div class="edit-options-bar" v-if="editModeEnabled">
       <!-- <a @click="stopEditing()" rel="noopener noreferrer">{{translate('backLink')}}</a>
       <a @click="toggleDeleteModal" class="danger" rel="noopener noreferrer">{{translate('deleteLink')}}</a> -->
-      
+
       <div class="last-updated" v-if="lastUpdated" >
         <span class="prefix">{{ translate('lastUpdated') }}: </span>
         <span class="time">{{ lastUpdated }}</span>
@@ -17,7 +17,7 @@
       </div>
 
     </div>
- 
+
     <slot name="top"/>
 
 
@@ -31,8 +31,8 @@
       <p class="custom-block-title">{{ translate('saveFailedHeader') }}</p>
       <p>{{ translate('saveFailedCopy') }}</p>
     </div>
-    
-    
+
+
     <div class="tip custom-block save-success-block" v-if="deleteSuccess">
       <p class="custom-block-title">{{ translate('success') }}</p>
       <p>{{ translate('deleteSuccessMessage') }}</p>
@@ -51,7 +51,7 @@
         <a class="button danger" :class="{ 'disabled': deleteConfirmationText !== title }" @click="tryDelete">{{ translate('deletePageModalCTA') }}</a>
         <a @click="toggleDeleteModal">{{ translate('cancel') }}</a>
       </div>
-    </modal> 
+    </modal>
 
 
     <ClientOnly v-if="editModeEnabled && !saveSuccess && !saveFailed">
@@ -256,7 +256,7 @@ export default {
     },
     setSaveFailed(state) {
      this.saveFailed = state;
-      this.stopEditing(); 
+      this.stopEditing();
     },
     tryEdit() {
       this.isSubscribed().then(data => {
@@ -265,7 +265,7 @@ export default {
         } else {
           this.$router.push({ name: 'unauthorized', query: { redirectUrl: data.redirectUrl } });
         }
-      }); 
+      });
     },
     doEdit() {
       this.saveSuccess = false;
@@ -327,17 +327,17 @@ function find (page, items, offset) {
 .page.edit-mode
   padding-bottom 0
 
-.edit-options-bar 
+.edit-options-bar
   padding 20px 24px
   text-align right
-  
+
   .last-updated
     display inline-block
     margin-right 30px
 
   .button-group
     display inline-block
-    
+
 .last-updated
   font-size 0.9em
   .prefix

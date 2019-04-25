@@ -127,9 +127,9 @@ export default {
       import("markdown-it-emoji"),
       // Custom plugins
       import("markdown-it-abbr"),
-      import("../../markdown-it-plugins/video-thumb"),
-      import("../../markdown-it-plugins/floating-image"),
-      //import('../../markdown-it-plugins/predefined-tooltip'),
+      import("../../../../frontend/markdown-it-plugins/video-thumb"),
+      import("../../../../frontend/markdown-it-plugins/floating-image"),
+      //import('../../../../frontend/markdown-it-plugins/predefined-tooltip'),
     ].map(plugin =>
       typeof plugin[Symbol.iterator] === "function" ? plugin : [plugin]
     );

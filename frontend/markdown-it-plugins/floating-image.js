@@ -3,26 +3,12 @@
 'use strict';
 
 module.exports = function floating_image_plugin(md, options) {
-    var normalizeReference = md.utils.normalizeReference,
-        isSpace = md.utils.isSpace;
+    const normalizeReference = md.utils.normalizeReference;
+    const isWhiteSpace = md.utils.isWhiteSpace;
 
     function floating_image(state, silent) {
-        var attrs,
-            code,
-            content,
-            label,
-            labelEnd,
-            labelStart,
-            pos,
-            ref,
-            res,
-            title,
-            token,
-            tokens,
-            start,
-            href = '',
-            oldPos = state.pos,
-            max = state.posMax;
+        const oldPos = state.pos;
+        const max = state.posMax;
 
         if (state.src.charCodeAt(state.pos) !== 0x21 /* ! */) {
             return false;
@@ -31,15 +17,19 @@ module.exports = function floating_image_plugin(md, options) {
             return false;
         }
 
-        labelStart = state.pos + 2;
-        labelEnd = state.md.helpers.parseLinkLabel(state, state.pos + 1, false);
+        const labelStart = state.pos + 2;
+        const labelEnd = state.md.helpers.parseLinkLabel(
+            state,
+            state.pos + 1,
+            false
+        );
 
         // parser failed to find ']', so it's not a valid link
         if (labelEnd < 0) {
             return false;
         }
 
-        pos = labelEnd + 1;
+        let pos = labelEnd + 1;
         let float;
         if (state.src.charCodeAt(pos) === 0x3c /* < */) {
             float = 'left';
@@ -50,6 +40,8 @@ module.exports = function floating_image_plugin(md, options) {
         }
 
         pos = labelEnd + 2;
+        let title,
+            href = '';
         if (pos < max && state.src.charCodeAt(pos) === 0x28 /* ( */) {
             //
             // Inline link
@@ -59,8 +51,7 @@ module.exports = function floating_image_plugin(md, options) {
             //        ^^ skipping these spaces
             pos++;
             for (; pos < max; pos++) {
-                code = state.src.charCodeAt(pos);
-                if (!isSpace(code) && code !== 0x0a) {
+                if (!isWhiteSpace(state.src.charCodeAt(pos))) {
                     break;
                 }
             }
@@ -70,16 +61,15 @@ module.exports = function floating_image_plugin(md, options) {
 
             // [link](  <href>  "title"  )
             //          ^^^^^^ parsing link destination
-            start = pos;
-            res = state.md.helpers.parseLinkDestination(
+            const linkDest = state.md.helpers.parseLinkDestination(
                 state.src,
                 pos,
                 state.posMax
             );
-            if (res.ok) {
-                href = state.md.normalizeLink(res.str);
+            if (linkDest.ok) {
+                href = state.md.normalizeLink(linkDest.str);
                 if (state.md.validateLink(href)) {
-                    pos = res.pos;
+                    pos = linkDest.pos;
                 } else {
                     href = '';
                 }
@@ -87,26 +77,28 @@ module.exports = function floating_image_plugin(md, options) {
 
             // [link](  <href>  "title"  )
             //                ^^ skipping these spaces
-            start = pos;
+            const start = pos;
             for (; pos < max; pos++) {
-                code = state.src.charCodeAt(pos);
-                if (!isSpace(code) && code !== 0x0a) {
+                if (!isWhiteSpace(state.src.charCodeAt(pos))) {
                     break;
                 }
             }
 
             // [link](  <href>  "title"  )
             //                  ^^^^^^^ parsing link title
-            res = state.md.helpers.parseLinkTitle(state.src, pos, state.posMax);
-            if (pos < max && start !== pos && res.ok) {
-                title = res.str;
-                pos = res.pos;
+            const linkTitle = state.md.helpers.parseLinkTitle(
+                state.src,
+                pos,
+                state.posMax
+            );
+            if (pos < max && start !== pos && linkTitle.ok) {
+                title = linkTitle.str;
+                pos = linkTitle.pos;
 
                 // [link](  <href>  "title"  )
                 //                         ^^ skipping these spaces
                 for (; pos < max; pos++) {
-                    code = state.src.charCodeAt(pos);
-                    if (!isSpace(code) && code !== 0x0a) {
+                    if (!isWhiteSpace(state.src.charCodeAt(pos))) {
                         break;
                     }
                 }
@@ -127,8 +119,9 @@ module.exports = function floating_image_plugin(md, options) {
                 return false;
             }
 
+            let label;
             if (pos < max && state.src.charCodeAt(pos) === 0x5b /* [ */) {
-                start = pos + 1;
+                const start = pos + 1;
                 pos = state.md.helpers.parseLinkLabel(state, pos);
                 if (pos >= 0) {
                     label = state.src.slice(start, pos++);
@@ -145,7 +138,7 @@ module.exports = function floating_image_plugin(md, options) {
                 label = state.src.slice(labelStart, labelEnd);
             }
 
-            ref = state.env.references[normalizeReference(label)];
+            const ref = state.env.references[normalizeReference(label)];
             if (!ref) {
                 state.pos = oldPos;
                 return false;
@@ -159,21 +152,24 @@ module.exports = function floating_image_plugin(md, options) {
         // so all that's left to do is to call tokenizer.
         //
         if (!silent) {
-            content = state.src.slice(labelStart, labelEnd);
+            const content = state.src.slice(labelStart, labelEnd);
 
-            state.md.inline.parse(content, state.md, state.env, (tokens = []));
+            let tokens = [];
+            state.md.inline.parse(content, state.md, state.env, tokens);
 
-            token = state.push('floating_image', 'img', 0);
-            token.attrs = attrs = [
+            const token = state.push('floating_image', 'img', 0);
+            token.attrs = [
                 ['src', href],
                 ['alt', ''],
-                ['class', 'floating-image floating-image-' + float ],
+                ['class', 'floating-image floating-image-' + float],
+                //...(title && ['title', title]), // Using this syntax makes Webpack think this is a ES6 module
             ];
             token.children = tokens;
             token.content = content;
 
+            // Using this syntax instead doesn't mess with Webpack
             if (title) {
-                attrs.push(['title', title]);
+                token.attrs.push(['title', title]);
             }
         }
 
