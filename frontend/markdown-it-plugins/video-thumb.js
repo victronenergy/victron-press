@@ -92,7 +92,10 @@ module.exports = function video_thumb_plugin(md, options) {
             // theState.pos += theState.src.indexOf(')', theState.pos); // Using this syntax makes Webpack think this is a ES6 module
             do {
                 theState.pos++;
-            } while(theState.pos < theState.src.length && theState.src.charCodeAt(theState.pos - 1) !== 0x29 /* ) */);
+            } while (
+                theState.pos < theState.src.length &&
+                theState.src.charCodeAt(theState.pos - 1) !== 0x29 /* ) */
+            );
             return true;
         };
     }
@@ -120,21 +123,23 @@ module.exports = function video_thumb_plugin(md, options) {
     }
 
     function video_thumb_renderer(md, options) {
-        return function (tokens, idx) {
+        return function(tokens, idx) {
             const videoID = md.utils.escapeHtml(tokens[idx].videoID);
-            const service = md.utils.escapeHtml(tokens[idx].service).toLowerCase();
+            const service = md.utils
+                .escapeHtml(tokens[idx].service)
+                .toLowerCase();
 
             return videoID === ''
                 ? ''
                 : '<a href="' +
-                    options.videoUrl(service, videoID, options) +
-                    '"><img src="' +
-                    options.imageUrl(service, videoID, options) +
-                    '" width="' +
-                    options[service].width +
-                    '" height="' +
-                    options[service].height +
-                    '"  ></a>';
+                      options.videoUrl(service, videoID, options) +
+                      '"><img src="' +
+                      options.imageUrl(service, videoID, options) +
+                      '" width="' +
+                      options[service].width +
+                      '" height="' +
+                      options[service].height +
+                      '"  ></a>';
         };
     }
 
