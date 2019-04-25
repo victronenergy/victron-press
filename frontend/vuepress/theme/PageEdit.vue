@@ -127,14 +127,9 @@ export default {
       import("markdown-it-emoji"),
       // Custom plugins
       import("markdown-it-abbr"),
-      [import("markdown-it-video"), {
-        youtube: { width: 640, height: 390 },
-        vimeo: { width: 500, height: 281 },
-        vine: { width: 600, height: 600, embed: 'simple' },
-        prezi: { width: 550, height: 400 },
-      }],
-      import("../../markdown-it-plugins/floating-image.js"),
-      //import('../../markdown-it-plugins/predefined-tooltip.js'),
+      import("../../markdown-it-plugins/video-thumb"),
+      import("../../markdown-it-plugins/floating-image"),
+      //import('../../markdown-it-plugins/predefined-tooltip'),
     ].map(plugin =>
       typeof plugin[Symbol.iterator] === "function" ? plugin : [plugin]
     );
