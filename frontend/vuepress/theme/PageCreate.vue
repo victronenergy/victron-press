@@ -141,7 +141,7 @@ export default {
         // Wait for the editor to load
         this.editorLoaded.then(editor => {
           // Load all markdown-it plugins into the editor
-          this.editorMarkdownPlugins.foreach(x =>
+          this.editorMarkdownPlugins.forEach(x =>
             x.then(({ default: plugin }) => {
               editor.constructor.markdownit.use(plugin);
               editor.constructor.markdownitHighlight.use(plugin);
