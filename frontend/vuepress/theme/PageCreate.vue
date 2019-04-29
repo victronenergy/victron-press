@@ -59,6 +59,7 @@ export default {
     Modal
   },
   data() {
+    const self = this;
     return {
       editorOptions: {
         usageStatistics: false,
