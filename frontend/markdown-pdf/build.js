@@ -33,7 +33,11 @@ Promise.all([
         cwd: inputDir,
         gitignore: true,
     }),
-    puppeteer.launch(),
+    puppeteer.launch({
+        ...(process.env.PUPPETEER_NO_SANDBOX === 'true' && {
+            args: ['--no-sandbox'],
+        }),
+    }),
 ]).then(([_, filePaths, browser]) =>
     Promise.all(
         filePaths.map(async filePath =>

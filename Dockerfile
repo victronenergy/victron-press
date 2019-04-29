@@ -6,8 +6,10 @@ RUN id www-data >/dev/null 2>&1 || useradd -s /usr/sbin/nologin -d /var/www www-
     mkdir -p /var/www && chown -R www-data:www-data /var/www
 
 # Install dependencies and create workspace directory
-RUN apt-get update && \
-    apt-get install -y git sudo && \
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends git google-chrome-unstable sudo && \
     npm -g i npm && \
     mkdir -p /workspace/frontend/vuepress && \
     chown -R www-data:www-data /workspace
@@ -25,11 +27,12 @@ RUN chown -R www-data:www-data frontend/ && \
     find frontend/ -type d -exec chmod 755 {} \; && \
     find frontend/ -type f -exec chmod 644 {} \;
 
-# Copy environment variables and single documentation file
+# Copy environment variables, for security filtered to only contain relevant values
 COPY .env ./
-COPY data/docs/README.md ./data/docs/README.md
+RUN sed -i -E '/^(SENTRY_DSN_FRONTEND|GITHUB_USER|GITHUB_REPO|GITHUB_BRANCH)=/!d' .env
 
-# Run build to initialize cache
+# Prime the cache by building a single documentation file that almost never changes
+COPY data/docs/README.md ./data/docs/README.md
 RUN chown -R www-data:www-data .env data/docs/ && \
     chmod 755 data/docs && \
     chmod 644 .env data/docs/README.md && \
@@ -41,12 +44,16 @@ COPY data/docs/ ./data/docs/
 COPY .git/ ./.git/
 
 # Set correct permissions and build the frontend
+# Note: Chromium in Docker, which is used for PDF generation, doesn't run without
+# extra privileges (--add-cap SYS_ADMIN), which during a Docker build we cannot grant.
+# Since we're running in a Docker container and generate all the content Chromium
+# runs ourselves, we feel confident enough to run without the sandbox.
 RUN rm -rf data/docs/.vuepress && \
     chown -R www-data:www-data .env data/docs/ && \
     chmod 644 .env && \
     find data/docs/ -type d -exec chmod 755 {} \; && \
     find data/docs/ -type f -exec chmod 644 {} \; && \
-    sudo -u www-data npm run build
+    sudo -u www-data PUPPETEER_NO_SANDBOX=true npm run build
 
 # Backend build
 FROM php:7.3-cli-alpine AS backend
