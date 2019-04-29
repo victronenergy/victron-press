@@ -35,7 +35,7 @@ Promise.all([
                                 !stdout ||
                                 !stdout.length
                             ) {
-                                resolve([filePath, {}]);
+                                return resolve([filePath, {}]);
                             }
 
                             // Parse Git data
@@ -45,7 +45,7 @@ Promise.all([
                                 authorName,
                             ] = stdout.trim().split(',', 3);
 
-                            resolve([
+                            return resolve([
                                 filePath,
                                 {
                                     lastUpdated: parseInt(authorTime),
