@@ -81,7 +81,7 @@ export default {
         hideModeSwitch: true,
         previewStyle: "vertical",
         get language() {
-          return self.$lang.replace("-", "_");
+          return self.$lang ? self.$lang.replace("-", "_") : 'en_US';
         },
         exts: ["scrollSync", "table"],
         hooks: {
