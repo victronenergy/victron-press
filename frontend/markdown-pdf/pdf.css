@@ -1,26 +1,26 @@
 @font-face {
     font-family: 'Museo Sans';
     src: url('fonts/MuseoSans/MuseoSans-300.woff') format('woff'), /* Pretty Modern Browsers */
-         url('fonts/MuseoSans/MuseoSans-300.ttf')  format('truetype'); /* Safari, Android, iOS */
+         url('fonts/MuseoSans/MuseoSans-300.ttf') format('truetype'); /* Safari, Android, iOS */
     font-weight: 300;
 }
 
 @font-face {
     font-family: 'Museo Sans';
     src: url('fonts/MuseoSans/MuseoSans-700.woff') format('woff'), /* Pretty Modern Browsers */
-    url('fonts/MuseoSans/MuseoSans-700.ttf')  format('truetype'); /* Safari, Android, iOS */
+         url('fonts/MuseoSans/MuseoSans-700.ttf') format('truetype'); /* Safari, Android, iOS */
     font-weight: 700;
 }
 
-body {
-    padding: 1cm 0.5cm;
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+* {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
     color: #272622;
-    font-family: "Museo Sans","Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: 'Museo Sans', sans-serif;
     font-size: 11px;
     font-weight: 300;
     line-height: 14px;
+    text-size-adjust: 100%;
     word-wrap: break-word;
 }
 
@@ -28,17 +28,16 @@ p {
     margin: 0 0 10px;
 }
 
-
 strong {
     font-weight: 700;
 }
 
 img {
-    display: block;
-    max-width: 50%;
-    max-height: 6cm;
-    margin: 30px auto;
     border: 0;
+    display: block;
+    margin: 30px auto;
+    max-height: 6cm;
+    max-width: 50%;
 }
 
 hr {
@@ -53,7 +52,7 @@ pre {
 code,
 kbd,
 pre {
-    font-family: monospace, monospace;
+    font-family: monospace;
     font-size: 1em;
 }
 
@@ -71,7 +70,7 @@ input {
     line-height: normal;
 }
 
-input[type="checkbox"] {
+input[type='checkbox'] {
     box-sizing: border-box;
     padding: 0;
 }
@@ -91,39 +90,41 @@ th {
 }
 
 input {
-    font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans,
+        clean, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol';
 }
 
 a {
+    background-color: transparent;
     color: #4790d0;
     text-decoration: underline;
-    background-color: transparent;
 }
 
 a:hover,
 a:active {
-    text-decoration: none;
     outline: none;
+    text-decoration: none;
 }
 
 hr {
+    background: transparent;
+    border-bottom: 1px solid #e6e5e1;
+    border: 0;
     height: 0;
     margin: 15px 0;
     overflow: hidden;
-    background: transparent;
-    border: 0;
-    border-bottom: 1px solid #e6e5e1;
 }
 
 hr:before {
     display: table;
-    content: "";
+    content: '';
 }
 
 hr:after {
     display: table;
     clear: both;
-    content: "";
+    content: '';
 }
 
 blockquote {
@@ -132,9 +133,9 @@ blockquote {
 
 ul,
 ol {
-    padding: 0;
-    margin-top: 0;
     margin-bottom: 0;
+    margin-top: 0;
+    padding: 0;
 }
 
 ol ol,
@@ -154,14 +155,14 @@ dd {
 }
 
 code {
-    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     font-size: 12px;
 }
 
 pre {
-    margin-top: 0;
+    font: 12px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     margin-bottom: 0;
-    font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    margin-top: 0;
 }
 
 .select::-ms-expand {
@@ -169,15 +170,15 @@ pre {
 }
 
 .octicon {
-    font: normal normal normal 16px/1 octicons-link;
-    display: inline-block;
-    text-decoration: none;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    -webkit-font-smoothing: antialiased;
+    -webkit-user-select: none;
+    display: inline-block;
+    font: normal normal normal 16px/1 octicons-link;
+    text-decoration: none;
+    text-rendering: auto;
     user-select: none;
 }
 
@@ -186,14 +187,14 @@ pre {
 }
 
 before {
+    content: '';
     display: table;
-    content: "";
 }
 
 after {
-    display: table;
     clear: both;
-    content: "";
+    content: '';
+    display: table;
 }
 
 *:first-child {
@@ -211,8 +212,8 @@ a:not([href]) {
 
 .anchor {
     display: inline-block;
-    padding-right: 2px;
     margin-left: -18px;
+    padding-right: 2px;
 }
 
 .anchor:focus {
@@ -225,16 +226,16 @@ h3,
 h4,
 h5,
 h6 {
-    margin: 20px 0 10px;
+    border: none;
     font-weight: 300;
     line-height: 1.4;
-    border: none;
+    margin: 20px 0 10px;
 }
 
 h1 {
-    margin-top: 0;
     font-size: 20px;
     line-height: 30px;
+    margin-top: 0;
 }
 
 h2 {
@@ -248,19 +249,19 @@ h3 {
 }
 
 h4 {
+    font-size: 13px;
     font-weight: 700;
     line-height: 1;
-    font-size: 13px;
 }
 
 h5 {
-    font-weight: 700;
     font-size: 12px;
+    font-weight: 700;
 }
 
 h6 {
-    font-weight: 700;
     font-size: 11px;
+    font-weight: 700;
 }
 
 h1 .octicon-link,
@@ -298,16 +299,16 @@ ol,
 dl,
 table,
 pre {
-    margin-top: 0;
     margin-bottom: 16px;
+    margin-top: 0;
 }
 
 hr {
-    height: 1px;
-    padding: 0;
-    margin: 30px 0;
     background-color: #e6e5e1;
     border: 0 none;
+    height: 1px;
+    margin: 30px 0;
+    padding: 0;
 }
 
 ul,
@@ -330,8 +331,8 @@ ul ul,
 ul ol,
 ol ol,
 ol ul {
-    margin-top: 0;
     margin-bottom: 0;
+    margin-top: 0;
 }
 
 dl {
@@ -339,87 +340,76 @@ dl {
 }
 
 dl dt {
-    padding: 0;
-    margin-top: 16px;
     font-size: 1em;
     font-style: italic;
     font-weight: bold;
+    margin-top: 16px;
+    padding: 0;
 }
 
 dl dd {
-    padding: 0 16px;
     margin-bottom: 16px;
+    padding: 0 16px;
 }
 
 blockquote {
-    padding: 0 15px;
     border-left: 4px solid #e6e5e1;
+    padding: 0 15px;
 }
 
 table {
-    width: 100%;
-    overflow: auto;
-    word-break: normal;
-    word-break: keep-all;
     border-collapse: collapse;
+    overflow: auto;
+    width: 100%;
+    word-break: keep-all;
+    word-break: normal;
 }
-
 
 table th,
 table td {
-    padding: 3px 5px;
     border: 1pt solid #ccc;
+    padding: 3px 5px;
 }
 
 table th {
-    vertical-align: bottom;
     background: #eee;
+    vertical-align: bottom;
 }
-
 
 table td {
     vertical-align: top;
 }
 
-
-table tr {
-
-}
-
-table tr:nth-child(2n) {
-
-}
-
 img {
-    max-width: 100%;
-    box-sizing: content-box;
     background-color: #fff;
+    box-sizing: content-box;
+    max-width: 100%;
 }
 
 code {
-    padding: 0;
-    padding-top: 0.2em;
-    padding-bottom: 0.2em;
-    margin: 0;
-    font-size: 85%;
-    background-color: rgba(0,0,0,0.04);
+    background-color: rgba(0, 0, 0, 0.04);
     border-radius: 3px;
+    font-size: 85%;
+    margin: 0;
+    padding-bottom: 0.2em;
+    padding-top: 0.2em;
+    padding: 0;
 }
 
 code:before,
 code:after {
+    content: '\00a0';
     letter-spacing: -0.2em;
-    content: "\00a0";
 }
 
-pre>code {
-    padding: 0;
-    margin: 0;
-    font-size: 100%;
-    word-break: normal;
-    white-space: pre;
+pre > code {
     background: transparent;
     border: 0;
+    font-size: 100%;
+    margin: 0;
+    padding: 0;
+    white-space: pre;
+    word-break: normal;
 }
 
 .highlight {
@@ -428,16 +418,12 @@ pre>code {
 
 .highlight pre,
 pre {
-    padding: 16px;
-    overflow: auto;
-    font-size: 85%;
-    line-height: 1.45;
     background-color: #f7f7f7;
     border-radius: 3px;
-}
-
-.highlight pre {
-
+    font-size: 85%;
+    line-height: 1.45;
+    overflow: auto;
+    padding: 16px;
 }
 
 pre {
@@ -445,15 +431,15 @@ pre {
 }
 
 pre code {
-    display: inline;
-    max-width: initial;
-    padding: 0;
-    margin: 0;
-    overflow: initial;
-    line-height: inherit;
-    word-wrap: normal;
     background-color: transparent;
     border: 0;
+    display: inline;
+    line-height: inherit;
+    margin: 0;
+    max-width: initial;
+    overflow: initial;
+    padding: 0;
+    word-wrap: normal;
 }
 
 pre code:before,
@@ -462,15 +448,15 @@ pre code:after {
 }
 
 kbd {
-    display: inline-block;
-    padding: 3px 5px;
-    font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    line-height: 10px;
-    color: #555;
-    vertical-align: middle;
     background-color: #fcfcfc;
-    border: solid 1px #ccc;
     border-bottom-color: #bbb;
     border-radius: 3px;
+    border: solid 1px #ccc;
     box-shadow: inset 0 -1px 0 #bbb;
+    color: #555;
+    display: inline-block;
+    font: 11px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    line-height: 10px;
+    padding: 3px 5px;
+    vertical-align: middle;
 }

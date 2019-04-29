@@ -27,9 +27,10 @@ const markdownitRenderer = new markdownit({
     .use(require('../markdown-it-plugins/floating-image'))
     .use(require('../markdown-it-plugins/table-renderer'));
 
+const args = process.argv.slice(2);
 Promise.all([
     fs.ensureDir(outputDir),
-    globby([`**/*.md`, `!.vuepress`], {
+    globby([...(args.length ? args : [`**/*.md`]), `!README.md`, `!.vuepress`], {
         cwd: inputDir,
         gitignore: true,
     }),
@@ -38,7 +39,8 @@ Promise.all([
             args: ['--no-sandbox'],
         }),
     }),
-]).then(([_, filePaths, browser]) =>
+    fs.readFile(path.join(__dirname, '../vuepress/theme/images/victron-logo.svg')),
+]).then(([_, filePaths, browser, logoSVG]) =>
     Promise.all(
         filePaths.map(async filePath =>
             Promise.all([
@@ -63,10 +65,51 @@ Promise.all([
                             left: '10mm',
                         },
                         displayHeaderFooter: true,
-                        headerTemplate:
-                            '<div style="font-size: 20px; font-family: Helvetica, sans-serif; color: #4790d0; text-align: center;"><span style="border-bottom: 1px solid #4790d0; padding-bottom: 0.3cm; font-weight: 700;">Victron Energy</span></div>',
-                        footerTemplate:
-                            '<div style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 9px; text-align: right; padding-top: 1cm;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+                        headerTemplate: `
+                            <style type="text/css">
+                                header {
+                                    -webkit-print-color-adjust: exact;
+                                    color-adjust: exact;
+                                    color: #272622;
+                                    font-family: Helvetica, sans-serif;
+                                    font-size: 9px;
+                                    font-weight: 400;
+                                    padding: 0.25cm 1cm;
+                                    text-size-adjust: 100%;
+                                    user-select: none;
+                                    vertical-align: center;
+                                    width: 100%;
+                                }
+                                .logo {
+                                    float: left;
+                                    height: 20px;
+                                    width: auto;
+                                    margin-right: 20px;
+                                }
+                            </style>
+                            <header>
+                                <img src="data:image/svg+xml;base64,${logoSVG.toString('base64')}" class="logo" />
+                                ${filePath.replace(/\.md$/, '')}
+                            </header>`,
+                        footerTemplate: `
+                            <style type="text/css">
+                                footer {
+                                    -webkit-print-color-adjust: exact;
+                                    color-adjust: exact;
+                                    color: #ccc;
+                                    font-family: Helvetica, sans-serif;
+                                    font-size: 9px;
+                                    font-weight: 400;
+                                    padding: 0.25cm 1cm;
+                                    text-align: right;
+                                    text-size-adjust: 100%;
+                                    user-select: none;
+                                    width: 100%;
+                                }
+                            </style>
+                            <footer>
+                                <span class="pageNumber"></span> / <span class="totalPages"></span>
+                            </footer>`,
                     });
                 }),
             ]).then(([, pdf]) =>
