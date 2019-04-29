@@ -10,15 +10,6 @@ module.exports = {
                 href: 'https://www.victronenergy.com/static/favicon.ico',
             },
         ],
-        [
-            'link',
-            {
-                rel: 'stylesheet',
-                href: '/css/print.css',
-                type: 'text/css',
-                media: 'print',
-            },
-        ],
     ],
     configureWebpack: config => {
         return {
@@ -60,9 +51,6 @@ module.exports = {
 
         // Enable automatic in-page navigation
         sidebar: 'auto',
-
-        // Logo used
-        logo: '/assets/img/victron-logo.png',
 
         locales: {
             '/': {

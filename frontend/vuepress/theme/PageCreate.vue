@@ -44,7 +44,13 @@ import "tui-editor/dist/tui-editor.css";
 import "codemirror/lib/codemirror.css";
 
 import Modal from "./Modal";
-import { resolvePage, normalize, makeRelative, outboundRE, endingSlashRE } from "./util";
+import {
+  resolvePage,
+  normalize,
+  makeRelative,
+  outboundRE,
+  endingSlashRE
+} from "./util";
 
 export default {
   name: "PageCreates",
@@ -59,7 +65,9 @@ export default {
         initialEditType: "markdown",
         hideModeSwitch: true,
         previewStyle: "vertical",
-        language: this.$lang, // TODO: not available at time of instantiation?
+        get language() {
+          return self.$lang.replace("-", "_");
+        },
         exts: ["scrollSync", "table"],
         hooks: {
           addImageBlobHook: function(blob, callback) {
@@ -73,7 +81,13 @@ export default {
                   }
                 })
                 .then(data => {
-                  callback(makeRelative(window.location.pathname, data.headers["content-location"]), "alt-text");
+                  callback(
+                    makeRelative(
+                      window.location.pathname,
+                      data.headers["content-location"]
+                    ),
+                    "alt-text"
+                  );
                 })
                 .catch(error => {
                   console.log(error);
@@ -109,7 +123,7 @@ export default {
       // Custom plugins
       import("markdown-it-abbr"),
       import("../../../../frontend/markdown-it-plugins/video-thumb"),
-      import("../../../../frontend/markdown-it-plugins/floating-image"),
+      import("../../../../frontend/markdown-it-plugins/floating-image")
       //import('../../../../frontend/markdown-it-plugins/predefined-tooltip.js'),
     ];
     this.editorLoaded = new Promise((resolve, reject) => {
@@ -131,7 +145,7 @@ export default {
               editor.constructor.markdownit.use(plugin);
               editor.constructor.markdownitHighlight.use(plugin);
             })
-          )
+          );
         });
       } else {
         window.location.replace(data.redirectUrl);
@@ -186,7 +200,7 @@ export default {
             this.saving = false;
             this.createMode = false;
 
-            this.$emit("saveSuccess", true); //deze zet ook de editmode weer op false.
+            this.$emit("saveSuccess", true);
             this.$router.push({});
           }
           console.log("posted content, response:", response);
@@ -195,18 +209,12 @@ export default {
 
     toggleCommitModal() {
       this.commitModalVisible = !this.commitModalVisible;
-    },
+    }
   }
 };
 </script>
 
 <style>
-#create {
-  /* margin: 0 auto;
-  padding: 2rem 2.5rem; */
-}
-
-
 #tui-editor {
   min-height: 600px;
 }
@@ -216,7 +224,6 @@ export default {
 }
 
 .button {
-  /* margin-top: 20px; */
   margin-left: 20px;
   border: none;
   display: inline-block;

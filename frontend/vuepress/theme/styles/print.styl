@@ -1,0 +1,110 @@
+
+@media print
+  body
+    font-size 11px !important
+    line-height 14px !important
+
+    &,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    ol,
+    ul,
+    div,
+    p
+      display block !important
+      width auto
+      border 0
+      padding 0
+      float none
+      position static
+      overflow visible !important
+
+    h1
+      margin-top 15px
+      padding-top 0
+      font-size 20px
+      line-height 30px
+    h2
+      font-size 17px
+      line-height 25px
+    h3
+      font-size 14px
+      line-height 20px
+    h4
+      font-weight 700
+      line-height 1
+      font-size 13px
+    h5
+      font-weight 700
+      font-size 12px
+    h6
+      font-weight 700
+      font-size 11px
+    .content
+      &:not(.custom)
+        padding-top 0
+    .page
+      padding-left 0 !important
+      .page-edit
+        padding-top 0
+        padding-bottom 15px
+    table
+      page-break-inside auto
+      tr
+        page-break-inside avoid
+        page-break-after auto
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6
+      margin 20px 0 10px
+      font-weight 300
+      line-height 1.4
+      border none
+
+    .content:not(.custom)
+      & > h1:first-child + p,
+      & > h2:first-child + p,
+      & > h3:first-child + p,
+      & > h4:first-child + p,
+      & > h5:first-child + p,
+      & > h6:first-child + p,
+      & > h1:first-child + pre,
+      & > h2:first-child + pre,
+      & > h3:first-child + pre,
+      & > h4:first-child + pre,
+      & > h5:first-child + pre,
+      & > h6:first-child + pre,
+      & > h1:first-child + .custom-block,
+      & > h2:first-child + .custom-block,
+      & > h3:first-child + .custom-block,
+      & > h4:first-child + .custom-block,
+      & > h5:first-child + .custom-block,
+      & > h6:first-child + .custom-block,
+      & > h1,
+      & > h2,
+      & > h3,
+      & > h4,
+      & > h5,
+      & > h6
+        margin-top 20px
+        padding-top 0
+
+  .theme-container
+    .navbar
+      margin-bottom 20px
+      padding-left 1.5rem
+      border none
+
+  .sidebar,
+  .sidebar-button,
+  header .nav-links,
+  .page-edit .edit-link
+    display none !important

@@ -57,12 +57,18 @@ import "tui-editor/dist/tui-editor.css";
 import "codemirror/lib/codemirror.css";
 
 import Modal from "./Modal";
-import { resolvePage, normalize, makeRelative, outboundRE, endingSlashRE } from "./util";
+import {
+  resolvePage,
+  normalize,
+  makeRelative,
+  outboundRE,
+  endingSlashRE
+} from "./util";
 
 export default {
   name: "PageEdit",
   components: {
-    Editor: () => import("@toast-ui/vue-editor/src/Editor"), //dynamic vue import for ssr
+    Editor: () => import("@toast-ui/vue-editor/src/Editor"),
     Modal
   },
 
@@ -75,7 +81,7 @@ export default {
         hideModeSwitch: true,
         previewStyle: "vertical",
         get language() {
-          return self.$lang.replace('-', '_');
+          return self.$lang.replace("-", "_");
         },
         exts: ["scrollSync", "table"],
         hooks: {
@@ -90,7 +96,13 @@ export default {
                   }
                 })
                 .then(data => {
-                  callback(makeRelative(window.location.pathname, data.headers["content-location"]), "alt-text");
+                  callback(
+                    makeRelative(
+                      window.location.pathname,
+                      data.headers["content-location"]
+                    ),
+                    "alt-text"
+                  );
                 })
                 .catch(error => {
                   console.log(error);
@@ -128,7 +140,7 @@ export default {
       // Custom plugins
       import("markdown-it-abbr"),
       import("../../../../frontend/markdown-it-plugins/video-thumb"),
-      import("../../../../frontend/markdown-it-plugins/floating-image"),
+      import("../../../../frontend/markdown-it-plugins/floating-image")
       //import('../../../../frontend/markdown-it-plugins/predefined-tooltip'),
     ].map(plugin =>
       typeof plugin[Symbol.iterator] === "function" ? plugin : [plugin]
@@ -156,7 +168,10 @@ export default {
               this.editorMarkdownPlugins.map(([pluginPromise, ...options]) =>
                 pluginPromise.then(({ default: plugin }) => {
                   editor.constructor.markdownit.use(plugin, ...options);
-                  editor.constructor.markdownitHighlight.use(plugin, ...options);
+                  editor.constructor.markdownitHighlight.use(
+                    plugin,
+                    ...options
+                  );
                 })
               )
             ).then(() => {
@@ -251,7 +266,7 @@ export default {
           ) {
             this.saving = false;
 
-            this.$emit("saveSuccess", true); //deze zet ook de editmode weer op false.
+            this.$emit("saveSuccess", true);
           }
           console.log("posted content, response:", response);
         })
@@ -267,7 +282,6 @@ export default {
 <style>
 #edit {
   margin: 0 auto;
-  /* padding: 2rem 2.5rem; */
 }
 
 #tui-editor {
@@ -283,7 +297,6 @@ export default {
 }
 
 .button {
-  /* margin-top: 20px; */
   margin-left: 20px;
   border: none;
   display: inline-block;

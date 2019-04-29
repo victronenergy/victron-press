@@ -210,7 +210,7 @@ function table_renderer(state, startLine, endLine, silent) {
                     tdContent = columns[i]
                         ? columns[i].trim().split(':')[1]
                         : '';
-                    token.attrs = attrs = [['colspan', tdColspan]];
+                    token.attrs = [['colspan', tdColspan]];
                 }
             }
             if (aligns[i]) {

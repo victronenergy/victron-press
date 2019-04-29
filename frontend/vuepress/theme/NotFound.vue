@@ -1,6 +1,6 @@
 <template>
   <div class="theme-container">
-    <Navbar :sidebarToggleEnabled="false" />
+    <Navbar :sidebarToggleEnabled="false"/>
 
     <div class="content" v-if="!editModeEnabled && !hasSaved">
       <h1>{{ translate('pageDoesntExist') }}</h1>
@@ -8,26 +8,18 @@
     </div>
 
     <ClientOnly>
-      <div class="editor-container"
-           v-if="editModeEnabled">
-        <!-- <h3>{{pageTitle}}</h3> -->
-
+      <div class="editor-container" v-if="editModeEnabled">
         <div class="create-options-bar">
           <div class="button-group">
-            <!-- <div class="button-group-item danger" @click="toggleDeleteModal">{{translate('deleteLink')}}</div> -->
-            <div class="button-group-item" @click="editModeEnabled = false">{{ translate('cancel') }}</div>
+            <div
+              class="button-group-item"
+              @click="editModeEnabled = false"
+            >{{ translate('cancel') }}</div>
             <div class="button-group-item" @click="commitClicked">{{ translate('publishPage') }}</div>
           </div>
         </div>
 
-
-        <page-create
-          @saveSuccess="onHasSaved()"
-          ref="pageCreate"/>
-
-        <!-- <div style="display: flex; align-items: center;" class="cta-container">
-          <a class="button" @click="commitClicked()" v-if="editModeEnabled">{{ translate('publishPage') }}</a>
-        </div> -->
+        <page-create @saveSuccess="onHasSaved()" ref="pageCreate"/>
       </div>
       <div v-else-if="hasSaved" class="save-success-container">
         <div class="tip custom-block save-success-block">
@@ -40,12 +32,8 @@
 </template>
 
 <script>
-import Navbar from './Navbar.vue';
-import PageCreate from './PageCreate';
-import { resolvePage, normalize, outboundRE, endingSlashRE } from './util'
-
-//als wel  eindigd op .html, toon 'create this page'
-
+import Navbar from "./Navbar.vue";
+import PageCreate from "./PageCreate";
 
 export default {
   components: { Navbar, PageCreate },
@@ -55,10 +43,10 @@ export default {
       editModeEnabled: false,
       isSaving: false,
       hasSaved: false
-    }
+    };
   },
   mounted() {
-    this.editModeEnabled = window.location.search.includes('editmode');
+    this.editModeEnabled = window.location.search.includes("editmode");
     this.canCreatePage = !!window.location.href.match(/\.html$/);
   },
   methods: {
@@ -70,19 +58,7 @@ export default {
       this.editModeEnabled = false;
     }
   },
-  computed: {
-    pageTitle() {
-      // const title = window.location.pathname; //Deze is goed!
-
-      // return title;
-    },
-    url() {
-      // return normalize(this.pageTitle) + '.md';
-    }
-
-
-  }
-}
+};
 </script>
 
 <style scoped>
@@ -95,7 +71,6 @@ export default {
   padding: 20px 24px;
   text-align: right;
 }
-
 
 .editor-container {
   padding-top: 80px;

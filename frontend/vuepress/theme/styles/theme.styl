@@ -1,4 +1,5 @@
 @require './config'
+@require './fonts.styl'
 @require './nprogress'
 @require './code'
 @require './custom-blocks'
@@ -8,6 +9,7 @@
 @require './modal'
 @require './forms'
 @require './spinner'
+@require './heading-numbers'
 
 html, body
   padding 0
@@ -194,10 +196,10 @@ th, td
       padding-left 0
 
 
-.floating-image 
+.floating-image
   margin 10px
 
-.floating-image-left 
+.floating-image-left
   float left
   margin-left 0
 
@@ -206,6 +208,6 @@ th, td
   margin-right 0
 
 @require './mobile.styl'
+@require './print.styl'
 @require './override.styl'
 @require '~vue-directive-tooltip/css/index.css'
-@require './heading-numbers.css'
