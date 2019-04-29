@@ -82,6 +82,11 @@ class Application implements RequestHandlerInterface
             }
         }
 
+        // Set up Sentry
+        if (getenv('SENTRY_DSN_BACKEND')) {
+            \Sentry\init(['dsn' => getenv('SENTRY_DSN_BACKEND')]);
+        }
+
         // Set up filesystem for uploads
         $this->filesystem = new Filesystem(new Local(self::PATH . '/data/uploads'));
 
