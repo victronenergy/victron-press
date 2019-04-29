@@ -26,7 +26,15 @@ Promise.all([
                             { cwd: inputDir, stdio: 'pipe' }
                         );
                         process.once('exit', (code, signal) => {
-                            if (code !== 0 || signal !== null) {
+                            const stdout = process.stdout
+                                .setEncoding('utf8')
+                                .read();
+                            if (
+                                code !== 0 ||
+                                signal !== null ||
+                                !stdout ||
+                                !stdout.length
+                            ) {
                                 resolve([filePath, {}]);
                             }
 
@@ -35,11 +43,7 @@ Promise.all([
                                 commitHash,
                                 authorTime,
                                 authorName,
-                            ] = process.stdout
-                                .setEncoding('utf8')
-                                .read()
-                                .trim()
-                                .split(',', 3);
+                            ] = stdout.trim().split(',', 3);
 
                             resolve([
                                 filePath,
@@ -54,7 +58,7 @@ Promise.all([
             )
         )
     )
-    .then((files) => {
+    .then(files => {
         let result = {};
         const langRegex = /^([a-z]{2})\//;
         for (const [filePath, gitData] of files) {
