@@ -49,8 +49,9 @@ export default {
               }
 
               if (
-                this.$site.pages.find(page => page.path === link) ||
-                this.$page.path === ""
+                link !== "" &&
+                (this.$site.pages.find(page => page.path === link) ||
+                  this.$page.path === "")
               ) {
                 return { text, link };
               }
@@ -58,7 +59,9 @@ export default {
             })
             .filter(item => item != null)
         };
-        return [...this.userNav, languageDropdown];
+        if (languageDropdown.items.length > 0) {
+          return [...this.userNav, languageDropdown];
+        }
       }
       return this.userNav;
     },
