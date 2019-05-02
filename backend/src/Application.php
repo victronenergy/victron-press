@@ -269,7 +269,7 @@ class Application implements RequestHandlerInterface
     {
         // Sanity check the filename
         $filePath = $pathParams['file'];
-        if (preg_match('#((^|/)\.[^/]+(/|$)|(^|/)(\d{3}|README)\.md$)#i', $filePath)) {
+        if (preg_match('#((^|/)\.[^/]+(/|$)|^\d{3}\.md$|(^|/)README\.md$)#i', $filePath)) {
             throw new BadRequestException('Bad filename');
         }
 
@@ -320,7 +320,7 @@ class Application implements RequestHandlerInterface
 
         // Sanity check the filename
         $filePath = $pathParams['file'];
-        if (preg_match('#((^|/)\.[^/]+(/|$)|(^|/)(\d{3}|README)\.md$)#i', $filePath)) {
+        if (preg_match('#((^|/)\.[^/]+(/|$)|^\d{3}\.md$|(^|/)README\.md$)#i', $filePath)) {
             throw new BadRequestException('Bad filename');
         }
 
@@ -466,7 +466,7 @@ class Application implements RequestHandlerInterface
 
         // Sanity check the filename
         $filePath = $pathParams['file'];
-        if (preg_match('#((^|/)\.[^/]+(/|$)|(^|/)(\d{3}|README)\.md$)#i', $filePath)) {
+        if (preg_match('#((^|/)\.[^/]+(/|$)|^\d{3}\.md$|(^|/)README\.md$)#i', $filePath)) {
             throw new BadRequestException('Bad filename');
         }
 

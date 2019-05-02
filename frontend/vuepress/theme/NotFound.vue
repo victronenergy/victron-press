@@ -48,7 +48,9 @@ export default {
   },
   mounted() {
     this.editModeEnabled = window.location.search.includes("editmode");
-    this.canCreatePage = !!window.location.href.match(/\.html$/);
+    this.canCreatePage =
+      !!window.location.pathname.match(/\.html$/) &&
+      !window.location.pathname.match(/(^\/\d{3}\.html$|\/README\.html$)/);
   },
   methods: {
     commitClicked() {
