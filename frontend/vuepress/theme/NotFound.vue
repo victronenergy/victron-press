@@ -48,6 +48,8 @@ export default {
   mounted() {
     this.editModeEnabled = window.location.search.includes("editmode");
     this.canCreatePage = !!window.location.href.match(/\.html$/);
+
+    document.querySelector('.nav-links').remove(); //ugly but it works. Better than bothering with vueprops.
   },
   methods: {
     commitClicked() {

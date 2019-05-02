@@ -16,6 +16,9 @@ import Navbar from "./Navbar.vue";
 export default {
   components: { Navbar },
   created() {},
+  mounted() {
+    document.querySelector('.nav-links').remove(); //ugly but it works. Better than bothering with vueprops.
+  },
   computed: {
     redirectUrl() {
       return this.$route.query.redirectUrl;
