@@ -169,6 +169,8 @@ export default {
         this.getMDContents().then(data => {
           // Wait for the editor to load
           this.editorLoaded.then(editor => {
+            editor.constructor.markdownit.set({ linkify: true });
+            editor.constructor.markdownitHighlight.set({ linkify: true });
             // Load all markdown-it plugins into the editor
             Promise.all(
               this.editorMarkdownPlugins.map(([pluginPromise, ...options]) =>
