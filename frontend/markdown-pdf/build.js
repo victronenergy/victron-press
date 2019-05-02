@@ -23,6 +23,7 @@ const markdownitRenderer = new markdownit({
     .use(require('markdown-it-emoji'))
     .use(require('markdown-it-anchor'))
     // Custom plugins
+    .use(require('markdown-it-abbr'))
     .use(require('markdown-it-footnote'))
     .use(require('markdown-it-kbd'))
     .use(require('markdown-it-sub'))
