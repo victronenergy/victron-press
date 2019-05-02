@@ -139,9 +139,15 @@ export default {
       import("markdown-it-emoji"),
       // Custom plugins
       import("markdown-it-abbr"),
-      import("../../../../frontend/markdown-it-plugins/video-thumb"),
-      import("../../../../frontend/markdown-it-plugins/floating-image")
+      import('markdown-it-footnote'),
+      import('markdown-it-kbd'),
+      import('markdown-it-sub'),
+      import('markdown-it-sup'),
+      import('markdown-it-task-lists'),
+      import("../../../../frontend/markdown-it-plugins/floating-image"),
       //import('../../../../frontend/markdown-it-plugins/predefined-tooltip'),
+      import("../../../../frontend/markdown-it-plugins/video-thumb"),
+      import("../../../../frontend/markdown-it-plugins/url-fixer")
     ].map(plugin =>
       typeof plugin[Symbol.iterator] === "function" ? plugin : [plugin]
     );

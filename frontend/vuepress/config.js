@@ -22,7 +22,15 @@ module.exports = {
     plugins: [require('./plugins/pdf')],
     markdown: {
         config: md => {
+            md.set({
+                linkify: true,
+            });
             md.use(require('markdown-it-abbr'));
+            md.use(require('markdown-it-footnote'));
+            md.use(require('markdown-it-kbd'));
+            md.use(require('markdown-it-sub'));
+            md.use(require('markdown-it-sup'));
+            md.use(require('markdown-it-task-lists'));
             md.use(require('markdown-it-video'), {
                 youtube: { width: 640, height: 390 },
                 vimeo: { width: 500, height: 281 },
@@ -37,14 +45,12 @@ module.exports = {
                 },
                 position: 'top',
             });
+            md.use(require('../../frontend/markdown-it-plugins/url-fixer'));
         },
     },
     themeConfig: {
         // Disable search
         search: false,
-
-        // Contribution link in header
-        // repo: 'victronenergy/www-documentation',
 
         // Custom editor integration
         enableEditor: true,

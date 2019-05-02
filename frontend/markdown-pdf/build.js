@@ -23,9 +23,15 @@ const markdownitRenderer = new markdownit({
     .use(require('markdown-it-emoji'))
     .use(require('markdown-it-anchor'))
     // Custom plugins
-    .use(require('../markdown-it-plugins/video-thumb'))
+    .use(require('markdown-it-footnote'))
+    .use(require('markdown-it-kbd'))
+    .use(require('markdown-it-sub'))
+    .use(require('markdown-it-sup'))
+    .use(require('markdown-it-task-lists'))
     .use(require('../markdown-it-plugins/floating-image'))
-    .use(require('../markdown-it-plugins/table-renderer'));
+    .use(require('../markdown-it-plugins/table-renderer'))
+    .use(require('../markdown-it-plugins/url-fixer'))
+    .use(require('../markdown-it-plugins/video-thumb'));
 
 const args = process.argv.slice(2);
 Promise.all([
