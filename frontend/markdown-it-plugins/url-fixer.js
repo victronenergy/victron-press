@@ -19,8 +19,12 @@ module.exports = function url_fixer(md, options) {
                         for (let k = 0; k < token.attrs.length; k++) {
                             const attr = token.attrs[k];
                             if (attr[0] == 'href' || attr[0] == 'src') {
-                                attr[1] = fixUrl(attr[1], token, state.env);
-                                hasFixed = true;
+                                const oldUrl = attr[1];
+                                const newUrl = fixUrl(oldUrl, token, state.env);
+                                if (newUrl !== oldUrl) {
+                                    attr[1] = newUrl;
+                                    hasFixed = true;
+                                }
                             }
                         }
                     }
