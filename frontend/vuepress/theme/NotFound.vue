@@ -3,7 +3,8 @@
     <Navbar :sidebarToggleEnabled="false"/>
 
     <div class="content" v-if="!editModeEnabled && !hasSaved">
-      <h1>{{ translate('pageDoesntExist') }}</h1>
+      <h1 v-if="canCreatePage">{{ translate('pageDoesntExistYet') }}</h1>
+      <h1 v-else>{{ translate('pageDoesntExist') }}</h1>
       <a v-if="canCreatePage" @click="editModeEnabled = true">{{ translate('wantToCreatePage') }}</a>
     </div>
 
