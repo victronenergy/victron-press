@@ -11,6 +11,7 @@ use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use League\OAuth2\Client\Provider\Github as GitHubOAuth2Provider;
 use League\Route\Http\Exception as HttpException;
+use League\Route\Http\Exception\BadRequestException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Http\Exception\UnauthorizedException;
 use League\Route\Router;
@@ -41,6 +42,11 @@ class Application implements RequestHandlerInterface
     public const PATH = __DIR__ . '/../..';
 
     /**
+     * Regex matching all possible ISO 639-1 language codes.
+     */
+    private const ISO639_1_REGEX = 'a[abefkmnrsvyz]|s[acdegiiklmnoqrstuvw]|h[aeiorttuyz]|b[aeghimnors]|e[elnosstu]|n[abbddegllnnorrvvyyy]|m[ghiklnrsty]|c[aaehorsuuuuuvy]|k[agiijjkllmnorsuvwyy]|z[aahu]|d[aevvvz]|f[afijory]|g[addlnuv]|l[abbgiiinotuv]|i[adeegiikostu]|j[av]|r[mnooouw]|o[cjmrss]|p[aailsst]|q[u]|t[aeghiklnorstwy]|u[ggkrz]|v[eio]|w[ao]|x[h]|y[io]';
+
+    /**
      * Filesystem used for temporarely storing uploaded files before they are committed.
      *
      * @var Filesystem
@@ -60,11 +66,6 @@ class Application implements RequestHandlerInterface
      * @var array
      */
     protected $config = [];
-
-    /**
-     * Regex matching all possible ISO 639-1 language codes.
-     */
-    private const ISO639_1_REGEX = 'a[abefkmnrsvyz]|s[acdegiiklmnoqrstuvw]|h[aeiorttuyz]|b[aeghimnors]|e[elnosstu]|n[abbddegllnnorrvvyyy]|m[ghiklnrsty]|c[aaehorsuuuuuvy]|k[agiijjkllmnorsuvwyy]|z[aahu]|d[aevvvz]|f[afijory]|g[addlnuv]|l[abbgiiinotuv]|i[adeegiikostu]|j[av]|r[mnooouw]|o[cjmrss]|p[aailsst]|q[u]|t[aeghiklnorstwy]|u[ggkrz]|v[eio]|w[ao]|x[h]|y[io]';
 
     /**
      * Constructs a new application instance.
@@ -266,9 +267,14 @@ class Application implements RequestHandlerInterface
      */
     public function handleGetMarkdown(ServerRequestInterface $request, array $pathParams): ResponseInterface
     {
-        // Retrieve the file information from GitHub
+        // Sanity check the filename
         $filePath = $pathParams['file'];
-        // TODO: sanity check the path
+        if (preg_match('#((^|/)\.[^/]+(/|$)|(^|/)(\d{3}|README)\.md$)#i', $filePath)) {
+            throw new BadRequestException('Bad filename');
+        }
+
+        // Retrieve the file information from GitHub
+        $file = null;
         try {
             $client = new GithubClient();
             $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
@@ -312,9 +318,13 @@ class Application implements RequestHandlerInterface
             throw new UnauthorizedException('Not logged in');
         }
 
-        // Retrieve the file information from GitHub
+        // Sanity check the filename
         $filePath = $pathParams['file'];
-        // TODO: sanity check the path
+        if (preg_match('#((^|/)\.[^/]+(/|$)|(^|/)(\d{3}|README)\.md$)#i', $filePath)) {
+            throw new BadRequestException('Bad filename');
+        }
+
+        // Retrieve the file information from GitHub
         $file = null;
         try {
             $client = new GithubClient();
@@ -454,9 +464,13 @@ class Application implements RequestHandlerInterface
             throw new UnauthorizedException('Not logged in');
         }
 
-        // Retrieve the file information from GitHub
+        // Sanity check the filename
         $filePath = $pathParams['file'];
-        // TODO: sanity check the path
+        if (preg_match('#((^|/)\.[^/]+(/|$)|(^|/)(\d{3}|README)\.md$)#i', $filePath)) {
+            throw new BadRequestException('Bad filename');
+        }
+
+        // Retrieve the file information from GitHub
         try {
             $client = new GithubClient();
             $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
@@ -498,8 +512,11 @@ class Application implements RequestHandlerInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
 
+        // Sanity check the filename
         $filePath = $pathParams['file'];
-        // TODO: sanity check the path
+        if (preg_match('#(^|/)\.[^/]+(/|$)#', $filePath)) {
+            throw new BadRequestException('Bad filename');
+        }
 
         // Determine MIME type from the extension
         $mimeType = [
@@ -563,7 +580,6 @@ class Application implements RequestHandlerInterface
 
         $contentType = $request->getHeader('Content-Type');
         $contentType = end($contentType);
-        $filePath = $pathParams['file'];
         $contents = $request->getBody()->__toString();
 
         // Check MIME type
@@ -606,6 +622,7 @@ class Application implements RequestHandlerInterface
         //       want to prevent duplicate files using the hash. Right
         //       now, we use just the hash. But maybe something like this
         //       would be nice, combined with a check for a matching hash:
+        // $filePath = $pathParams['file'];
         // $filename = substr(hash('sha256', $contents), 0, 8) . '-' . pathinfo($filePath, PATHINFO_FILENAME) . '.' . [
         $filename = hash('sha256', $contents) . '.' . [
             'image/gif'     => 'gif',
