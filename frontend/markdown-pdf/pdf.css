@@ -508,3 +508,21 @@ h6.nocount:before {
     content: '';
     counter-increment: none;
 }
+
+.custom-block.tip {
+  padding-left: 20px;
+  margin-bottom: 20px;
+  border-left: 4px solid #42b983;
+}
+
+.custom-block.warning {
+  padding-left: 20px;
+  margin-bottom: 20px;
+  border-left: 4px solid #e7c000;
+}
+
+.custom-block.danger {
+  padding-left: 20px;
+  margin-bottom: 20px;
+  border-left: 4px solid #c00;
+}
