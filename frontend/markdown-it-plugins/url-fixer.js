@@ -1,13 +1,23 @@
 'use strict';
 
 module.exports = function url_fixer(md, options) {
+    options = options || {};
+    options = {
+        baseUrl: options.baseUrl || null,
+    };
+
     function fixUrl(url, token, env) {
+        const baseUrl = env.baseUrl || options.baseUrl;
+
         // TODO:
+        // - change url's from md to html if rendered
         // - change url's to correct language version, controlled by option
+        // - change relative url's to absolute for pdf
         // - force victron url's to https
         // - ...?
         return url;
     }
+
     md.core.ruler.push('url-fixer', function(state) {
         let hasFixed = false;
         for (let i = 0; i < state.tokens.length; i++) {

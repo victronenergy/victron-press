@@ -30,6 +30,7 @@ const markdownitRenderer = new markdownit({
     .use(require('markdown-it-sup'))
     .use(require('markdown-it-task-lists'))
     .use(require('../markdown-it-plugins/floating-image'))
+    .use(require('../markdown-it-plugins/inline-relative-images'))
     .use(require('../markdown-it-plugins/table-renderer'))
     .use(require('../markdown-it-plugins/url-fixer'))
     .use(require('../markdown-it-plugins/video-thumb'));
@@ -37,16 +38,21 @@ const markdownitRenderer = new markdownit({
 const args = process.argv.slice(2);
 Promise.all([
     fs.ensureDir(outputDir),
-    globby([...(args.length ? args : [`**/*.md`]), `!README.md`, `!.vuepress`], {
-        cwd: inputDir,
-        gitignore: true,
-    }),
+    globby(
+        [...(args.length ? args : [`**/*.md`]), `!README.md`, `!.vuepress`],
+        {
+            cwd: inputDir,
+            gitignore: true,
+        }
+    ),
     puppeteer.launch({
         ...(process.env.PUPPETEER_NO_SANDBOX === 'true' && {
             args: ['--no-sandbox'],
         }),
     }),
-    fs.readFile(path.join(__dirname, '../vuepress/theme/images/victron-logo.svg')),
+    fs.readFile(
+        path.join(__dirname, '../vuepress/theme/images/victron-logo.svg')
+    ),
 ]).then(([_, filePaths, browser, logoSVG]) =>
     Promise.all(
         filePaths.map(async filePath =>
@@ -55,7 +61,14 @@ Promise.all([
                 Promise.all([
                     fs
                         .readFile(path.join(inputDir, filePath), 'utf8')
-                        .then(md => markdownitRenderer.render(md)),
+                        .then(md =>
+                            markdownitRenderer.render(md, {
+                                basePath: path.join(
+                                    inputDir,
+                                    path.dirname(filePath)
+                                ),
+                            })
+                        ),
                     browser.newPage(),
                 ]).then(async ([html, page]) => {
                     await page.setContent(html);
@@ -95,7 +108,9 @@ Promise.all([
                                 }
                             </style>
                             <header>
-                                <img src="data:image/svg+xml;base64,${logoSVG.toString('base64')}" class="logo" />
+                                <img src="data:image/svg+xml;base64,${logoSVG.toString(
+                                    'base64'
+                                )}" class="logo" />
                                 ${filePath.replace(/\.md$/, '')}
                             </header>`,
                         footerTemplate: `
