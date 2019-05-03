@@ -17,9 +17,9 @@
     color-adjust: exact;
     color: #272622;
     font-family: 'Museo Sans', sans-serif;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 300;
-    line-height: 14px;
+    line-height: 1.5;
     text-size-adjust: 100%;
     word-wrap: break-word;
 }
@@ -227,7 +227,8 @@ h4,
 h5,
 h6 {
     border: none;
-    font-weight: 300;
+    /* font-weight: 300; */
+    font-weight: 700;
     line-height: 1.4;
     margin: 20px 0 10px;
 }
@@ -250,18 +251,18 @@ h3 {
 
 h4 {
     font-size: 13px;
-    font-weight: 700;
+    /* font-weight: 700; */
     line-height: 1;
 }
 
 h5 {
     font-size: 12px;
-    font-weight: 700;
+    /* font-weight: 700; */
 }
 
 h6 {
     font-size: 11px;
-    font-weight: 700;
+    /* font-weight: 700; */
 }
 
 h1 .octicon-link,
