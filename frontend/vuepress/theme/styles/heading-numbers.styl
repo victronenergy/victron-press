@@ -29,3 +29,16 @@ h5
     &.nocount:before
       content ""
       counter-increment none
+
+
+.sidebar-group-items > li
+  counter-increment sidebarh2
+
+.sidebar-group-items > li > a:before
+  content counter(sidebarh2) ". "
+  
+.sidebar-group-items > li > ul > li
+  counter-increment sidebarh3
+
+.sidebar-group-items > li > ul > li > a:before
+  content counter(sidebarh2) "." counter(sidebarh3) ". "
