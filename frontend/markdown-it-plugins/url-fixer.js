@@ -66,13 +66,13 @@ module.exports = function url_fixer(md, options) {
     // We cannot use `new URL()` or `.toString()` because that
     // makes Webpack detect this plugin as a ES6 module
     // To use these anyway, we use Function to create these functions
-    const parseUrl = Function('url', 'base', 'return new URL(url, base);');
-    const renderUrl = Function(
+    const parseUrl = new Function('url', 'base', 'return new URL(url, base);');
+    const renderUrl = new Function(
         'url',
         'base',
         'return (new URL(url, base)).toString();'
     );
-    const splitPath = Function('path', 'return path.split(\'/\');');
+    const splitPath = new Function('path', 'return path.split(\'/\');');
 
     function fixUrl(url, token, env) {
         // Do not process data URL's
