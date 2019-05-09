@@ -1,21 +1,27 @@
-<IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
-
+<IfModule rewrite_module>
     RewriteEngine On
 
-    # Handle Authorization header
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    # Prevent mod_dir implicitly appending a slash on directories,
+    # because it uses a 301 permanent redirect which we don't want
+    <IfModule dir_module>
+        DirectorySlash Off
+    </IfModule>
+
+    # And if DirectorySlash is off, we need to explicitly allow
+    # mod_rewrite to function when there is no trailing slash
+    RewriteOptions AllowNoSlash
+
+    # Add trailing slashes for directories
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteCond %{REQUEST_URI} (.*[^/])$
+    RewriteRule ^ %1/ [L,R=302]
 
     # Remove trailing slashes for non-directories
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=302]
 
-    # Handle all non-existing files
-    # Note that we also handle directory indexes
+    # Handle directory indexes and non-existing files
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
