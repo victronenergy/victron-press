@@ -131,7 +131,10 @@ export default {
       import("../../../../frontend/markdown-it-plugins/floating-image"),
       //import('../../../../frontend/markdown-it-plugins/predefined-tooltip.js'),
       import("../../../../frontend/markdown-it-plugins/video-thumb"),
-      import("../../../../frontend/markdown-it-plugins/url-fixer")
+      [import("../../../../frontend/markdown-it-plugins/url-fixer"), {
+        forceHttps: true,
+        forceMarkdownExt: 'html',
+      }]
     ];
     this.editorLoaded = new Promise((resolve, reject) => {
       this.editorLoadedResolve = resolve;

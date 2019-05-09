@@ -45,7 +45,10 @@ module.exports = {
                 },
                 position: 'top',
             });
-            md.use(require('../../frontend/markdown-it-plugins/url-fixer'));
+            md.use(require('../../frontend/markdown-it-plugins/url-fixer'), {
+                forceHttps: true,
+                forceMarkdownExt: 'html',
+            });
         },
     },
     themeConfig: {

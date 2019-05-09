@@ -44,7 +44,10 @@ class Application implements RequestHandlerInterface
     /**
      * Regex matching all possible ISO 639-1 language codes.
      */
-    private const ISO639_1_REGEX = 'a[abefkmnrsvyz]|s[acdegiiklmnoqrstuvw]|h[aeiorttuyz]|b[aeghimnors]|e[elnosstu]|n[abbddegllnnorrvvyyy]|m[ghiklnrsty]|c[aaehorsuuuuuvy]|k[agiijjkllmnorsuvwyy]|z[aahu]|d[aevvvz]|f[afijory]|g[addlnuv]|l[abbgiiinotuv]|i[adeegiikostu]|j[av]|r[mnooouw]|o[cjmrss]|p[aailsst]|q[u]|t[aeghiklnorstwy]|u[ggkrz]|v[eio]|w[ao]|x[h]|y[io]';
+    private const ISO639_1_REGEX = 'a[abefkmnrsvyz]|b[aeghimnors]|c[aaehorsuuuuuvy]|d[aevvvz]|e[elnosstu]|f[afijory]|' .
+        'g[addlnuv]|h[aeiorttuyz]|i[adeegiikostu]|j[av]|k[agiijjkllmnorsuvwyy]|l[abbgiiinotuv]|m[ghiklnrsty]|' .
+        'n[abbddegllnnorrvvyyy]|o[cjmrss]|p[aailsst]|q[u]|r[mnooouw]|s[acdegiiklmnoqrstuvw]|t[aeghiklnorstwy]|' .
+        'u[ggkrz]|v[eio]|w[ao]|x[h]|y[io]|z[aahu]';
 
     /**
      * Filesystem used for temporarely storing uploaded files before they are committed.
@@ -105,7 +108,11 @@ class Application implements RequestHandlerInterface
         $this->router->map('GET', '/api/v1/oauth-callback', [$this, 'handleOAuthCallback']);
 
         // Handlers for retrieving files
-        $this->router->map('GET', '/{langcode:(?:' . self::ISO639_1_REGEX . ')}/{file:.+\.html}', [$this, 'handleNonExistingLanguage']);
+        $this->router->map(
+            'GET',
+            '/{langcode:(?:' . self::ISO639_1_REGEX . ')}/{file:.+\.html}',
+            [$this, 'handleNonExistingLanguage']
+        );
         $this->router->map('GET', '/{file:.+\.md}', [$this, 'handleGetMarkdown']);
         $this->router->map('GET', '/{file:.+\.(?:gif|jpg|jpeg|png|svg|webp)}', [$this, 'handleGetImage']);
         $this->router->map('GET', '/{file:.*}', [$this, 'handleNonExisting']);

@@ -1,10 +1,12 @@
 'use strict';
 
+// Note: only works in Node.js
+
 const fs = require('fs-extra');
 const path = require('path');
 
 module.exports = function inline_relative_images(md, options) {
-    const isRelativeRegex = /^(?!(?:http|ftp)s?:\/\/|www\.|[A-Za-z]:\\|\/\/).*/;
+    const RELATIVE_REGEX = /^(?!https?:\/\/)/;
     const mimeTypes = {
         '.gif': 'image/gif',
         '.jpg': 'image/jpeg',
@@ -27,7 +29,7 @@ module.exports = function inline_relative_images(md, options) {
                             const attr = token.attrs[k];
                             if (attr[0] == 'src') {
                                 const oldUrl = attr[1];
-                                if (isRelativeRegex.exec(oldUrl)) {
+                                if (RELATIVE_REGEX.exec(oldUrl)) {
                                     const ext = path.extname(oldUrl);
                                     if (mimeTypes[ext]) {
                                         const urlPath = path.join(basePath, oldUrl);

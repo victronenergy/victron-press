@@ -38,8 +38,8 @@
     "symlink-dir": "^3.0.3"
   },
   "dependencies": {
-    "@sentry/browser": "^5.1.1",
-    "@sentry/integrations": "^5.1.0",
+    "@sentry/browser": "^5.2.0",
+    "@sentry/integrations": "^5.2.0",
     "@toast-ui/vue-editor": "^1.1.1",
     "axios": "^0.18.0",
     "markdown-it-abbr": "^1.0.4",
@@ -47,6 +47,7 @@
     "markdown-it-kbd": "^2.0.0",
     "markdown-it-sub": "^1.0.0",
     "markdown-it-sup": "^1.0.0",
+    "markdown-it-table-of-contents": "^0.4.4",
     "markdown-it-task-lists": "^2.1.1",
     "markdown-it-video": "^0.6.3",
     "tui-editor": "^1.4.0",

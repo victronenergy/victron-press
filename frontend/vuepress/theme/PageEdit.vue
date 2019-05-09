@@ -137,6 +137,17 @@ export default {
       // import('vuepress/lib/markdown/hoist'),
       // import('vuepress/lib/markdown/containers'),
       import("markdown-it-emoji"),
+      // [import("markdown-it-anchor"), {
+      //   slugify: import('vuepress/lib/markdown/slugify'), // TODO fix this
+      //   permalink: true,
+      //   permalinkBefore: true,
+      //   permalinkSymbol: '#'
+      // }],
+      // [import("markdown-it-table-of-contents"), {
+      //   slugify: import('vuepress/lib/markdown/slugify'), // TODO fix this
+      //   includeLevel: [2, 3],
+      //   format: import('vuepress/lib/util/parseHeaders').parseHeaders  // TODO fix this
+      // }],
       // Custom plugins
       import("markdown-it-abbr"),
       import('markdown-it-footnote'),
@@ -147,7 +158,10 @@ export default {
       import("../../../../frontend/markdown-it-plugins/floating-image"),
       //import('../../../../frontend/markdown-it-plugins/predefined-tooltip'),
       import("../../../../frontend/markdown-it-plugins/video-thumb"),
-      import("../../../../frontend/markdown-it-plugins/url-fixer")
+      [import("../../../../frontend/markdown-it-plugins/url-fixer"), {
+        forceHttps: true,
+        forceMarkdownExt: 'html',
+      }]
     ].map(plugin =>
       typeof plugin[Symbol.iterator] === "function" ? plugin : [plugin]
     );
