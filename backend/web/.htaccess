@@ -12,11 +12,13 @@
     RewriteOptions AllowNoSlash
 
     # Add trailing slashes for directories
+    RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteCond %{REQUEST_URI} (.*[^/])$
     RewriteRule ^ %1/ [L,R=302]
 
     # Remove trailing slashes for non-directories
+    RewriteCond %{REQUEST_FILENAME} -f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=302]
