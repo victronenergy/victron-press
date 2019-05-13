@@ -32,7 +32,10 @@ const markdownitRenderer = new markdownit({
     .use(require('../markdown-it-plugins/floating-image'))
     .use(require('../markdown-it-plugins/inline-relative-images'))
     .use(require('../markdown-it-plugins/table-renderer'))
-    .use(require('../markdown-it-plugins/url-fixer'))
+    .use(require('../markdown-it-plugins/url-fixer'), {
+        forceHttps: true,
+        forceMarkdownExt: 'pdf',
+    })
     .use(require('../markdown-it-plugins/video-thumb'));
 
 const args = process.argv.slice(2);
