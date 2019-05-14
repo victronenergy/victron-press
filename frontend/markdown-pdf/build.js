@@ -5,6 +5,7 @@ const globby = require('globby');
 const markdownit = require('markdown-it');
 const path = require('path');
 const puppeteer = require('puppeteer');
+const vuepressUtil = require('vuepress/lib/util');
 
 const inputDir = path.join(__dirname, '../../data/docs');
 const outputDir = path.join(__dirname, '../../data/build/pdf');
@@ -53,10 +54,43 @@ Promise.all([
             args: ['--no-sandbox'],
         }),
     }),
+    Promise.all([
+        fs.readFile(path.join(__dirname, 'pdf.css')),
+        fs.readFile(
+            path.join(
+                __dirname,
+                '../vuepress/theme/fonts/MuseoSans/MuseoSans-300.woff'
+            )
+        ),
+        fs.readFile(
+            path.join(
+                __dirname,
+                '../vuepress/theme/fonts/MuseoSans/MuseoSans-700.woff'
+            )
+        ),
+    ]).then(
+        ([css, museoSans300, museoSans700]) => `
+            @font-face {
+                font-family: 'Museo Sans';
+                src: url('data:font/woff;base64,${museoSans300.toString(
+                    'base64'
+                )}') format('woff');
+                font-weight: 300;
+            }
+            @font-face {
+                font-family: 'Museo Sans';
+                src: url('data:font/woff;base64,${museoSans700.toString(
+                    'base64'
+                )}') format('woff');
+                font-weight: 700;
+            }
+            ${css}
+        `
+    ),
     fs.readFile(
         path.join(__dirname, '../vuepress/theme/images/victron-logo.svg')
     ),
-]).then(([_, filePaths, browser, logoSVG]) =>
+]).then(([_, filePaths, browser, css, logoSVG]) =>
     Promise.all(
         filePaths.map(async filePath =>
             Promise.all([
@@ -64,21 +98,36 @@ Promise.all([
                 Promise.all([
                     fs
                         .readFile(path.join(inputDir, filePath), 'utf8')
-                        .then(md =>
-                            markdownitRenderer.render(md, {
-                                basePath: path.join(
-                                    inputDir,
-                                    path.dirname(filePath)
-                                ),
-                            })
+                        .then(md => {
+                            const frontmatter = vuepressUtil.parseFrontmatter(md);
+                            const inferredTitle = vuepressUtil.inferTitle(frontmatter);
+                            const html = markdownitRenderer.render(
+                                frontmatter.content,
+                                {
+                                    basePath: path.join(
+                                        inputDir,
+                                        path.dirname(filePath)
+                                    ),
+                                }
+                            );
+                            return `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <title>${inferredTitle}</title>
+                                    <style>${css}</style>
+                                </head>
+                                <body>${html}</body>
+                                </html>
+                            `;
+                        }),
+                    browser
+                        .newPage()
+                        .then(page =>
+                            page.emulateMedia('screen').then(() => page)
                         ),
-                    browser.newPage(),
                 ]).then(async ([html, page]) => {
                     await page.setContent(html);
-                    await page.addStyleTag({
-                        path: path.join(__dirname, 'pdf.css'),
-                    });
-                    await page.emulateMedia('screen');
                     return page.pdf({
                         format: 'A4',
                         margin: {
@@ -89,27 +138,7 @@ Promise.all([
                         },
                         displayHeaderFooter: true,
                         headerTemplate: `
-                            <style type="text/css">
-                                header {
-                                    -webkit-print-color-adjust: exact;
-                                    color-adjust: exact;
-                                    color: #272622;
-                                    font-family: Helvetica, sans-serif;
-                                    font-size: 9px;
-                                    font-weight: 400;
-                                    padding: 0.25cm 1cm;
-                                    text-size-adjust: 100%;
-                                    user-select: none;
-                                    vertical-align: center;
-                                    width: 100%;
-                                }
-                                .logo {
-                                    float: left;
-                                    height: 20px;
-                                    width: auto;
-                                    margin-right: 20px;
-                                }
-                            </style>
+                            <style>${css}</style>
                             <header>
                                 <img src="data:image/svg+xml;base64,${logoSVG.toString(
                                     'base64'
@@ -117,21 +146,7 @@ Promise.all([
                                 ${filePath.replace(/\.md$/, '')}
                             </header>`,
                         footerTemplate: `
-                            <style type="text/css">
-                                footer {
-                                    -webkit-print-color-adjust: exact;
-                                    color-adjust: exact;
-                                    color: #ccc;
-                                    font-family: Helvetica, sans-serif;
-                                    font-size: 9px;
-                                    font-weight: 400;
-                                    padding: 0.25cm 1cm;
-                                    text-align: right;
-                                    text-size-adjust: 100%;
-                                    user-select: none;
-                                    width: 100%;
-                                }
-                            </style>
+                            <style>${css}</style>
                             <footer>
                                 <span class="pageNumber"></span> / <span class="totalPages"></span>
                             </footer>`,

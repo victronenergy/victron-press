@@ -1,27 +1,40 @@
-@font-face {
-    font-family: 'Museo Sans';
-    src: url('fonts/MuseoSans/MuseoSans-300.woff') format('woff'), /* Pretty Modern Browsers */
-         url('fonts/MuseoSans/MuseoSans-300.ttf') format('truetype'); /* Safari, Android, iOS */
-    font-weight: 300;
-}
-
-@font-face {
-    font-family: 'Museo Sans';
-    src: url('fonts/MuseoSans/MuseoSans-700.woff') format('woff'), /* Pretty Modern Browsers */
-         url('fonts/MuseoSans/MuseoSans-700.ttf') format('truetype'); /* Safari, Android, iOS */
-    font-weight: 700;
-}
-
-* {
+html, body {
     -webkit-print-color-adjust: exact;
     color-adjust: exact;
     color: #272622;
-    font-family: 'Museo Sans', sans-serif;
+    font-family: 'Museo Sans', Helvetica, sans-serif;
     font-size: 13px;
     font-weight: 300;
     line-height: 1.5;
     text-size-adjust: 100%;
     word-wrap: break-word;
+}
+
+header {
+    font-size: 9px;
+    font-weight: 400;
+    padding: 0.25cm 1cm;
+    text-size-adjust: 100%;
+    user-select: none;
+    vertical-align: center;
+    width: 100%;
+}
+header .logo {
+    float: left;
+    height: 20px;
+    width: auto;
+    margin-right: 20px;
+}
+
+footer {
+    color: #ccc;
+    font-size: 9px;
+    font-weight: 400;
+    padding: 0.25cm 1cm;
+    text-align: right;
+    text-size-adjust: 100%;
+    user-select: none;
+    width: 100%;
 }
 
 p {
