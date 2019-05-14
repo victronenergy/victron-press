@@ -12,6 +12,7 @@ use League\Flysystem\Filesystem;
 use League\OAuth2\Client\Provider\Github as GitHubOAuth2Provider;
 use League\Route\Http\Exception as HttpException;
 use League\Route\Http\Exception\BadRequestException;
+use League\Route\Http\Exception\ConflictException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Http\Exception\UnauthorizedException;
 use League\Route\Router;
@@ -331,26 +332,9 @@ class Application implements RequestHandlerInterface
             throw new BadRequestException('Bad filename');
         }
 
-        // Retrieve the file information from GitHub
-        $file = null;
-        try {
-            $client = new GithubClient();
-            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
-            $file = $client->api('repo')->contents()->show(
-                $this->config['GITHUB_USER'],
-                $this->config['GITHUB_REPO'],
-                $filePath,
-                $this->config['GITHUB_BRANCH']
-            );
-        } catch (\Exception $e) {
-            if ($e->getCode() !== 404) {
-                throw $e;
-            }
-        }
-
-        // Read the Markdown contents
-        $contents = $request->getBody()->__toString();
-        // TODO: check contents for being plain utf-8 text
+        // Retrieve user data from the session
+        $userName = $session->get('user_name');
+        $userEmail = $session->get('user_email');
 
         // Get commit message from header
         $commitMessage = implode("\n", $request->getHeader('Commit-Message'));
@@ -358,105 +342,194 @@ class Application implements RequestHandlerInterface
             $commitMessage = null;
         }
 
-        // Retrieve user data from the session
-        $userName = $session->get('user_name');
-        $userEmail = $session->get('user_email');
+        // Read the Markdown contents
+        $contents = $request->getBody()->__toString();
+        // TODO: check contents for being plain UTF-8 text
 
         // Check if any images were uploaded that now need to be committed
-        $images_to_upload = [];
+        $filesToCommit = [$filePath => $contents];
+        $imagesToCommit = [];
         if ($session->has('images')) {
             foreach ($session->get('images') as $image) {
-                if (strpos($contents, $image) !== false) {
-                    array_push($images_to_upload, $image);
+                if ($this->filesystem->has($image) && strpos($contents, $image) !== false) {
+                    $imagesToCommit[] = $image;
+                    $filesToCommit['images/' . $image] = $this->filesystem->read($image);
                 }
             }
         }
 
-        // Commit images
-        if (!empty($images_to_upload)) {
-            // Get latest commit SHA
-            $commits = $client->api('repo')->commits()->all(
-                $this->config['GITHUB_USER'],
-                $this->config['GITHUB_REPO'],
-                ['sha' => $this->config['GITHUB_BRANCH']]
-            );
-            $latest_sha = $commits[0]['sha'];
+        // Create a hash of all the files we're about to commit
+        $filesToCommitHash = array_reduce(
+            array_keys($filesToCommit),
+            /** @psalm-suppress MissingClosureParamType */
+            function (string $carry, $f) use ($filesToCommit) {
+                /** @psalm-suppress PossiblyFalseOperand */
+                return sha1($carry . $f . $filesToCommit[$f]);
+            },
+            ''
+        );
 
-            // Create branch
-            $branch = 'heads/images' . time();
-            $reference = 'refs/' . $branch;
-            $client->api('gitData')->references()->create(
-                $this->config['GITHUB_USER'],
-                $this->config['GITHUB_REPO'],
-                ['ref' => $reference, 'sha' => $latest_sha]
-            );
+        // Connect to the GitHub API
+        $client = new GithubClient();
+        $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
 
-            // Commit images to branch
-            foreach ($images_to_upload as $image) {
-                $image_path = 'images/' . $image;
-                $client->api('repo')->contents()->create(
+        // Get SHA of the latest commit
+        $commits = $client->api('repo')->commits()->all(
+            $this->config['GITHUB_USER'],
+            $this->config['GITHUB_REPO'],
+            ['sha' => $this->config['GITHUB_BRANCH']]
+        );
+        $shaHead = $commits[0]['sha'];
+
+        // Determine base for the commit
+        // TODO: Support better merging by using the SHA of the file the user retrieved when editing started
+        $shaBase = $shaHead;
+
+        // Branch name for making the commits
+        $branch = 'heads/victronpress-' . substr($filesToCommitHash, 0, 8);
+        $reference = 'refs/' . $branch;
+
+        // If the base differs from the head, try twice: first using the base, then using the head
+        $mergeCompleted = false;
+        $mergeException = null;
+        $markdownFileExisted = null;
+        foreach ($shaBase === $shaHead ? [$shaHead] : [$shaBase, $shaHead] as $sha) {
+            // Check if the branch already exists
+            $branchInfo = null;
+            try {
+                $branchInfo = $client->api('gitData')->references()->show(
                     $this->config['GITHUB_USER'],
                     $this->config['GITHUB_REPO'],
-                    $image_path,
-                    $this->filesystem->read($image),
-                    'Added image ' . $image_path . ' for ' . $filePath,
-                    $reference,
-                    ['name' => $userName, 'email' => $userEmail]
+                    $branch
+                );
+            } catch (\Exception $e) {
+                if ($e->getCode() !== 404) {
+                    throw $e;
+                }
+            }
+
+            // Set up the branch
+            if ($branchInfo === null) {
+                $client->api('gitData')->references()->create(
+                    $this->config['GITHUB_USER'],
+                    $this->config['GITHUB_REPO'],
+                    ['ref' => $reference, 'sha' => $sha]
+                );
+            } else {
+                $client->api('gitData')->references()->update(
+                    $this->config['GITHUB_USER'],
+                    $this->config['GITHUB_REPO'],
+                    $branch,
+                    ['sha' => $sha, 'force' => true]
                 );
             }
-        }
 
-        // Commit Markdown file
-        if ($file === null) {
-            $client->api('repo')->contents()->create(
-                $this->config['GITHUB_USER'],
-                $this->config['GITHUB_REPO'],
-                $filePath,
-                $contents,
-                $commitMessage ?? ('Created ' . $filePath . ' via web editor'),
-                $this->config['GITHUB_BRANCH'],
-                ['name' => $userName, 'email' => $userEmail]
-            );
-        } else {
-            $client->api('repo')->contents()->update(
-                $this->config['GITHUB_USER'],
-                $this->config['GITHUB_REPO'],
-                $filePath,
-                $contents,
-                $commitMessage ?? ('Updated ' . $filePath . ' via web editor'),
-                $file['sha'],
-                $this->config['GITHUB_BRANCH'],
-                ['name' => $userName, 'email' => $userEmail]
-            );
-        }
+            // Commit each file to the branch
+            foreach ($filesToCommit as $fileName => $fileContents) {
+                // Check if the file already exists on this branch
+                $fileInfo = null;
+                try {
+                    $fileInfo = $client->api('repo')->contents()->show(
+                        $this->config['GITHUB_USER'],
+                        $this->config['GITHUB_REPO'],
+                        $fileName,
+                        $reference
+                    );
+                } catch (\Exception $e) {
+                    if ($e->getCode() !== 404) {
+                        throw $e;
+                    }
+                }
 
-        if (!empty($images_to_upload)) {
-            // Merge image branch into master
-            $client->api('repo')->merge(
-                $this->config['GITHUB_USER'],
-                $this->config['GITHUB_REPO'],
-                $this->config['GITHUB_BRANCH'],
-                $branch,
-                'merge ' . $branch . ' into master.'
-            );
+                // Remember whether the Markdown file already existed
+                if ($fileName === $filePath) {
+                    $markdownFileExisted = $fileInfo !== null;
+                }
 
-            // Delete image branch
-            $client->api('gitData')->references()->remove(
-                $this->config['GITHUB_USER'],
-                $this->config['GITHUB_REPO'],
-                $branch
-            );
-
-            // Delete images
-            foreach ($session->get('images') as $image) {
-                $this->filesystem->delete($image);
+                // Commit the file
+                if ($fileInfo === null) {
+                    $client->api('repo')->contents()->create(
+                        $this->config['GITHUB_USER'],
+                        $this->config['GITHUB_REPO'],
+                        $fileName,
+                        $fileContents,
+                        $commitMessage ?? ('Created ' . $fileName . ' via web editor'),
+                        $reference,
+                        ['name' => $userName, 'email' => $userEmail]
+                    );
+                } else {
+                    $client->api('repo')->contents()->update(
+                        $this->config['GITHUB_USER'],
+                        $this->config['GITHUB_REPO'],
+                        $fileName,
+                        $fileContents,
+                        $commitMessage ?? ('Updated ' . $fileName . ' via web editor'),
+                        $fileInfo['sha'],
+                        $reference,
+                        ['name' => $userName, 'email' => $userEmail]
+                    );
+                }
             }
 
-            // Clear session images
-            $session->unset('images');
+            // TODO: Create, merge & squash and afterwards delete using a GitHub Pull Request
+            //       Squashing will result in a less cluttered commit history and all the commits being verified
+            // Merge branch
+            try {
+                $client->api('repo')->merge(
+                    $this->config['GITHUB_USER'],
+                    $this->config['GITHUB_REPO'],
+                    $this->config['GITHUB_BRANCH'],
+                    $branch,
+                    $commitMessage ?? ('Merge ' . $branch . ' into ' . $this->config['GITHUB_BRANCH'])
+                );
+
+                // Indicate success
+                $mergeCompleted = true;
+            } catch (\Exception $e) {
+                if ($e->getCode() !== 409) {
+                    throw $e;
+                }
+                $mergeException = $e;
+            }
+
+            // If we merged successfully, do not try to merge again
+            if ($mergeCompleted) {
+                break;
+            }
         }
 
-        return new EmptyResponse($file === null ? 201 : 204, ['Content-Location' => '/' . $filePath]);
+        // Delete branch we created
+        $client->api('gitData')->references()->remove(
+            $this->config['GITHUB_USER'],
+            $this->config['GITHUB_REPO'],
+            $branch
+        );
+
+        // If the merge did not complete successfully, let the user know
+        if (!$mergeCompleted) {
+            throw new ConflictException(
+                'Failed to merge commit' . ($mergeException ? (': ' . $mergeException->getMessage()) : ''),
+                $mergeException
+            );
+        }
+
+        // After success, delete uploaded images since they're now available through GitHub
+        if ($session->has('images')) {
+            $images = $session->get('images');
+            foreach ($session->get('images') as $i => $image) {
+                if (\in_array($image, $imagesToCommit)) {
+                    unset($images[$i]);
+                    if ($this->filesystem->has($image)) {
+                        $this->filesystem->delete($image);
+                    }
+                }
+            }
+            $images = array_values($images);
+            $session->set('images', $images);
+        }
+
+        // Return successful response
+        return new EmptyResponse($markdownFileExisted ? 204 : 201, ['Content-Location' => '/' . $filePath]);
     }
 
     /**
@@ -541,7 +614,7 @@ class Application implements RequestHandlerInterface
             if ($session->has('images')) {
                 foreach ($session->get('images') as $image) {
                     if (('images/' . $image) === $filePath) {
-                        if ($fileContent = $this->filesystem->read($image)) {
+                        if ($this->filesystem->has($image) && $fileContent = $this->filesystem->read($image)) {
                             return new TextResponse($fileContent, 200, [
                                 'Content-Type' => $mimeType,
                             ]);
@@ -643,9 +716,9 @@ class Application implements RequestHandlerInterface
         $this->filesystem->put($filename, $contents);
 
         // Set image name in Session
-        $image_array = $session->has('images') ? $session->get('images') : [];
-        array_push($image_array, $filename);
-        $session->set('images', $image_array);
+        $images = $session->has('images') ? $session->get('images') : [];
+        $images[] = $filename;
+        $session->set('images', $images);
 
         return new EmptyResponse(201, ['Content-Location' => '/images/' . $filename]);
     }
