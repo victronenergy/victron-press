@@ -135,7 +135,9 @@ export default {
         forceHttps: true,
         forceMarkdownExt: 'html',
       }]
-    ];
+    ].map(plugin =>
+      typeof plugin[Symbol.iterator] === "function" ? plugin : [plugin]
+    );
     this.editorLoaded = new Promise((resolve, reject) => {
       this.editorLoadedResolve = resolve;
     });
@@ -150,10 +152,10 @@ export default {
         // Wait for the editor to load
         this.editorLoaded.then(editor => {
           // Load all markdown-it plugins into the editor
-          this.editorMarkdownPlugins.forEach(x =>
-            x.then(({ default: plugin }) => {
-              editor.constructor.markdownit.use(plugin);
-              editor.constructor.markdownitHighlight.use(plugin);
+          this.editorMarkdownPlugins.map(([pluginPromise, ...options]) =>
+            pluginPromise.then(({ default: plugin }) => {
+              editor.constructor.markdownit.use(plugin, ...options);
+              editor.constructor.markdownitHighlight.use(plugin, ...options);
             })
           );
         });
