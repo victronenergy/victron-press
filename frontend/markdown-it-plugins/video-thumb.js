@@ -131,15 +131,15 @@ module.exports = function video_thumb_plugin(md, options) {
 
             return videoID === ''
                 ? ''
-                : '<a href="' +
+                : '<div class="embed-responsive embed-responsive-16by9"><a href="' +
                       options.videoUrl(service, videoID, options) +
-                      '"><img src="' +
+                      '" class="embed-responsive-item"><img src="' +
                       options.imageUrl(service, videoID, options) +
                       '" width="' +
                       options[service].width +
                       '" height="' +
                       options[service].height +
-                      '"  ></a>';
+                      '" class="embed-responsive-item" /></a></div>';
         };
     }
 
