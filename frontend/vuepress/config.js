@@ -11,6 +11,7 @@ module.exports = {
             },
         ],
     ],
+    serviceWorker: true,
     configureWebpack: config => {
         return {
             plugins: [new Dotenv()],
