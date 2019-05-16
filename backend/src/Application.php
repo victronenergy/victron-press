@@ -267,7 +267,7 @@ class Application implements RequestHandlerInterface
      */
     public function handleNonExisting(ServerRequestInterface $request, array $pathParams): ResponseInterface
     {
-        return new HtmlResponse(file_get_contents(self::PATH . '/data/dist/404.html'));
+        return new HtmlResponse(file_get_contents(self::PATH . '/data/dist/404.html'), 404);
     }
 
     /**
