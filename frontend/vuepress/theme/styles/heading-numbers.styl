@@ -1,44 +1,36 @@
-h1
-  counter-reset h2
-h2
-  counter-reset h3
-h3
-  counter-reset h4
-h4
-  counter-reset h5
-h5
-  counter-reset h6
+.theme-container:not(.no-heading-numbers)
+  .page
+    h1
+      counter-reset page-h2
+    h2
+      counter-reset page-h3
+      &:before
+        counter-increment page-h2
+        content counter(page-h2) ". "
+    h3
+      counter-reset page-h4
+      &:before
+        counter-increment page-h3
+        content counter(page-h2) "." counter(page-h3) ". "
+    h4
+      counter-reset page-h5
+      &:before
+        counter-increment page-h4
+        content counter(page-h2) "." counter(page-h3) "." counter(page-h4) ". "
+    h5
+      counter-reset page-h6
+      &:before
+        counter-increment page-h5
+        content counter(page-h2) "." counter(page-h3) "." counter(page-h4) "." counter(page-h5) ". "
+    h6:before
+      counter-increment page-vh6
+      content counter(page-h2) "." counter(page-h3) "." counter(page-h4) "." counter(page-h5) "." counter(page-h6) ". "
 
-.page:not(.edit-mode)
-  h2:before
-    counter-increment h2
-    content counter(h2) ". "
-  h3:before
-    counter-increment h3
-    content counter(h2) "." counter(h3) ". "
-  h4:before
-    counter-increment h4
-    content counter(h2) "." counter(h3) "." counter(h4) ". "
-  h5:before
-    counter-increment h5
-    content counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) ". "
-  h6:before
-    counter-increment h6
-    content counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) "." counter(h6) ". "
-  h2, h3, h4, h5, h6
-    &.nocount:before
-      content ""
-      counter-increment none
-
-
-.sidebar-group-items > li
-  counter-increment sidebarh2
-
-.sidebar-group-items > li > a:before
-  content counter(sidebarh2) ". "
-  
-.sidebar-group-items > li > ul > li
-  counter-increment sidebarh3
-
-.sidebar-group-items > li > ul > li > a:before
-  content counter(sidebarh2) "." counter(sidebarh3) ". "
+  .sidebar-group-items > li
+      counter-increment sidebar-h2
+      & > a:before
+        content counter(sidebar-h2) ". "
+      &> ul > li
+        counter-increment sidebar-h3
+        & > a:before
+          content counter(sidebar-h2) "." counter(sidebar-h3) ". "
