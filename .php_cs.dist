@@ -25,6 +25,7 @@ return PhpCsFixer\Config::create()
         'increment_style' => ['style' => 'post'],
         'phpdoc_no_empty_return' => false,
         'phpdoc_to_comment' => false,
+        'php_unit_test_class_requires_covers' => false,
         'trim_array_spaces' => false,
         'yoda_style' => false,
 

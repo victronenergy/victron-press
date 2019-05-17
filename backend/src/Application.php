@@ -7,7 +7,8 @@ namespace VictronEnergy\Press;
 use Dotenv\Dotenv;
 use Github\Client as GithubClient;
 use GuzzleHttp\Client as GuzzleClient;
-use League\Flysystem\Adapter\Local;
+use League\Container\Container;
+use League\Flysystem\Adapter\Local as LocalAdapter;
 use League\Flysystem\Filesystem;
 use League\OAuth2\Client\Provider\Github as GitHubOAuth2Provider;
 use League\Route\Http\Exception as HttpException;
@@ -16,9 +17,12 @@ use League\Route\Http\Exception\ConflictException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Http\Exception\UnauthorizedException;
 use League\Route\Router;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use VictronEnergy\Press\Lock\NamedLockStoreInterface;
+use VictronEnergy\Press\Lock\PdoLockStore;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\JsonResponse;
@@ -51,11 +55,11 @@ class Application implements RequestHandlerInterface
         'u[ggkrz]|v[eio]|w[ao]|x[h]|y[io]|z[aahu]';
 
     /**
-     * Filesystem used for temporarely storing uploaded files before they are committed.
+     * Container for accessing lazily loaded dependencies.
      *
-     * @var Filesystem
+     * @var ContainerInterface
      */
-    protected $filesystem;
+    protected $container;
 
     /**
      * HTTP router for mapping requests to handlers.
@@ -97,8 +101,24 @@ class Application implements RequestHandlerInterface
             \Sentry\init(['dsn' => getenv('SENTRY_DSN_BACKEND')]);
         }
 
+        // Set up container for lazy loading dependencies
+        $this->container = new Container();
+
         // Set up filesystem for uploads
-        $this->filesystem = new Filesystem(new Local(self::PATH . '/data/uploads'));
+        $this->container->share(Filesystem::class)->addArgument(LocalAdapter::class);
+        $this->container->share(LocalAdapter::class)->addArgument(self::PATH . '/data/uploads');
+
+        // Set up lock store
+        $this->container->share(NamedLockStoreInterface::class, PdoLockStore::class)->addArgument(\PDO::class);
+        $this->container->share(\PDO::class)
+            ->addArgument('sqlite:' . self::PATH . '/data/locks/lockstore.sqlite')
+            ->addArgument(null)
+            ->addArgument(null)
+            ->addArgument([
+                \PDO::ATTR_ERRMODE           => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_STRINGIFY_FETCHES => false,
+            ])
+        ;
 
         // Set up HTTP routing and middleware
         $this->router = new Router();
@@ -107,6 +127,8 @@ class Application implements RequestHandlerInterface
         // API handlers
         $this->router->map('GET', '/api/v1/auth', [$this, 'handleAuth']);
         $this->router->map('GET', '/api/v1/oauth-callback', [$this, 'handleOAuthCallback']);
+        $this->router->map('POST', '/api/v1/lock', [$this, 'handleLock']);
+        $this->router->map('POST', '/api/v1/unlock', [$this, 'handleUnlock']);
 
         // Handlers for retrieving files
         $this->router->map(
@@ -240,6 +262,70 @@ class Application implements RequestHandlerInterface
         return new RedirectResponse($redirectUrl);
     }
 
+    public function handleLock(ServerRequestInterface $request): ResponseInterface
+    {
+        $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
+
+        // Check if the user is logged in
+        if (!$session->has('user_name')) {
+            throw new UnauthorizedException('Not logged in');
+        }
+
+        // Sanity check the filename
+        $filePath = $request->getQueryParams()['file'];
+        if (empty($filePath) || preg_match('#((^|/)\.[^/]+(/|$)|^\d{3}\.md$|(^|/)README\.md$)#i', $filePath)) {
+            throw new BadRequestException('Bad filename');
+        }
+
+        // Retrieve user data from the session
+        $userName = $session->get('user_name');
+
+        // Retrieve the lock
+        /** @var NamedLockStoreInterface */
+        $lockStore = $this->container->get(NamedLockStoreInterface::class);
+        $lock = $lockStore->forName($filePath);
+
+        // Lock
+        $hasLocked = $lock->lock($userName, 15 * 60);
+
+        // Return status
+        return new JsonResponse([
+            'success'     => $hasLocked,
+            'lockedBy'    => $lock->lockedBy(),
+            'lockedUntil' => time() + $lock->lockedFor(),
+        ], $hasLocked ? 200 : 409);
+    }
+
+    public function handleUnlock(ServerRequestInterface $request): ResponseInterface
+    {
+        $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
+
+        // Check if the user is logged in
+        if (!$session->has('user_name')) {
+            throw new UnauthorizedException('Not logged in');
+        }
+
+        // Sanity check the filename
+        $filePath = $request->getQueryParams()['file'];
+        if (empty($filePath) || preg_match('#((^|/)\.[^/]+(/|$)|^\d{3}\.md$|(^|/)README\.md$)#i', $filePath)) {
+            throw new BadRequestException('Bad filename');
+        }
+
+        // Retrieve user data from the session
+        $userName = $session->get('user_name');
+
+        // Retrieve the lock
+        /** @var NamedLockStoreInterface */
+        $lockStore = $this->container->get(NamedLockStoreInterface::class);
+        $lock = $lockStore->forName($filePath);
+
+        // Unlock
+        $lock->unlock($userName);
+
+        // Unlock doesn't yield any status
+        return new EmptyResponse();
+    }
+
     /**
      * If a specific language version does not exists, redirect to the English version.
      */
@@ -350,10 +436,11 @@ class Application implements RequestHandlerInterface
         $filesToCommit = [$filePath => $contents];
         $imagesToCommit = [];
         if ($session->has('images')) {
+            $filesystem = $this->container->get(Filesystem::class);
             foreach ($session->get('images') as $image) {
-                if ($this->filesystem->has($image) && strpos($contents, $image) !== false) {
+                if ($filesystem->has($image) && strpos($contents, $image) !== false) {
                     $imagesToCommit[] = $image;
-                    $filesToCommit['images/' . $image] = $this->filesystem->read($image);
+                    $filesToCommit['images/' . $image] = $filesystem->read($image);
                 }
             }
         }
@@ -516,11 +603,12 @@ class Application implements RequestHandlerInterface
         // After success, delete uploaded images since they're now available through GitHub
         if ($session->has('images')) {
             $images = $session->get('images');
+            $filesystem = $this->container->get(Filesystem::class);
             foreach ($session->get('images') as $i => $image) {
                 if (\in_array($image, $imagesToCommit)) {
                     unset($images[$i]);
-                    if ($this->filesystem->has($image)) {
-                        $this->filesystem->delete($image);
+                    if ($filesystem->has($image)) {
+                        $filesystem->delete($image);
                     }
                 }
             }
@@ -609,19 +697,18 @@ class Application implements RequestHandlerInterface
         ][pathinfo($filePath, PATHINFO_EXTENSION)];
 
         // Only try to retrieve images from session if user is logged in
-        if ($session->has('user_name')) {
-            // Try to retrieve image from session
-            if ($session->has('images')) {
-                foreach ($session->get('images') as $image) {
-                    if (('images/' . $image) === $filePath) {
-                        if ($this->filesystem->has($image) && $fileContent = $this->filesystem->read($image)) {
-                            return new TextResponse($fileContent, 200, [
-                                'Content-Type' => $mimeType,
-                            ]);
-                        }
-                        // Image was previously uploaded but no longer on disk
-                        // TODO: Handle this error
+        if ($session->has('user_name') && $session->has('images')) {
+            foreach ($session->get('images') as $image) {
+                if (('images/' . $image) === $filePath) {
+                    $filesystem = $this->container->get(Filesystem::class);
+                    if ($filesystem->has($image) && $fileContent = $filesystem->read($image)) {
+                        return new TextResponse($fileContent, 200, [
+                            'Content-Type' => $mimeType,
+                        ]);
                     }
+                    // Image was previously uploaded but no longer on disk
+                    // TODO: Handle this error
+                    break;
                 }
             }
         }
@@ -713,7 +800,7 @@ class Application implements RequestHandlerInterface
         ][$contentType];
 
         // Save file in upload folder
-        $this->filesystem->put($filename, $contents);
+        $this->container->get(Filesystem::class)->put($filename, $contents);
 
         // Set image name in Session
         $images = $session->has('images') ? $session->get('images') : [];

@@ -16,25 +16,26 @@
         "ext-gd": "*",
         "guzzlehttp/guzzle": "^6.3",
         "knplabs/github-api": "^2.11",
+        "league/container": "^3.2",
         "league/flysystem": "^1.0",
         "league/oauth2-client": "^2.4",
         "league/oauth2-github": "^2.0",
         "league/route": "^4.2",
         "php-http/guzzle6-adapter": "^1.1",
+        "sentry/sentry": "^2.0",
         "vlucas/phpdotenv": "^3.3",
         "zendframework/zend-diactoros": "^2.1",
         "zendframework/zend-expressive-session": "^1.2",
         "zendframework/zend-expressive-session-ext": "^1.6",
-        "zendframework/zend-httphandlerrunner": "^1.1",
-        "sentry/sentry": "^2.0"
+        "zendframework/zend-httphandlerrunner": "^1.1"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.14",
         "phpunit/phpunit": "^8.1",
         "sensiolabs/security-checker": "^5.0",
+        "slowprog/composer-copy-file": "^0.3.1",
         "squizlabs/php_codesniffer": "^3.4",
-        "vimeo/psalm": "^3.2",
-        "slowprog/composer-copy-file": "^0.3.1"
+        "vimeo/psalm": "^3.2"
     },
     "scripts": {
         "build": [

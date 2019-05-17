@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="./vendor/autoload.php"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         beStrictAboutChangesToGlobalState="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         processIsolation="false"
+         stopOnFailure="false">
+    <testsuites>
+        <testsuite name="VictronPress backend test suite">
+            <directory>./backend/test/</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory>./backend/src/</directory>
+            <directory>./backend/test/</directory>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+        <log type="coverage-clover" target="coverage.xml"/>
+        <log type="coverage-html" target="coverage"/>
+    </logging>
+</phpunit>
