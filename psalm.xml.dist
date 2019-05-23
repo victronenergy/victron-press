@@ -14,5 +14,10 @@
                 <referencedMethod name="Github\Api\ApiInterface::merge" />
             </errorLevel>
         </UndefinedInterfaceMethod>
+        <PropertyNotSetInConstructor>
+            <errorLevel type="suppress">
+                <directory name="backend/test" />
+            </errorLevel>
+        </PropertyNotSetInConstructor>
     </issueHandlers>
 </psalm>

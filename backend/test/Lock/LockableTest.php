@@ -16,12 +16,10 @@ abstract class LockableTest extends TestCase
 
     /**
      * Provides an new unlocked lockable for use in tests.
-     *
-     * @return LockableInterface
      */
-    abstract public function getLockable();
+    abstract public function getLockable(): LockableInterface;
 
-    public function testInitiallyUnlocked()
+    public function testInitiallyUnlocked(): LockableInterface
     {
         $lockable = $this->getLockable();
         static::assertFalse($lockable->isLocked(), 'Lockable initially is unlocked.');
@@ -31,7 +29,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testInitiallyUnlocked
      */
-    public function testUnlocked(LockableInterface $lockable)
+    public function testUnlocked(LockableInterface $lockable): LockableInterface
     {
         static::assertNull($lockable->lockedBy(), 'Unlocked lockable has NULL as user.');
         static::assertIsInt($lockable->lockedFor(), 'Unlocked lockable has integer TTL.');
@@ -42,7 +40,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testUnlocked
      */
-    public function testLock(LockableInterface $lockable)
+    public function testLock(LockableInterface $lockable): LockableInterface
     {
         static::assertTrue(
             $lockable->lock(static::LOCKABLE_USER_ONE, static::LOCKABLE_TTL_SHORT),
@@ -54,7 +52,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testLock
      */
-    public function testLocked(LockableInterface $lockable)
+    public function testLocked(LockableInterface $lockable): LockableInterface
     {
         static::assertTrue($lockable->isLocked(), 'Locking lockable is locked.');
         static::assertIsString($lockable->lockedBy(), 'Locked lockable has string user.');
@@ -77,7 +75,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testLocked
      */
-    public function testRelock(LockableInterface $lockable)
+    public function testRelock(LockableInterface $lockable): LockableInterface
     {
         static::assertTrue(
             $lockable->lock(static::LOCKABLE_USER_ONE, static::LOCKABLE_TTL_SHORT),
@@ -89,7 +87,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testRelock
      */
-    public function testRelocked(LockableInterface $lockable)
+    public function testRelocked(LockableInterface $lockable): LockableInterface
     {
         static::assertTrue($lockable->isLocked(), 'Relocked lockable is locked.');
         static::assertIsString($lockable->lockedBy(), 'Relocked lockable has string user.');
@@ -112,7 +110,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testRelocked
      */
-    public function testContendLock(LockableInterface $lockable)
+    public function testContendLock(LockableInterface $lockable): LockableInterface
     {
         static::assertFalse(
             $lockable->lock(static::LOCKABLE_USER_TWO, static::LOCKABLE_TTL_LONG),
@@ -124,7 +122,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testContendLock
      */
-    public function testContendedLock(LockableInterface $lockable)
+    public function testContendedLock(LockableInterface $lockable): LockableInterface
     {
         static::assertTrue($lockable->isLocked(), 'Contended lockable is still locked.');
         static::assertIsString($lockable->lockedBy(), 'Contended lockable still has string user.');
@@ -147,7 +145,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testContendedLock
      */
-    public function testUnlock(LockableInterface $lockable)
+    public function testUnlock(LockableInterface $lockable): LockableInterface
     {
         $lockable->unlock(static::LOCKABLE_USER_ONE);
         static::assertFalse($lockable->isLocked(), 'After unlocking lockable is unlocked.');
@@ -160,7 +158,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testUnlock
      */
-    public function testLockAgain(LockableInterface $lockable)
+    public function testLockAgain(LockableInterface $lockable): LockableInterface
     {
         static::assertTrue(
             $lockable->lock(static::LOCKABLE_USER_ONE, static::LOCKABLE_TTL_SHORT),
@@ -172,7 +170,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testLockAgain
      */
-    public function testLockedAgain(LockableInterface $lockable)
+    public function testLockedAgain(LockableInterface $lockable): LockableInterface
     {
         static::assertTrue($lockable->isLocked(), 'Locked again lockable is locked.');
         static::assertIsString($lockable->lockedBy(), 'Locked again lockable has string user.');
@@ -195,7 +193,7 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testLockedAgain
      */
-    public function testLockTTLDecreases(LockableInterface $lockable)
+    public function testLockTTLDecreases(LockableInterface $lockable): LockableInterface
     {
         static::assertGreaterThanOrEqual(
             3,
@@ -221,9 +219,13 @@ abstract class LockableTest extends TestCase
     /**
      * @depends testLockTTLDecreases
      */
-    public function testRelockSetsTTL(LockableInterface $lockable)
+    public function testRelockSetsTTL(LockableInterface $lockable): LockableInterface
     {
-        static::assertGreaterThan(static::LOCKABLE_TTL_SHORT, self::LOCKABLE_TTL_LONG, 'Long TTL is greater than short TTL.');
+        static::assertGreaterThan(
+            static::LOCKABLE_TTL_SHORT,
+            self::LOCKABLE_TTL_LONG,
+            'Long TTL is greater than short TTL.'
+        );
 
         $lockedForBefore = $lockable->lockedFor();
         $lockable->lock(static::LOCKABLE_USER_ONE, static::LOCKABLE_TTL_SHORT);
@@ -249,14 +251,18 @@ abstract class LockableTest extends TestCase
         static::assertGreaterThan(0, $lockedForAfter, 'Lockable has remaining TTL.');
         static::assertGreaterThan(static::LOCKABLE_TTL_SHORT, $lockedForBefore, 'Lockable had long TTL.');
         static::assertLessThan($lockedForBefore, $lockedForAfter, 'Relocking to shorter TTL has decreased TTL.');
-        static::assertLessThanOrEqual(static::LOCKABLE_TTL_SHORT, $lockedForAfter, 'Relocking to shorter TTL has decreased TTL.');
+        static::assertLessThanOrEqual(
+            static::LOCKABLE_TTL_SHORT,
+            $lockedForAfter,
+            'Relocking to shorter TTL has decreased TTL.'
+        );
         return $lockable;
     }
 
     /**
      * @depends testRelockSetsTTL
      */
-    public function testLockExpires(LockableInterface $lockable)
+    public function testLockExpires(LockableInterface $lockable): LockableInterface
     {
         $lockable->lock(static::LOCKABLE_USER_ONE, 2);
         static::assertTrue($lockable->isLocked(), 'Lockable is locked before expiring.');

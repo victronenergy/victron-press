@@ -11,20 +11,12 @@ use VictronEnergy\Press\Lock\PdoLockStore;
  *
  * @internal
  */
-class PdoLockTest extends LockableTest
+class PdoLockTest extends NamedLockTest
 {
-    protected const LOCKABLE_NAME = 'my-resource';
-
-    public function getLockable()
+    public function __construct()
     {
-        $this->pdo = new \PDO('sqlite::memory:');
-        $this->lockStore = new PdoLockStore($this->pdo);
-        $this->lockStore->createTable();
-        return $this->lockStore->for(static::LOCKABLE_NAME);
-    }
-
-    public function testName(): void
-    {
-        static::assertSame(static::LOCKABLE_NAME, $this->getLockable()->lockName());
+        $lockStore = new PdoLockStore(new \PDO('sqlite::memory:'));
+        $lockStore->createTable();
+        parent::__construct($lockStore);
     }
 }

@@ -8,6 +8,9 @@ class PdoLock implements NamedLockInterface
 {
     use NamedLockTrait;
 
+    /**
+     * @var PdoLockStore
+     */
     protected $lockStore;
 
     public function __construct(PdoLockStore $lockStore, string $name)

@@ -6,10 +6,15 @@ namespace VictronEnergy\Press\Lock;
 
 class PdoLockStore implements NamedLockStoreInterface
 {
+    /** @var \PDO */
     protected $pdo;
+    /** @var string */
     protected $table = 'locks';
+    /** @var string */
     protected $nameColumn = 'name';
+    /** @var string */
     protected $userColumn = 'user';
+    /** @var string */
     protected $expirationColumn = 'expiration';
 
     public function __construct(\PDO $pdo)
@@ -78,7 +83,7 @@ class PdoLockStore implements NamedLockStoreInterface
             case 'sqlite':
                 return "strftime('%s', 'now')";
             default:
-                return time();
+                return (string) time();
         }
     }
 }
