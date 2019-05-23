@@ -55,6 +55,11 @@ class Application implements RequestHandlerInterface
         'u[ggkrz]|v[eio]|w[ao]|x[h]|y[io]|z[aahu]';
 
     /**
+     * Number of seconds a Markdown file remains locked.
+     */
+    private const LOCK_DURATION = 15 * 60;
+
+    /**
      * Container for accessing lazily loaded dependencies.
      *
      * @var ContainerInterface
@@ -286,7 +291,7 @@ class Application implements RequestHandlerInterface
         $lock = $lockStore->forName($filePath);
 
         // Lock
-        $hasLocked = $lock->lock($userName, 15 * 60);
+        $hasLocked = $lock->lock($userName, self::LOCK_DURATION);
 
         // Return status
         return new JsonResponse([
@@ -421,6 +426,16 @@ class Application implements RequestHandlerInterface
         // Retrieve user data from the session
         $userName = $session->get('user_name');
         $userEmail = $session->get('user_email');
+
+        // Retrieve the lock
+        /** @var NamedLockStoreInterface */
+        $lockStore = $this->container->get(NamedLockStoreInterface::class);
+        $lock = $lockStore->forName($filePath);
+
+        // Lock
+        if (!$lock->lock($userName, self::LOCK_DURATION)) {
+            throw new ConflictException('Cannot lock the given file');
+        }
 
         // Get commit message from header
         $commitMessage = implode("\n", $request->getHeader('Commit-Message'));
