@@ -114,16 +114,19 @@ class Application implements RequestHandlerInterface
         $this->container->share(LocalAdapter::class)->addArgument(self::PATH . '/data/uploads');
 
         // Set up lock store
-        $this->container->share(NamedLockStoreInterface::class, PdoLockStore::class)->addArgument(\PDO::class);
-        $this->container->share(\PDO::class)
-            ->addArgument('sqlite:' . self::PATH . '/data/locks/lockstore.sqlite')
-            ->addArgument(null)
-            ->addArgument(null)
-            ->addArgument([
+        $this->container->share(NamedLockStoreInterface::class, function (): NamedLockStoreInterface {
+            $dbPath = self::PATH . '/data/locks/lockstore.sqlite';
+            $existed = file_exists($dbPath);
+            $pdo = new \PDO('sqlite:' . $dbPath, null, null, [
                 \PDO::ATTR_ERRMODE           => \PDO::ERRMODE_EXCEPTION,
                 \PDO::ATTR_STRINGIFY_FETCHES => false,
-            ])
-        ;
+            ]);
+            $lockStore = new PdoLockStore($pdo);
+            if (!$existed) {
+                $lockStore->createTable();
+            }
+            return $lockStore;
+        });
 
         // Set up HTTP routing and middleware
         $this->router = new Router();
