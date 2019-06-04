@@ -95,18 +95,23 @@ RUN apt-get update && \
     apt-get install -y libjpeg-dev libpng-dev libwebp-dev && \
     docker-php-ext-configure gd --with-jpeg-dir=/usr/include --with-png-dir=/usr/include --with-webp-dir=/usr/include && \
     docker-php-ext-install -j$(nproc) gd opcache && \
-    sed -iE -e 's#/var/www/html#/var/www/data/dist#g' /etc/apache2/sites-available/*.conf && \
-    sed -iE -e 's#/var/www/#/var/www/data/dist#g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf && \
-    rm -rf /var/www/* && \
-    a2enmod rewrite && \
+    sed -i -E \
+        -e 's#/var/www/html#/var/www/data/dist#g' \
+        /etc/apache2/sites-available/*.conf && \
+    sed -i -E \
+        -e 's#/var/www/#/var/www/data/dist#g' \
+        -e 's/^[# ]*(ServerTokens) +.*$/\1 ProductOnly/g' \
+        /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf && \
+    a2enmod headers rewrite && \
     sed -E \
         -e 's#^[; ]*(expose_php) *=.*$#\1 = off#g' \
-        -e 's#^[; ]*(session.cookie_httponly) *=.*$#\1 = 1#g' \
-        -e 's#^[; ]*(session.name) *=.*$#\1 = VictronPressSession#g' \
-        -e 's#^[; ]*(session.save_path) *=.*$#\1 = /var/www/data/sessions#g' \
-        -e 's#^[; ]*(session.sid_length) *=.*$#\1 = 32#g' \
-        -e 's#^[; ]*(session.use_strict_mode) *=.*$#\1 = 1#g' \
-        /usr/local/etc/php/php.ini-production > /usr/local/etc/php/php.ini
+        -e 's#^[; ]*(session\.cookie_httponly) *=.*$#\1 = 1#g' \
+        -e 's#^[; ]*(session\.name) *=.*$#\1 = VictronPressSession#g' \
+        -e 's#^[; ]*(session\.save_path) *=.*$#\1 = /var/www/data/sessions#g' \
+        -e 's#^[; ]*(session\.sid_length) *=.*$#\1 = 32#g' \
+        -e 's#^[; ]*(session\.use_strict_mode) *=.*$#\1 = 1#g' \
+        /usr/local/etc/php/php.ini-production > /usr/local/etc/php/php.ini && \
+    rm -rf /var/www/*
 
 WORKDIR /var/www
 
@@ -114,8 +119,8 @@ COPY --from=backend /workspace/backend/src/ ./backend/src/
 COPY --from=backend /workspace/vendor/ ./vendor/
 COPY --from=backend /workspace/backend/web/.htaccess /workspace/backend/web/index.php ./data/dist/
 COPY .env ./
-RUN mkdir -p data/sessions && \
-    chmod 755 data data/sessions && \
+RUN mkdir -p data/sessions data/locks && \
+    chmod 755 data data/sessions data/locks && \
     chown -R www-data:www-data .
 COPY --from=frontend /workspace/data/dist/ ./data/dist/
 RUN chown -R www-data:www-data data/dist

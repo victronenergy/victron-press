@@ -27,3 +27,9 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+<IfModule headers_module>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "sameorigin"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
