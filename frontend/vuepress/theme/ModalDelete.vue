@@ -3,7 +3,7 @@
     @close="$store.commit('deleteModalVisible', false);"
     v-if="$store.state.deleteModalVisible"
   >
-    <h3 slot="header">{{translate('deletePageModalTitle')}}</h3>
+    <h3 slot="header" class="no-heading-number">{{translate('deletePageModalTitle')}}</h3>
     <div slot="body">
       <p>{{translate('deletePageModalCopy')}}</p>
       <p>
@@ -13,6 +13,7 @@
         type="text"
         :placeholder="translate('deletePageModalPlaceholder')"
         v-model="deleteConfirmationText"
+        ref="deleteConfirmationTextInput"
       >
     </div>
 
@@ -28,9 +29,11 @@
 </template>
 
 <script>
+import Vue from 'vue';
 import axios from "axios";
 import { normalize, endingSlashRE } from "./util";
 import Modal from "./Modal";
+import { mapState } from 'vuex';
 
 export default {
   components: { Modal },
@@ -40,6 +43,7 @@ export default {
     };
   },
   computed: {
+    ...mapState(['deleteModalVisible']),
     title() {
       if (window) {
         return window.location.pathname.split("/")[1].split(".")[0]; //a bit brittle...
@@ -68,7 +72,16 @@ export default {
         });
       }
     }
-  }
+  },
+  watch: {
+    deleteModalVisible(newValue, oldValue) {
+      if(newValue === true) {
+        Vue.nextTick().then(() => {
+          this.$refs.deleteConfirmationTextInput.focus();
+        })
+      }
+    }
+  },
 };
 </script>
 

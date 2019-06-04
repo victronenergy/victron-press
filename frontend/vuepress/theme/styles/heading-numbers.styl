@@ -7,24 +7,40 @@
       &:before
         counter-increment page-h2
         content counter(page-h2) ". "
+      &.no-heading-number:before
+        content: none;
+        counter-increment: none;
     h3
       counter-reset page-h4
       &:before
         counter-increment page-h3
         content counter(page-h2) "." counter(page-h3) ". "
+      &.no-heading-number:before
+        content: none;
+        counter-increment: none;
     h4
       counter-reset page-h5
       &:before
         counter-increment page-h4
         content counter(page-h2) "." counter(page-h3) "." counter(page-h4) ". "
+      &.no-heading-number:before
+        content: none;
+        counter-increment: none;
     h5
       counter-reset page-h6
       &:before
         counter-increment page-h5
         content counter(page-h2) "." counter(page-h3) "." counter(page-h4) "." counter(page-h5) ". "
+      &.no-heading-number:before
+        content: none;
+        counter-increment: none;
     h6:before
       counter-increment page-vh6
       content counter(page-h2) "." counter(page-h3) "." counter(page-h4) "." counter(page-h5) "." counter(page-h6) ". "
+      &.no-heading-number:before {
+        content: none;
+        counter-increment: none;
+      }
 
   .sidebar-group-items > li
       counter-increment sidebar-h2

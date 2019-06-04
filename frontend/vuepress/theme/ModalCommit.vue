@@ -1,6 +1,6 @@
 <template>
   <modal @close="$store.commit('commitModalVisible', false)" v-if="$store.state.commitModalVisible">
-    <h3 slot="header">{{ translate('commitMesasgeHeader') }}</h3>
+    <h3 class="no-heading-number" slot="header">{{ translate('commitMesasgeHeader') }}</h3>
     <div slot="body">
       <p>{{ translate('commitMessageExplanation') }}</p>
       <input
@@ -30,9 +30,12 @@
 </template>
 
 <script>
+import Vue from 'vue';
 import Modal from "./Modal";
 import { normalize, endingSlashRE } from "./util";
 import axios from "axios";
+import { mapState } from 'vuex';
+
 
 export default {
   components: { Modal },
@@ -40,6 +43,17 @@ export default {
     return {
       customCommitMessage: ""
     };
+  },
+  computed: mapState(['commitModalVisible']),
+  watch: {
+    commitModalVisible(newValue, oldValue) {
+      if(newValue === true) {
+        console.log('commit modal became visible.');
+        Vue.nextTick().then(() => {
+          this.$refs.commitMessageInput.focus();
+        })
+      }
+    }
   },
   methods: {
     commit() {
