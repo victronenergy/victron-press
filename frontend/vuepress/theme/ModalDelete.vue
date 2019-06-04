@@ -5,7 +5,6 @@
   >
     <h3 slot="header">{{translate('deletePageModalTitle')}}</h3>
     <div slot="body">
-      <p>Dit is vanaf het ModalDelete component</p>
       <p>{{translate('deletePageModalCopy')}}</p>
       <p>
         <strong>{{title}}</strong>

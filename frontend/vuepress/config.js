@@ -102,6 +102,9 @@ module.exports = {
                 saveFailedHeader: 'Failed to edit the page',
                 saveFailedCopy: 'Something went wrong while editing this page. Please try again later.',
                 viewOnGitHub: 'View on GitHub',
+                fileLockedModalTitle: 'This page is locked',
+                fileLockedModalCopy: 'Someone else is already editing this page. Please try again later.',
+                close: 'Close'
             },
             '/de': {
                 lang: 'de-DE',
@@ -139,6 +142,9 @@ module.exports = {
                 saveFailedHeader: 'Fehler beim Bearbeiten der Seite',
                 saveFailedCopy: 'Beim Bearbeiten dieser Seite ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
                 viewOnGitHub: 'Auf GitHub ansehen',
+                fileLockedModalTitle: 'Diese Seite ist gesperrt',
+                fileLockedModalCopy: 'Jemand anderes bereits bearbeitet diese Seite. Bitte versuchen Sie es später noch einmal.',
+                close: 'Schließen'
             },
             '/es/': {
                 lang: 'es-ES',
@@ -176,6 +182,9 @@ module.exports = {
                 saveFailedHeader: 'Error al editar la página',
                 saveFailedCopy: 'Algo salió mal al editar esta página. Por favor, inténtelo de nuevo más tarde.',
                 viewOnGitHub: 'Ver en GitHub',
+                fileLockedModalTitle: 'Esta página está bloqueada',
+                fileLockedModalCopy: 'Alguien ya está editando esta página. Por favor, inténtelo de nuevo más tarde.',
+                close: 'Cerrar'
             },
             '/fr/': {
                 lang: 'fr-FR',
@@ -213,6 +222,9 @@ module.exports = {
                 saveFailedHeader: 'Échec de la modification de la page',
                 saveFailedCopy: 'Quelque chose s\'est mal passé lors de l\'édition de cette page. Veuillez réessayer plus tard.',
                 viewOnGitHub: 'Voir sur GitHub',
+                fileLockedModalTitle: 'Cette page est verrouillée',
+                fileLockedModalCopy: "Quelqu'un d'autre est l'édition déjà cette page. Veuillez réessayer plus tard.",
+                close: 'Fermer'
             },
             '/nl/': {
                 lang: 'nl-NL',
@@ -250,6 +262,9 @@ module.exports = {
                 saveFailedHeader: 'Aanpassen van pagina mislukt',
                 saveFailedCopy: 'Er is iets mis gegaan bij het aanpassen van de pagina. Probeert u het later opnieuw.',
                 viewOnGitHub: 'Bekijk op GitHub',
+                fileLockedModalTitle: 'Deze pagina is gelocked',
+                fileLockedModalCopy: 'Iemand anders is op dit moment deze pagina aan het aanpassen. Probeer het later opnieuw.',
+                close: 'Sluiten'
             },
             '/se/': {
                 lang: 'se-SE',
@@ -287,6 +302,9 @@ module.exports = {
                 saveFailedHeader: 'Misslyckades med att redigera sidan',
                 saveFailedCopy: 'Något gick fel när du redigerade den här sidan. Vänligen försök igen senare.',
                 viewOnGitHub: 'Visa på GitHub',
+                fileLockedModalTitle: 'Den här sidan är låst',
+                fileLockedModalCopy: 'Någon annan redan redigerar den här sidan. Försök igen senare.',
+                close: 'Stänga'
             },
         },
     },

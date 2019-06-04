@@ -2,7 +2,6 @@
   <modal @close="$store.commit('commitModalVisible', false)" v-if="$store.state.commitModalVisible">
     <h3 slot="header">{{ translate('commitMesasgeHeader') }}</h3>
     <div slot="body">
-      Deze is vanaf zijn eigen component!
       <p>{{ translate('commitMessageExplanation') }}</p>
       <input
         type="text"

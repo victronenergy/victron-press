@@ -14,6 +14,7 @@ export default new Vuex.Store({
         isDeleting: false,
         commitModalVisible: false,
         deleteModalVisible: false,
+        fileLockedModalVisible: false,
         sidebarVisible: true,
         editorContent: '',
     },
@@ -41,6 +42,9 @@ export default new Vuex.Store({
         },
         deleteModalVisible(state, value) {
             state.deleteModalVisible = value;
+        },
+        fileLockedModalVisible(state, value) {
+            state.fileLockedModalVisible = value;
         },
         sidebarVisible(state, value) {
             state.sidebarVisible = value;
