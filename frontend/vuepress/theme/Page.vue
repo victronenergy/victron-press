@@ -95,6 +95,15 @@ export default {
   },
 
   computed: {
+    path() {
+      let path = normalize(this.$page.path);
+      if (endingSlashRE.test(path)) {
+        path += "README.md";
+      } else {
+        path += ".md";
+      }
+      return path;
+    },
     editAllowed() {
       if (this.$page.frontmatter.hasOwnProperty("editAllowed")) {
         return this.$page.frontmatter.editAllowed;
@@ -143,13 +152,7 @@ export default {
 
   methods: {
     isSubscribed() {
-      let path = normalize(this.$page.path);
-      if (endingSlashRE.test(path)) {
-        path += "README.md";
-      } else {
-        path += ".md";
-      }
-      const url = "/api/v1/auth?file=" + path.split("/")[1];
+      const url = "/api/v1/auth?file=" + this.path.split("/")[1];
       return axios.get(url).then(response => {
         return response.data;
       });
@@ -166,14 +169,35 @@ export default {
       // this.stopEditing(); //doenst exist here anymore
     },
     tryEdit() {
-      this.isSubscribed().then(data => {
+      this.isSubscribed()
+          .then(data => {
         if (data.success === true) {
-          this.doEdit();
+          return; //proceed...
         } else {
-          this.$router.push({
-            name: "unauthorized",
-            query: { redirectUrl: data.redirectUrl }
-          });
+          throw new Error('unauthorized to edit file.');
+        }
+      }).then(() => {
+        return this.tryLockFile();
+      }).then(() => {
+        this.doEdit();
+      }).catch(() => {
+        this.$router.push({
+          name: "unauthorized",
+          query: { redirectUrl: data.redirectUrl }
+        });
+      })
+      
+      ;
+    },
+    tryLockFile() {
+      const url = "/api/v1/lock?file=" + this.path.split("/")[1];
+      return axios.post(url).then(response => {
+        const success = response.data.success;
+        const lockedBy = response.data.lockedBy;
+        const lockedUntil = response.data.lockedUntil;
+
+        if(!success){
+          throw new Error('Locked!'); 
         }
       });
     },

@@ -41,6 +41,7 @@ export default {
   mounted() {
     console.log("mounted!");
     this.$store.commit("sidebarVisible", false);
+
   },
   computed: {
     path() {

@@ -76,8 +76,7 @@ export default {
         path += ".md";
       }
 
-      console.log(this.$page);
-      console.log(path);
+
 
       axios
         .put(path, this.$store.state.editorContent, {
@@ -103,6 +102,14 @@ export default {
             this.$router.push({});
           }
         })
+        .then(() => {
+          const unlockURL = "/api/v1/unlock?file=" + path.split("/")[1];
+            return axios.post(unlockURL).then(response => {
+              if(response.status !== 204){ 
+                throw new Error("Couldn't unlock the file.");
+              }
+            });
+          })
         .catch(response => {
           console.log("didnt succeed", response);
           // this.$store.commit('isSaving', false);
