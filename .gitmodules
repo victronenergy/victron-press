@@ -1,5 +1,5 @@
 [submodule "data/docs"]
 	path = data/docs
-	url = git@github.com:victronenergy/www-documentation.git
+	url = git@github.com:victron-docs/www-documentation.git
 	branch = master
 	ignore = all
