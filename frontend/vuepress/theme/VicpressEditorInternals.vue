@@ -1,29 +1,6 @@
 <template>
   <div id="edit" ref="edit">
     <ClientOnly>
-      <modal @close="toggleCommitModal" v-if="commitModalVisible">
-        <h3 slot="header">{{ translate('commitMesasgeHeader') }}</h3>
-        <div slot="body">
-          <p>{{ translate('commitMessageExplanation') }}</p>
-          <input type="text" placeholder="Commit message" v-model="customCommitMessage">
-        </div>
-
-        <div
-          slot="footer"
-          style="display: flex; justify-content: space-between; align-items: center;"
-        >
-          <a @click="toggleCommitModal">{{ translate('cancel') }}</a>
-          <a
-            v-if="!saving"
-            class="button"
-            style="margin: 0;"
-            :class="{ 'disabled': customCommitMessage.length === 0 }"
-            @click="commit()"
-          >{{ translate('commit') }}</a>
-          <a v-if="saving" class="button disabled" style="margin: 0;">{{ translate('saving') }}</a>
-        </div>
-      </modal>
-
       <editor
         ref="editor"
         v-if="editorLoadable"
@@ -31,6 +8,7 @@
         :options="editorOptions"
         @load="onEditorLoad"
         v-model="editorValue"
+        @input="$store.commit('editorContent', $event)"
         id="tui-editor"
         height="calc(100vh - 149px)"
         previewStyle="vertical"
@@ -52,11 +30,10 @@
 
 <script>
 import axios from "axios";
+import Vue from "vue";
 import "tui-editor/dist/tui-editor.css";
-
 import "codemirror/lib/codemirror.css";
 
-import Modal from "./Modal";
 import {
   resolvePage,
   normalize,
@@ -67,9 +44,9 @@ import {
 
 export default {
   name: "PageEdit",
+  props: ["mode"],
   components: {
-    Editor: () => import("@toast-ui/vue-editor/src/Editor"),
-    Modal
+    Editor: () => import("@toast-ui/vue-editor/src/Editor")
   },
 
   data() {
@@ -81,7 +58,7 @@ export default {
         hideModeSwitch: true,
         previewStyle: "vertical",
         get language() {
-          return self.$lang ? self.$lang.replace("-", "_") : 'en_US';
+          return self.$lang ? self.$lang.replace("-", "_") : "en_US";
         },
         exts: ["scrollSync", "table"],
         hooks: {
@@ -117,8 +94,7 @@ export default {
       editorValue: "",
       editorLoadable: false,
       editorVisible: false,
-      commitModalVisible: false,
-      saving: false
+      commitModalVisible: false
     };
   },
 
@@ -130,37 +106,37 @@ export default {
     // Load markdown-it plugins (to be attached later in onEditorLoad)
     this.editorMarkdownPlugins = [
       // Plugins used by VuePress
-      // import('vuepress/lib/markdown/component'),
-      // import('vuepress/lib/markdown/highlightLines'),
-      // import('vuepress/lib/markdown/preWrapper'),
-      // import('vuepress/lib/markdown/snippet'),
-      // import('vuepress/lib/markdown/hoist'),
-      // import('vuepress/lib/markdown/containers'),
+      // import("vuepress/lib/markdown/component"),
+      // import("vuepress/lib/markdown/highlightLines"),
+      // import("vuepress/lib/markdown/preWrapper"),
+      // import("vuepress/lib/markdown/snippet"),
+      // import("vuepress/lib/markdown/hoist"),
+      // import("vuepress/lib/markdown/containers"),
       import("markdown-it-emoji"),
       // [import("markdown-it-anchor"), {
-      //   slugify: import('vuepress/lib/markdown/slugify'), // TODO fix this
+      //   slugify: import("vuepress/lib/markdown/slugify"), // TODO fix this
       //   permalink: true,
       //   permalinkBefore: true,
-      //   permalinkSymbol: '#'
+      //   permalinkSymbol: "#"
       // }],
       // [import("markdown-it-table-of-contents"), {
-      //   slugify: import('vuepress/lib/markdown/slugify'), // TODO fix this
+      //   slugify: import("vuepress/lib/markdown/slugify"), // TODO fix this
       //   includeLevel: [2, 3],
-      //   format: import('vuepress/lib/util/parseHeaders').parseHeaders  // TODO fix this
+      //   format: import("vuepress/lib/util/parseHeaders").parseHeaders  // TODO fix this
       // }],
       // Custom plugins
       import("markdown-it-abbr"),
-      import('markdown-it-footnote'),
-      import('markdown-it-kbd'),
-      import('markdown-it-sub'),
-      import('markdown-it-sup'),
-      import('markdown-it-task-lists'),
+      import("markdown-it-footnote"),
+      import("markdown-it-kbd"),
+      import("markdown-it-sub"),
+      import("markdown-it-sup"),
+      import("markdown-it-task-lists"),
       import("../../../../frontend/markdown-it-plugins/floating-image"),
-      //import('../../../../frontend/markdown-it-plugins/predefined-tooltip'),
+      //import("../../../../frontend/markdown-it-plugins/predefined-tooltip"),
       import("../../../../frontend/markdown-it-plugins/video-thumb"),
       [import("../../../../frontend/markdown-it-plugins/url-fixer"), {
         forceHttps: true,
-        forceMarkdownExt: 'html',
+        forceMarkdownExt: "html",
       }]
     ].map(plugin =>
       typeof plugin[Symbol.iterator] === "function" ? plugin : [plugin]
@@ -178,6 +154,11 @@ export default {
       if (data.success) {
         // Start loading the editor
         this.editorLoadable = true;
+
+        if (this.mode === "create") {
+          this.editorVisible = true;
+          return;
+        }
 
         // Retrieve the raw Markdown contents from the server
         this.getMDContents().then(data => {
@@ -210,6 +191,15 @@ export default {
   },
 
   computed: {
+    path() {
+      let path = normalize(this.$page.path);
+      if (endingSlashRE.test(path)) {
+        path += "README.md";
+      } else {
+        path += ".md";
+      }
+      return path;
+    },
     loadingMarkdownText() {
       return (
         this.$themeLocaleConfig.loadingMarkdown ||
@@ -225,77 +215,17 @@ export default {
     },
 
     isSubscribed() {
-      let path = normalize(this.$page.path);
-      if (endingSlashRE.test(path)) {
-        path += "README.md";
-      } else {
-        path += ".md";
-      }
       return axios
-        .get("/api/v1/auth?file=" + encodeURIComponent(path))
+        .get("/api/v1/auth?file=" + encodeURIComponent(this.path))
         .then(response => {
           return response.data;
         });
     },
 
     getMDContents() {
-      let path = normalize(this.$page.path);
-      if (endingSlashRE.test(path)) {
-        path += "README.md";
-      } else {
-        path += ".md";
-      }
-      return axios.get(path).then(response => {
+      return axios.get(this.path).then(response => {
         return response.data;
       });
-    },
-
-    toggleCommitModal() {
-      this.commitModalVisible = !this.commitModalVisible;
-    },
-
-    commit() {
-      if (this.saving) return;
-      if (this.customCommitMessage.length === 0) return;
-
-      this.saving = true;
-      console.log("this.$page ", this.$page);
-      let path;
-      if (this.$page.path === "") {
-        //page doesn't exist yet
-        path = window.location.pathname;
-      } else {
-        path = normalize(this.$page.path);
-      }
-
-      if (endingSlashRE.test(path)) {
-        path += "README.md";
-      } else {
-        path += ".md";
-      }
-
-      return axios
-        .put(path, this.editorValue, {
-          headers: {
-            "Commit-Message": this.customCommitMessage
-          }
-        })
-        .then(response => {
-          if (
-            response.status == 200 ||
-            response.status == 201 ||
-            response.status == 204
-          ) {
-            this.saving = false;
-
-            this.$emit("saveSuccess", true);
-          }
-          console.log("posted content, response:", response);
-        })
-        .catch(response => {
-          this.saving = false;
-          this.$emit("saveFailed", true);
-        });
     }
   }
 };

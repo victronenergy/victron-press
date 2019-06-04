@@ -51,8 +51,7 @@ export default {
   data() {
     return {
       isSidebarOpen: false,
-      swUpdateEvent: null,
-      sidebarEnabled: true
+      swUpdateEvent: null
     };
   },
 
@@ -70,6 +69,10 @@ export default {
         themeConfig.nav ||
         this.$themeLocaleConfig.nav
       );
+    },
+
+    sidebarEnabled() {
+      return this.$store.state.sidebarVisible;
     },
 
     shouldShowSidebar() {
@@ -127,7 +130,7 @@ export default {
 
   methods: {
     setSidebar(sidebarStatus) {
-      this.sidebarEnabled = sidebarStatus;
+      this.$store.commit("sidebarVisible", sidebarStatus);
     },
 
     toggleSidebar(to) {

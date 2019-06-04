@@ -2,25 +2,18 @@
   <div class="theme-container">
     <Navbar :sidebarToggleEnabled="false"/>
 
-    <div class="content" v-if="!editModeEnabled && !hasSaved">
+    <div class="content" v-if="!$store.state.isInEditMode && !hasSaved">
       <h1 v-if="canCreatePage">{{ translate('pageDoesntExistYet') }}</h1>
       <h1 v-else>{{ translate('pageDoesntExist') }}</h1>
-      <a v-if="canCreatePage" @click="editModeEnabled = true">{{ translate('wantToCreatePage') }}</a>
+      <a
+        v-if="canCreatePage"
+        @click="$store.commit('isInEditMode', true)"
+      >{{ translate('wantToCreatePage') }}</a>
     </div>
 
     <ClientOnly>
-      <div class="editor-container" v-if="editModeEnabled">
-        <div class="create-options-bar">
-          <div class="button-group">
-            <div
-              class="button-group-item"
-              @click="editModeEnabled = false"
-            >{{ translate('cancel') }}</div>
-            <div class="button-group-item" @click="commitClicked">{{ translate('publishPage') }}</div>
-          </div>
-        </div>
-
-        <page-create @saveSuccess="onHasSaved()" ref="pageCreate"/>
+      <div class="editor-container" v-if="$store.state.isInEditMode">
+        <vicpress-editor :mode="'create'"></vicpress-editor>
       </div>
       <div v-else-if="hasSaved" class="save-success-container">
         <div class="tip custom-block save-success-block">
@@ -35,9 +28,10 @@
 <script>
 import Navbar from "./Navbar.vue";
 import PageCreate from "./PageCreate";
+import VicpressEditor from "./VicpressEditor";
 
 export default {
-  components: { Navbar, PageCreate },
+  components: { Navbar, PageCreate, VicpressEditor },
   data() {
     return {
       canCreatePage: false,
@@ -47,7 +41,11 @@ export default {
     };
   },
   mounted() {
-    this.editModeEnabled = window.location.search.includes("editmode");
+    this.$store.commit(
+      "isInEditMode",
+      window.location.search.includes("editmode")
+    );
+
     this.canCreatePage =
       !!window.location.pathname.match(/\.html$/) &&
       !window.location.pathname.match(/(^\/\d{3}\.html$|\/README\.html$)/);

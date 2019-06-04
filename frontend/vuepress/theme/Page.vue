@@ -1,73 +1,34 @@
 <template>
-  <div class="page" :class="{ 'edit-mode': editModeEnabled }">
-    <div class="edit-options-bar" v-if="editModeEnabled">
-      <div class="last-updated" v-if="lastUpdated">
-        <span class="prefix">{{ translate('lastUpdated') }}:</span>
-        <span class="time">{{ lastUpdated }}</span>
-      </div>
-
-      <div class="button-group">
-        <div class="button-group-item" @click="stopEditing">{{ translate('cancel') }}</div>
-        <a :href="gitHubUrl" class="button-group-item">{{translate('viewOnGitHub')}}</a>
-        <div class="button-group-item danger" @click="toggleDeleteModal">{{translate('deleteLink')}}</div>
-        <div class="button-group-item" @click="commitClicked">{{ translate('commitButton') }}</div>
-      </div>
-    </div>
-
+  <div class="page" :class="{ 'edit-mode': $store.state.isInEditMode }">
     <slot name="top"/>
 
-    <div class="tip custom-block save-success-block" v-if="saveSuccess">
+    <div class="tip custom-block save-success-block" v-if="$store.state.saveSuccess">
       <p class="custom-block-title">{{ translate('success') }}</p>
       <p>{{ translate('saveSuccessMessage') }}</p>
     </div>
 
-    <div class="tip custom-block save-success-block danger" v-if="saveFailed">
+    <div class="tip custom-block save-success-block danger" v-if="$store.state.saveFailed">
       <p class="custom-block-title">{{ translate('saveFailedHeader') }}</p>
       <p>{{ translate('saveFailedCopy') }}</p>
     </div>
 
-    <div class="tip custom-block save-success-block" v-if="deleteSuccess">
+    <div class="tip custom-block save-success-block" v-if="$store.state.deleteSuccess">
       <p class="custom-block-title">{{ translate('success') }}</p>
       <p>{{ translate('deleteSuccessMessage') }}</p>
     </div>
 
-    <modal @close="toggleDeleteModal" v-if="deleteModalVisible">
-      <h3 slot="header">{{translate('deletePageModalTitle')}}</h3>
-      <div slot="body">
-        <p>{{translate('deletePageModalCopy')}}</p>
-        <p>
-          <strong>{{title}}</strong>
-        </p>
-        <input
-          type="text"
-          :placeholder="translate('deletePageModalPlaceholder')"
-          v-model="deleteConfirmationText"
-        >
-      </div>
-
-      <div
-        slot="footer"
-        style="display: flex; justify-content: space-between; align-items: center;"
-      >
-        <a
-          class="button danger"
-          :class="{ 'disabled': deleteConfirmationText !== title }"
-          @click="tryDelete"
-        >{{ translate('deletePageModalCTA') }}</a>
-        <a @click="toggleDeleteModal">{{ translate('cancel') }}</a>
-      </div>
-    </modal>
-
-    <ClientOnly v-if="editModeEnabled && !saveSuccess && !saveFailed">
-      <page-edit ref="pageEdit" @saveSuccess="setSaveSuccess" @saveFailed="setSaveFailed"></page-edit>
+    <ClientOnly
+      v-if="$store.state.isInEditMode && !$store.state.saveSuccess && !$store.state.saveFailed"
+    >
+      <vicpress-editor :mode="'edit'"></vicpress-editor>
     </ClientOnly>
 
     <Content v-else :custom="false"/>
 
-    <div class="page-edit" v-if="!editModeEnabled && editAllowed">
+    <div class="page-edit" v-if="!$store.state.isInEditMode && editAllowed">
       <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
         <a
-          v-if="!editModeEnabled && !deleteSuccess"
+          v-if="!$store.state.isInEditMode && !$store.state.deleteSuccess"
           @click="tryEdit"
           rel="noopener noreferrer"
         >{{ translate('editLink') }}</a>
@@ -82,7 +43,7 @@
         <a
           class="button"
           @click="commitClicked()"
-          v-if="editModeEnabled"
+          v-if="$store.state.isInEditMode"
         >{{ translate('commitButton') }}</a>
       </div>
     </div>
@@ -107,28 +68,26 @@
 <script>
 import axios from "axios";
 import { resolvePage, normalize, endingSlashRE } from "./util";
-import PageEdit from "./PageEdit";
+import VicpressEditor from "./VicpressEditor";
 import Modal from "./Modal";
 
 export default {
   props: ["sidebarItems"],
   data() {
     return {
-      editModeEnabled: false,
-      deleteModalVisible: false,
-      saveSuccess: false,
-      saveFailed: false,
-      deleteSuccess: false,
-      deleteConfirmationText: null,
-      isDeleting: false
+      deleteConfirmationText: null
     };
   },
 
-  components: { PageEdit, Modal },
+  components: { Modal, VicpressEditor },
 
   mounted() {
-    this.editModeEnabled = window.location.search.includes("editmode");
-    if (this.editModeEnabled) {
+    this.$store.commit(
+      "isInEditMode",
+      window.location.search.includes("editmode")
+    );
+
+    if (this.$store.state.isInEditMode) {
       this.$emit("setSidebar", false);
     } else {
       this.$emit("setSidebar", true);
@@ -142,16 +101,6 @@ export default {
       } else {
         return true;
       }
-    },
-    gitHubUrl() {
-      let path = normalize(this.$page.path);
-      if (endingSlashRE.test(path)) {
-        path += "README.md";
-      } else {
-        path += ".md";
-      }
-      /* global process */
-      return `https://github.com/${process.env.GITHUB_USER}/${process.env.GITHUB_REPO}/blob/${process.env.GITHUB_BRANCH}${path}`;
     },
     lastUpdated() {
       if (this.$page.lastUpdated) {
@@ -205,37 +154,15 @@ export default {
         return response.data;
       });
     },
-    tryDelete() {
-      if (this.deleteConfirmationText === this.title) {
-        this.isDeleting = true;
-
-        let path = normalize(this.$page.path);
-        if (endingSlashRE.test(path)) {
-          path += "README.md";
-        } else {
-          path += ".md";
-        }
-
-        axios.delete(path).then(response => {
-          this.editModeEnabled = false;
-          this.isDeleting = false;
-          this.deleteSuccess = true;
-          this.$emit("setSidebar", true);
-          this.$router.push({});
-        });
-
-        this.toggleDeleteModal();
-      }
-    },
-    commitClicked() {
-      this.$refs.pageEdit.toggleCommitModal();
-    },
     setSaveSuccess(state) {
       this.saveSuccess = state;
+      this.$store.commit("saveSuccess", state);
+
       this.stopEditing();
     },
     setSaveFailed(state) {
       this.saveFailed = state;
+      this.$store.commit("saveFailed", state);
       this.stopEditing();
     },
     tryEdit() {
@@ -252,20 +179,18 @@ export default {
     },
     doEdit() {
       this.saveSuccess = false;
-      (this.saveFailed = false), (this.editModeEnabled = true);
-      this.$emit("setSidebar", false);
+      this.$store.commit("saveSuccess", false);
+
+      this.saveFailed = false;
+      this.$store.commit("saveFailed", false);
+
+      this.isInEditMode = true;
+      this.$store.commit("isInEditMode", true);
+
+      // this.$emit("setSidebar", false);
+      this.$store.commit("sidebarVisible", false);
 
       this.$router.push({ query: Object.assign({}, { editmode: true }) });
-    },
-
-    stopEditing() {
-      this.editModeEnabled = false;
-      this.$emit("setSidebar", true);
-      this.$router.push({});
-    },
-
-    toggleDeleteModal() {
-      this.deleteModalVisible = !this.deleteModalVisible;
     }
   }
 };

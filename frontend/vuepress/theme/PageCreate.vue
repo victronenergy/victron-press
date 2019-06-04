@@ -5,7 +5,12 @@
         <h3 slot="header">{{ translate('commitMesasgeHeader') }}</h3>
         <div slot="body">
           <p>{{ translate('commitMessageExplanation') }}</p>
-          <input type="text" placeholder="Commit message" v-model="customCommitMessage">
+          <input
+            type="text"
+            placeholder="Commit message"
+            v-model="customCommitMessage"
+            ref="commitMessageInput"
+          >
         </div>
 
         <div
@@ -40,6 +45,7 @@
 <script>
 import axios from "axios";
 import "tui-editor/dist/tui-editor.css";
+import Vue from "vue";
 
 import "codemirror/lib/codemirror.css";
 
@@ -67,7 +73,7 @@ export default {
         hideModeSwitch: true,
         previewStyle: "vertical",
         get language() {
-          return self.$lang ? self.$lang.replace("-", "_") : 'en_US';
+          return self.$lang ? self.$lang.replace("-", "_") : "en_US";
         },
         exts: ["scrollSync", "table"],
         hooks: {
@@ -114,26 +120,26 @@ export default {
     // Load markdown-it plugins (to be attached later in onEditorLoad)
     this.editorMarkdownPlugins = [
       // Plugins used by VuePress
-      // import('vuepress/lib/markdown/component'),
-      // import('vuepress/lib/markdown/highlightLines'),
-      // import('vuepress/lib/markdown/preWrapper'),
-      // import('vuepress/lib/markdown/snippet'),
-      // import('vuepress/lib/markdown/hoist'),
-      // import('vuepress/lib/markdown/containers'),
+      // import("vuepress/lib/markdown/component"),
+      // import("vuepress/lib/markdown/highlightLines"),
+      // import("vuepress/lib/markdown/preWrapper"),
+      // import("vuepress/lib/markdown/snippet"),
+      // import("vuepress/lib/markdown/hoist"),
+      // import("vuepress/lib/markdown/containers"),
       import("markdown-it-emoji"),
       // Custom plugins
       import("markdown-it-abbr"),
-      import('markdown-it-footnote'),
-      import('markdown-it-kbd'),
-      import('markdown-it-sub'),
-      import('markdown-it-sup'),
-      import('markdown-it-task-lists'),
+      import("markdown-it-footnote"),
+      import("markdown-it-kbd"),
+      import("markdown-it-sub"),
+      import("markdown-it-sup"),
+      import("markdown-it-task-lists"),
       import("../../../../frontend/markdown-it-plugins/floating-image"),
-      //import('../../../../frontend/markdown-it-plugins/predefined-tooltip.js'),
+      //import("../../../../frontend/markdown-it-plugins/predefined-tooltip.js"),
       import("../../../../frontend/markdown-it-plugins/video-thumb"),
       [import("../../../../frontend/markdown-it-plugins/url-fixer"), {
         forceHttps: true,
-        forceMarkdownExt: 'html',
+        forceMarkdownExt: "html",
       }]
     ].map(plugin =>
       typeof plugin[Symbol.iterator] === "function" ? plugin : [plugin]
@@ -210,7 +216,6 @@ export default {
             response.status == 204
           ) {
             this.saving = false;
-            this.createMode = false;
 
             this.$emit("saveSuccess", true);
             this.$router.push({});
@@ -221,6 +226,11 @@ export default {
 
     toggleCommitModal() {
       this.commitModalVisible = !this.commitModalVisible;
+      if (this.commitModalVisible) {
+        Vue.nextTick().then(() => {
+          this.$refs.commitMessageInput.focus();
+        });
+      }
     }
   }
 };

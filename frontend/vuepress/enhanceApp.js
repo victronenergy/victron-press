@@ -1,11 +1,16 @@
 import Forbidden from './theme/Forbidden.vue';
-import Unauthorized from './theme/Unauthorized.vue';
 import Tooltip from 'vue-directive-tooltip';
+import Unauthorized from './theme/Unauthorized.vue';
+import Vuex from 'vuex';
+import store from './theme/store.js';
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
 
 export default ({ Vue, options, router, siteData }) => {
     Vue.use(Tooltip);
+    Vue.use(Vuex);
+    Vue.mixin({ store });
+    Vue.config.devtools = true;
 
     Vue.mixin({
         methods: {
