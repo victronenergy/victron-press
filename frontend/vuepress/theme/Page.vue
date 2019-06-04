@@ -32,7 +32,7 @@
           @click="tryEdit"
           rel="noopener noreferrer"
         >{{ translate('editLink') }}</a>
-        <a v-else @click="stopEditing()" rel="noopener noreferrer">{{ translate('backLink') }}</a>
+        <a v-else-if="!$store.state.isInEditMode && !$store.state.deleteSuccess" @click="stopEditing()" rel="noopener noreferrer">{{ translate('backLink') }}</a>
       </div>
 
       <div style="display: flex; align-items: center;">
@@ -158,12 +158,12 @@ export default {
       this.saveSuccess = state;
       this.$store.commit("saveSuccess", state);
 
-      this.stopEditing();
+      // this.stopEditing(); //doenst exist here anymore
     },
     setSaveFailed(state) {
       this.saveFailed = state;
       this.$store.commit("saveFailed", state);
-      this.stopEditing();
+      // this.stopEditing(); //doenst exist here anymore
     },
     tryEdit() {
       this.isSubscribed().then(data => {
