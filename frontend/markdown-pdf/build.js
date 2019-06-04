@@ -22,7 +22,17 @@ const markdownitRenderer = new markdownit({
     .use(require('vuepress/lib/markdown/snippet'))
     .use(require('vuepress/lib/markdown/containers'))
     .use(require('markdown-it-emoji'))
-    .use(require('markdown-it-anchor'))
+    .use(require('markdown-it-anchor'), {
+        slugify: require('vuepress/lib/markdown/slugify'),
+        permalink: true,
+        permalinkBefore: true,
+        permalinkSymbol: "#"
+    })
+    .use(require('markdown-it-table-of-contents'), {
+        slugify: require('vuepress/lib/markdown/slugify'),
+        includeLevel: [2, 3],
+        format: require('vuepress/lib/util/parseHeaders').parseHeaders,
+    })
     // Custom plugins
     .use(require('markdown-it-abbr'))
     .use(require('markdown-it-footnote'))
