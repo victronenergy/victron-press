@@ -2,7 +2,7 @@
   <div class="theme-container">
     <Navbar :sidebarToggleEnabled="false"/>
 
-    <div class="content" v-if="!$store.state.isInEditMode && !hasSaved">
+    <div class="content" v-if="!$store.state.isInEditMode && !$store.state.saveSuccess">
       <h1 v-if="canCreatePage">{{ translate('pageDoesntExistYet') }}</h1>
       <h1 v-else>{{ translate('pageDoesntExist') }}</h1>
       <a
@@ -15,7 +15,7 @@
       <div class="editor-container" v-if="$store.state.isInEditMode">
         <vicpress-editor :mode="'create'"></vicpress-editor>
       </div>
-      <div v-else-if="hasSaved" class="save-success-container">
+      <div v-else-if="$store.state.saveSuccess" class="save-success-container">
         <div class="tip custom-block save-success-block">
           <p class="custom-block-title">{{ translate('success') }}</p>
           <p>{{ translate('publishPageSuccess') }}</p>
@@ -54,10 +54,10 @@ export default {
     commitClicked() {
       this.$refs.pageCreate.toggleCommitModal();
     },
-    onHasSaved() {
-      this.hasSaved = true;
-      this.editModeEnabled = false;
-    }
+    // onHasSaved() {
+    //   this.hasSaved = true;
+    //   this.editModeEnabled = false;
+    // }
   }
 };
 </script>

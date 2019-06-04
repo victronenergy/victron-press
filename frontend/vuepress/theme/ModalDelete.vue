@@ -51,6 +51,8 @@ export default {
         return "no-title";
       }
     },
+  },
+  methods: {
     tryDelete() {
       if (this.deleteConfirmationText === this.title) {
         this.$store.commit("isDeleting", true);
