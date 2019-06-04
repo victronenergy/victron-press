@@ -115,9 +115,13 @@ class Application implements RequestHandlerInterface
 
         // Set up lock store
         $this->container->share(NamedLockStoreInterface::class, function (): NamedLockStoreInterface {
-            $dbPath = self::PATH . '/data/locks/lockstore.sqlite';
-            $existed = file_exists($dbPath);
-            $pdo = new \PDO('sqlite:' . $dbPath, null, null, [
+            $dbDirectory = self::PATH . '/data/locks';
+            if (!is_dir($dbDirectory)) {
+                mkdir($dbDirectory, 0755, true);
+            }
+            $dbFile = $dbDirectory . '/lockstore.sqlite';
+            $existed = file_exists($dbFile);
+            $pdo = new \PDO('sqlite:' . $dbFile, null, null, [
                 \PDO::ATTR_ERRMODE           => \PDO::ERRMODE_EXCEPTION,
                 \PDO::ATTR_STRINGIFY_FETCHES => false,
             ]);
