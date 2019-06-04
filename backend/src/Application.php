@@ -666,6 +666,19 @@ class Application implements RequestHandlerInterface
             throw new BadRequestException('Bad filename');
         }
 
+        // Retrieve user data from the session
+        $userName = $session->get('user_name');
+
+        // Retrieve the lock
+        /** @var NamedLockStoreInterface */
+        $lockStore = $this->container->get(NamedLockStoreInterface::class);
+        $lock = $lockStore->forName($filePath);
+
+        // Lock
+        if (!$lock->lock($userName, self::LOCK_DURATION)) {
+            throw new ConflictException('Cannot lock the given file');
+        }
+
         // Retrieve the file information from GitHub
         try {
             $client = new GithubClient();
@@ -697,6 +710,9 @@ class Application implements RequestHandlerInterface
             $this->config['GITHUB_BRANCH'],
             ['name' => $userName, 'email' => $userEmail]
         );
+
+        // Unlock, since after deletion there's no reason to keep it locked
+        $lock->unlock($userName);
 
         return new EmptyResponse();
     }
