@@ -42,6 +42,7 @@ const markdownitRenderer = new markdownit({
     .use(require('markdown-it-task-lists'))
     .use(require('../markdown-it-plugins/floating-image'))
     .use(require('../markdown-it-plugins/inline-relative-images'))
+    .use(require('../markdown-it-plugins/page-break'))
     .use(require('../markdown-it-plugins/table-renderer'))
     .use(require('../markdown-it-plugins/url-fixer'), {
         forceHttps: true,
