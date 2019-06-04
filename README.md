@@ -83,16 +83,22 @@ In this exampel we'll be editing `myfile.md`.
      the user should be redirected to log in.
    - After the login the user will be redirected back to the editor page and
      this flow starts over again.
+ - The frontend calls `/api/v1/lock` to acquire a lock to edit the file.
+   - If the lock cannot be acquired, a error is shown informing the user
+     someone else is currently editing the file.
  - The frontend loads `/myfile.md` using a GET call to retrieve the raw
    Markdown.
  - The user can now edit the page using the editor.
    - If an image is inserted, for example `cat.jpg`, it is uploaded by the
      frontend using a PUT-request to `/images/cat.jpg`, which redirects to the
      final URL where the image can be accessed.
+   - As long as the user is still editing, the frontend periodically calls
+     `/api/v1/lock` to renew the lock on the file.
  - Once the user presses "Save", the frontend does a PUT to `/myfile.md` to
    save the modified contents.
    - The backend commits this content to Git, together with any images that
      were uploaded and referenced in the Markdown.
+ - The frontend calls `/api/v1/unlock` to unlock the file so others may edit it.
  - The frontend notifies the user that his/her changes will be visible in a few
    moments once the new VuePress build has finished.
 

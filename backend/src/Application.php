@@ -270,6 +270,9 @@ class Application implements RequestHandlerInterface
         return new RedirectResponse($redirectUrl);
     }
 
+    /**
+     * Tries to lock the requested file and provides information about who currently holds the lock.
+     */
     public function handleLock(ServerRequestInterface $request): ResponseInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
@@ -304,6 +307,9 @@ class Application implements RequestHandlerInterface
         ], $hasLocked ? 200 : 409);
     }
 
+    /**
+     * Unlocks the requested file if it was locked by the current user.
+     */
     public function handleUnlock(ServerRequestInterface $request): ResponseInterface
     {
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
