@@ -34,6 +34,7 @@ import ModalCommit from "./ModalCommit";
 import ModalDelete from "./ModalDelete";
 import VicpressEditorInternals from "./VicpressEditorInternals";
 import { resolvePage, normalize, endingSlashRE } from "./util";
+import axios from "axios";
 
 export default {
   components: { ModalCommit, ModalDelete, VicpressEditorInternals },
@@ -69,6 +70,7 @@ export default {
     stopEditing() {
       this.$store.commit("isInEditMode", false);
       this.$store.commit("sidebarVisible", true);
+      this.$store.dispatch('unlockFile', this);
       this.$router.push({});
     },
     toggleDeleteModal() {
