@@ -163,29 +163,30 @@ export default {
 
       // this.stopEditing(); //doenst exist here anymore
     },
+    
     setSaveFailed(state) {
       this.saveFailed = state;
       this.$store.commit("saveFailed", state);
       // this.stopEditing(); //doenst exist here anymore
     },
+
     tryEdit() {
       this.isSubscribed()
-          .then(data => {
-        if (data.success === true) {
-          return; //proceed...
-        } else {
-          throw new Error('unauthorized to edit file.');
-        }
-      }).then(() => {
+       .then(data => {
+          return new Promise((resovle, reject) => {
+            data.success ? resolve() : reject(data);
+          })  
+       }
+      ).then(() => {
         return this.tryLockFile();
       }).then(() => {
         this.doEdit();
-      }).catch(() => {
+      }).catch((data) => {
         this.$router.push({
           name: "unauthorized",
           query: { redirectUrl: data.redirectUrl }
         });
-      })
+      });
       
       ;
     },
