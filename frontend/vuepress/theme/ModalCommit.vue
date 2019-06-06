@@ -48,7 +48,6 @@ export default {
   watch: {
     commitModalVisible(newValue, oldValue) {
       if(newValue === true) {
-        console.log('commit modal became visible.');
         Vue.nextTick().then(() => {
           this.$refs.commitMessageInput.focus();
         })
@@ -85,8 +84,6 @@ export default {
           }
         })
         .then(response => {
-          console.log("done uplading", response);
-
           if (
             response.status == 200 ||
             response.status == 201 ||
@@ -104,7 +101,6 @@ export default {
         })
         .then(this.$store.dispatch('unlockFile', this))
         .catch(response => {
-          console.log("didnt succeed", response);
           // this.$store.commit('isSaving', false);
           // this.$emit("saveFailed", true);
         });

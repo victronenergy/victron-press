@@ -17,6 +17,8 @@ export default new Vuex.Store({
         commitModalVisible: false,
         deleteModalVisible: false,
         fileLockedModalVisible: false,
+        fileLockedBy: null,
+        fileLockedUntil: null,
         sidebarVisible: true,
         editorContent: '',
     },
@@ -54,9 +56,15 @@ export default new Vuex.Store({
         editorContent(state, value) {
             state.editorContent = value;
         },
+        fileLockedBy(state, value) {
+            state.fileLockedBy = value;
+        },
+        fileLockedUntil(state, value) {
+            state.fileLockedUntil = value;
+        },
     },
     actions: {
-        lockFile(state, context) {
+        lockFile({state, commit}, context) {
             let path = normalize(context.$page.path);
             if (endingSlashRE.test(path)) {
               path += "README.md";
@@ -68,9 +76,24 @@ export default new Vuex.Store({
 
             return new Promise((resolve, reject) => {
                 axios.post(url).then(response => {
-                   console.log('file is locked from within action');
+                    if (response.data.lockedBy) { 
+                        commit('fileLockedBy', response.data.lockedBy);
+                    }
+                    if (response.data.lockedUntil) { 
+                        commit('fileLockedUntil', response.data.lockedUntil);
+                    }
                     response.data.success ? resolve(response) : reject(response);
-                  });
+                  }).catch(error => { //server gives back 409
+                    if(error.response.status === 409){
+                      if (error.response.data.lockedBy) {
+                        commit('fileLockedBy', error.response.data.lockedBy);
+                      }
+                      if (error.response.data.lockedUntil) {
+                        commit('fileLockedUntil', error.response.data.lockedUntil);
+                      }
+                    }
+                    reject(error);
+                });
             });
         },
 
@@ -85,7 +108,6 @@ export default new Vuex.Store({
 
           return new Promise((resolve, reject) => {
             axios.post(unlockURL).then(response => {
-              console.log('file is unlocked from within action');
               response.status === 204 ? resolve(response) : reject(response)
             });
           });

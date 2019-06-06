@@ -39,10 +39,19 @@ import axios from "axios";
 export default {
   components: { ModalCommit, ModalDelete, VicpressEditorInternals },
   props: ["mode"],
+  data() {
+    return {
+      fileLockInterval: null
+    }
+  },
   mounted() {
-    console.log("mounted!");
     this.$store.commit("sidebarVisible", false);
 
+    this.fileLockInterval = setInterval(() => {
+      if(!this.$store.state.fileLockedModalVisible)
+        this.$store.dispatch('lockFile', this);
+    }, 60000);
+    
   },
   computed: {
     path() {
@@ -83,8 +92,8 @@ export default {
       this.$store.commit("commitModalVisible", true);
     }
   },
-  mounted() {
-    console.log(this.$page);
+  destroyed() {
+    clearInterval(this.fileLockInterval);
   }
 };
 </script>

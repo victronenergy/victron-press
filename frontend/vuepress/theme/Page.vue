@@ -16,6 +16,8 @@
       <p class="custom-block-title">{{ translate('success') }}</p>
       <p>{{ translate('deleteSuccessMessage') }}</p>
     </div>
+  
+    <modal-file-locked></modal-file-locked>
 
     <ClientOnly
       v-if="$store.state.isInEditMode && !$store.state.saveSuccess && !$store.state.saveFailed"
@@ -70,6 +72,8 @@ import axios from "axios";
 import { resolvePage, normalize, endingSlashRE } from "./util";
 import VicpressEditor from "./VicpressEditor";
 import Modal from "./Modal";
+import ModalFileLocked from "./ModalFileLocked";
+
 
 export default {
   props: ["sidebarItems"],
@@ -79,7 +83,7 @@ export default {
     };
   },
 
-  components: { Modal, VicpressEditor },
+  components: { Modal, VicpressEditor, ModalFileLocked },
 
   mounted() {
     // this.$store.dispatch('lockFile', this);
@@ -92,20 +96,25 @@ export default {
     if (this.$store.state.isInEditMode) {
       this.$emit("setSidebar", false);
 
+      let isAuthorized = true;
+
       this.isSubscribed()
         .then(data => {
             return new Promise((resolve, reject) => {
               data.success ? resolve() : reject(data);
             })  
-        }).then(() => {
-          return this.$store.dispatch('lockFile', this);
-        }).then(() => {
-          console.log('succesfully locked the file again after refresh');
         }).catch((data) => {
+          isAuthorized = false;
           this.$router.push({
             name: "unauthorized",
             query: { redirectUrl: data.redirectUrl }
           });
+        }).then(() => {
+          if(isAuthorized) {
+            return this.$store.dispatch('lockFile', this);
+          }
+        }).catch(data => {
+          this.$store.commit('fileLockedModalVisible', true);
         });
 
       } else {
@@ -190,25 +199,32 @@ export default {
     },
 
     tryEdit() {
+      let canEdit = true;
+      let isAuthorized = true;
+
       this.isSubscribed()
        .then(data => {
           return new Promise((resolve, reject) => {
             data.success ? resolve() : reject(data);
           })  
-       }
-      ).then(() => {
-        // return this.tryLockFile();
-        return this.$store.dispatch('lockFile', this);
-      }).then(() => {
-        this.doEdit();
       }).catch((data) => {
+        isAuthorized = false;
         this.$router.push({
           name: "unauthorized",
           query: { redirectUrl: data.redirectUrl }
         });
+      }).then(() => {
+        if(isAuthorized) {
+          return this.$store.dispatch('lockFile', this);
+        }
+      }).catch(data => {
+          canEdit = false;
+          this.$store.commit('fileLockedModalVisible', true);
+      }).then(() => {
+        if(canEdit && isAuthorized) {
+          this.doEdit();
+        }
       });
-      
-      ;
     },
     tryLockFile() {
       const url = "/api/v1/lock?file=" + this.path.split("/")[1];
@@ -218,7 +234,6 @@ export default {
         const lockedUntil = response.data.lockedUntil;
 
         if(!success){
-          console.log('de boel is gelocked')
           throw new Error('Locked!'); 
         } else {
           return response.data;

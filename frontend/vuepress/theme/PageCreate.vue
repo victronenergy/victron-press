@@ -220,7 +220,6 @@ export default {
             this.$emit("saveSuccess", true);
             this.$router.push({});
           }
-          console.log("posted content, response:", response);
         });
     },
 

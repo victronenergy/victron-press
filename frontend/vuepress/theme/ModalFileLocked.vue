@@ -3,9 +3,10 @@
     @close="$store.commit('fileLockedModalVisible', false);"
     v-if="$store.state.fileLockedModalVisible"
   >
-    <h3 slot="header">{{translate('fileLockedModalTitle')}}</h3>
+    <h3 slot="header" class="no-heading-number">{{translate('fileLockedModalTitle')}}</h3>
     <div slot="body">
       <p>{{translate('fileLockedModalCopy')}}</p>
+      <p><strong>{{$store.state.fileLockedBy}}</strong></p>
     </div>
 
     <div slot="footer" style="display: flex; justify-content: space-between; align-items: center;">
@@ -20,6 +21,7 @@
 import Modal from "./Modal";
 
 export default {
+    components: { Modal },
 }
 </script>
 
