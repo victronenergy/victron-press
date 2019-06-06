@@ -41,6 +41,7 @@ const markdownitRenderer = new markdownit({
     .use(require('markdown-it-sup'))
     .use(require('markdown-it-task-lists'))
     .use(require('../markdown-it-plugins/floating-image'))
+    .use(require('../markdown-it-plugins/include'))
     .use(require('../markdown-it-plugins/inline-relative-images'))
     .use(require('../markdown-it-plugins/page-break'))
     .use(require('../markdown-it-plugins/table-renderer'))
@@ -115,10 +116,8 @@ Promise.all([
                             const html = markdownitRenderer.render(
                                 frontmatter.content,
                                 {
-                                    basePath: path.join(
-                                        inputDir,
-                                        path.dirname(filePath)
-                                    ),
+                                    basePath: inputDir,
+                                    selfPath: path.join(inputDir, filePath),
                                 }
                             );
                             return `

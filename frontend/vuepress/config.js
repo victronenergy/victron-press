@@ -1,4 +1,5 @@
 const Dotenv = require('dotenv-webpack');
+const path = require('path');
 
 module.exports = {
     base: '/',
@@ -38,6 +39,9 @@ module.exports = {
                 prezi: { width: 550, height: 400 },
             });
             md.use(require('../../frontend/markdown-it-plugins/floating-image'));
+            md.use(require('../../frontend/markdown-it-plugins/include'), {
+                basePath: path.join(__dirname, '../../data/docs'),
+            });
             md.use(require('../../frontend/markdown-it-plugins/page-break'));
             md.use(require('../../frontend/markdown-it-plugins/table-renderer'));
             md.use(require('../../frontend/markdown-it-plugins/predefined-tooltip'), {

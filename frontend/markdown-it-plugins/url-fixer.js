@@ -162,10 +162,6 @@ module.exports = function url_fixer(md, options) {
                     urlPath = splitPath(urlPath);
                     selfUrlPath = splitPath(selfUrlPath);
 
-                    // Leading slash results in leading empty path element
-                    urlPath = urlPath.slice(1);
-                    selfUrlPath = selfUrlPath.slice(1);
-
                     // Pop off last element, the basename
                     selfUrlPath.pop();
                     const urlBasename = urlPath.pop();

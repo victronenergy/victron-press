@@ -10,7 +10,7 @@ module.exports = function page_break_plugin(md, options) {
     const breakChar = breakTag.charCodeAt(0);
     const breakRegex = new RegExp(`^${md.utils.escapeRE(breakTag)}`, 'im');
 
-    // Rule for replacing words with tooltipped versions
+    // Rule for replacing break tag with token
     md.inline.ruler.after('emphasis', 'page_break', (state, silent) => {
         // Reject if the token does not start with the correct char
         if (state.src.charCodeAt(state.pos) !== breakChar) {
@@ -18,13 +18,11 @@ module.exports = function page_break_plugin(md, options) {
         }
 
         // Detect break tag
-        let match = breakRegex.exec(state.src.substr(state.pos));
-        match = !match ? [] : match.filter(function(m) { return m; });
-        if (match.length < 1) {
+        if (!breakRegex.test(state.src.substr(state.pos))) {
             return false;
         }
 
-        // Insert the break tag
+        // Insert the break token
         if (!silent) {
             // Build content
             let token = state.push('page_break', 'page_break', 0);
