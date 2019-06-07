@@ -1,4 +1,5 @@
 const Dotenv = require('dotenv-webpack');
+const fs = require('fs-extra');
 const path = require('path');
 
 module.exports = {
@@ -44,10 +45,11 @@ module.exports = {
             });
             md.use(require('../../frontend/markdown-it-plugins/page-break'));
             md.use(require('../../frontend/markdown-it-plugins/table-renderer'));
+            const glossaryFile = path.join(__dirname, '../../data/docs/glossary.json');
             md.use(require('../../frontend/markdown-it-plugins/predefined-tooltip'), {
-                tooltips: {
-                    ':CCGX': "'Color Control GX'",
-                },
+                tooltips: fs.existsSync(glossaryFile) ?
+                    JSON.parse(fs.readFileSync(glossaryFile, 'utf8')) :
+                    {},
                 position: 'top',
             });
             md.use(require('../../frontend/markdown-it-plugins/url-fixer'), {
