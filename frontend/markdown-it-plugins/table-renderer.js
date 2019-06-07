@@ -147,6 +147,7 @@ function table_renderer(state, startLine, endLine, silent) {
 
     for (i = 0; i < columnCount; i += 1) {
         token = state.push('th_open', 'th', 1);
+        token.attrs = [];
 
         var content = '';
         if (columns[i]) {
@@ -154,13 +155,13 @@ function table_renderer(state, startLine, endLine, silent) {
                 var index = columns[i].trim().indexOf('@cols=') + 6;
                 var colspan = columns[i].trim().substring(index, index + 1);
                 content = columns[i].trim().split(':')[1];
-                token.attrs = [['colspan', colspan]];
+                token.attrs.push(['colspan', colspan]);
             }
         }
         token.map = [startLine, startLine + 1];
         if (aligns[i]) {
             // FIXED: change property style to align
-            token.attrs = [['align', aligns[i]]];
+            token.attrs.push(['align', aligns[i]]);
         }
 
         token = state.push('inline', '', 0);
@@ -195,37 +196,45 @@ function table_renderer(state, startLine, endLine, silent) {
         // keep spaces at beginning of line to indicate an empty first cell, but
         // strip trailing whitespace
         columns = escapedSplit(lineText.replace(/^\||\|\s*$/g, ''));
-
         token = state.push('tr_open', 'tr', 1);
+        var prevColspan = 0;
+
         for (i = 0; i < alignCount; i += 1) {
             token = state.push('td_open', 'td', 1);
-
+            token.attrs = [];
+            var tdColspan = 0;
             var tdContent = '';
             if (columns[i]) {
                 if (columns[i].trim().indexOf('@cols=') !== -1) {
                     var tdIndex = columns[i].trim().indexOf('@cols=') + 6;
-                    var tdColspan = columns[i]
+                    tdColspan = columns[i]
                         .trim()
                         .substring(tdIndex, tdIndex + 1);
                     tdContent = columns[i]
                         ? columns[i].trim().split(':')[1]
                         : '';
-                    token.attrs = [['colspan', tdColspan]];
+                    token.attrs.push(['colspan', tdColspan]);
                 }
             }
             if (aligns[i]) {
                 // FIXED: change property style to align
-                token.attrs = [['align', aligns[i]]];
+                token.attrs.push(['align', aligns[i]]);
             }
 
             token = state.push('inline', '', 0);
-            token.content = columns[i] ? columns[i].trim() : '';
-            if (columns[i]) {
-                if (columns[i].trim().indexOf('@cols=') !== -1) {
+            token.content = columns[i - prevColspan] ? columns[i- prevColspan].trim() : '';
+            if (columns[i - prevColspan]) {
+                if (columns[i - prevColspan].trim().indexOf('@cols=') !== -1) {
                     token.content = tdContent;
                 }
             }
             token.children = [];
+
+            if (tdColspan) {
+                i = i + (tdColspan - 1);
+                prevColspan = (tdColspan - 1);
+                tdColspan = 0;
+            }
 
             token = state.push('td_close', 'td', -1);
         }
