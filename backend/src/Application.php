@@ -379,6 +379,13 @@ class Application implements RequestHandlerInterface
      */
     public function handleGetMarkdown(ServerRequestInterface $request, array $pathParams): ResponseInterface
     {
+        $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
+
+        // Check if the user is logged in
+        if (!$session->has('user_name')) {
+            throw new UnauthorizedException('Not logged in');
+        }
+        
         // Sanity check the filename
         $filePath = $pathParams['file'];
         if (preg_match('#((^|/)\.[^/]+(/|$)|^\d{3}\.md$|(^|/)README\.md$)#i', $filePath)) {
