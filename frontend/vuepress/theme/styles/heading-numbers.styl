@@ -1,5 +1,5 @@
 .theme-container:not(.no-heading-numbers)
-  .page
+  .page:not(.edit-mode)
     h1
       counter-reset page-h2
     h2
@@ -50,3 +50,4 @@
         counter-increment sidebar-h3
         & > a:before
           content counter(sidebar-h2) "." counter(sidebar-h3) ". "
+            
