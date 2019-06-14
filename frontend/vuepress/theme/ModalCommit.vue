@@ -1,31 +1,47 @@
 <template>
   <modal @close="$store.commit('commitModalVisible', false)" v-if="$store.state.commitModalVisible">
     <h3 class="no-heading-number" slot="header">{{ translate('commitMesasgeHeader') }}</h3>
+
     <div slot="body">
-      <p>{{ translate('commitMessageExplanation') }}</p>
-      <input
-        type="text"
-        placeholder="Commit message"
-        v-model="customCommitMessage"
-        ref="commitMessageInput"
-      >
+      <form @submit.prevent="commit">
+        <p>{{ translate('commitMessageExplanation') }}</p>
+        <input
+          type="text"
+          placeholder="Commit message"
+          v-model="customCommitMessage"
+          ref="commitMessageInput"
+        >
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+          <a @click="$store.commit('commitModalVisible', false)">{{ translate('cancel') }}</a>
+          <input
+            type="submit"
+            v-if="!$store.state.isSaving"
+            class="button"
+            style="margin: 0;"
+            :class="{ 'disabled': customCommitMessage.length === 0 }"
+            :value="translate('commit')"
+          >
+
+          <input
+            v-if="$store.state.isSaving"
+            type="submit"
+            class="button disabled"
+            style="margin: 0;"
+            :value="translate('saving')"
+          >
+
+          <!-- <a
+            v-if="$store.state.isSaving"
+            class="button disabled"
+            style="margin: 0;"
+          >{{ translate('saving') }}</a> -->
+        </div>
+      </form>
     </div>
 
-    <div slot="footer" style="display: flex; justify-content: space-between; align-items: center;">
-      <a @click="$store.commit('commitModalVisible', false)">{{ translate('cancel') }}</a>
-      <a
-        v-if="!$store.state.isSaving"
-        class="button"
-        style="margin: 0;"
-        :class="{ 'disabled': customCommitMessage.length === 0 }"
-        @click="commit"
-      >{{ translate('commit') }}</a>
-      <a
-        v-if="$store.state.isSaving"
-        class="button disabled"
-        style="margin: 0;"
-      >{{ translate('saving') }}</a>
-    </div>
+    <div slot="footer"></div>
+
   </modal>
 </template>
 
