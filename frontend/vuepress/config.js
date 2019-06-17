@@ -13,7 +13,6 @@ module.exports = {
             },
         ],
     ],
-    serviceWorker: true,
     configureWebpack: config => {
         return {
             plugins: [new Dotenv()],
@@ -61,11 +60,6 @@ module.exports = {
     themeConfig: {
         // Disable search
         search: false,
-
-        // Enable "new content available" popup
-        serviceWorker: {
-            updatePopup: true,
-        },
 
         // Custom editor integration
         enableEditor: true,
