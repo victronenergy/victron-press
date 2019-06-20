@@ -20,6 +20,7 @@ header {
     vertical-align: center;
     width: 100%;
 }
+
 header .logo {
     float: left;
     height: 20px;
@@ -46,7 +47,8 @@ strong {
     font-weight: 700;
 }
 
-img, .embed-responsive {
+img,
+.embed-responsive {
     border: 0;
     display: block;
     margin: 30px auto;
@@ -417,7 +419,7 @@ code:after {
     letter-spacing: -0.2em;
 }
 
-pre > code {
+pre>code {
     background: transparent;
     border: 0;
     font-size: 100%;
@@ -479,15 +481,19 @@ kbd {
 h1 {
     counter-reset: h2;
 }
+
 h2 {
     counter-reset: h3;
 }
+
 h3 {
     counter-reset: h4;
 }
+
 h4 {
     counter-reset: h5;
 }
+
 h5 {
     counter-reset: h6;
 }
@@ -496,21 +502,25 @@ h2:before {
     counter-increment: h2;
     content: counter(h2) '. ';
 }
+
 h3:before {
     counter-increment: h3;
-    content: counter(h2) '.' counter(h3) '. ';
+    content: counter(h2) '.'counter(h3) '. ';
 }
+
 h4:before {
     counter-increment: h4;
-    content: counter(h2) '.' counter(h3) '.' counter(h4) '. ';
+    content: counter(h2) '.'counter(h3) '.'counter(h4) '. ';
 }
+
 h5:before {
     counter-increment: h5;
-    content: counter(h2) '.' counter(h3) '.' counter(h4) '.' counter(h5) '. ';
+    content: counter(h2) '.'counter(h3) '.'counter(h4) '.'counter(h5) '. ';
 }
+
 h6:before {
     counter-increment: h6;
-    content: counter(h2) '.' counter(h3) '.' counter(h4) '.' counter(h5) '.'
+    content: counter(h2) '.'counter(h3) '.'counter(h4) '.'counter(h5) '.'
         counter(h6) '. ';
 }
 
@@ -589,4 +599,12 @@ h6.nocount:before {
 
 .embed-responsive-1by1::before {
     padding-top: 100%;
+}
+
+.floating-image-right {
+    float: right;
+}
+
+.floating-image-left {
+    float: left;
 }
