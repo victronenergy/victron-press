@@ -134,6 +134,7 @@ export default {
       import("../../../../frontend/markdown-it-plugins/floating-image"),
       //import("../../../../frontend/markdown-it-plugins/predefined-tooltip"),
       import("../../../../frontend/markdown-it-plugins/video-thumb"),
+      import("../../../../frontend/markdown-it-plugins/include-preview"),
       [import("../../../../frontend/markdown-it-plugins/url-fixer"), {
         forceHttps: true,
         forceMarkdownExt: "html",

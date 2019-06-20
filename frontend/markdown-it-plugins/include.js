@@ -11,7 +11,7 @@ module.exports = function include_plugin(md, options) {
     const includeTagRegex = /^\[\[([^\]:\n]+\.md)(:([^\]\n]+))?\]\]/i;
 
     // Regex for matching opening and closing fences / containers
-    const blockRegex = /(^|\n)(```[a-zA-Z]*|::: [a-zA-Z]+( [^\n]+)?)(\n|$)/g;
+    const blockRegex = /(^|\n)(```[a-zA-Z0-9]*|::: [a-zA-Z0-9]+( [^\n]+)?)(\n|$)/g;
 
     // Extract base path passed to options
     const optionsBasePath = (options || {}).basePath || '';
@@ -81,7 +81,7 @@ module.exports = function include_plugin(md, options) {
                     // enough for the time being).
                     const nextHeadingRegex = new RegExp(`(^|\n)#{1,${firstHeading[1].length}} [^\n]+(\n|$)`, 'g');
                     let nextHeading;
-                    while(nextHeading = nextHeadingRegex.exec(content)) {
+                    while((nextHeading = nextHeadingRegex.exec(content))) {
                         const extract = content.substr(0, nextHeading.index);
                         if ((extract.match(blockRegex) || []).length % 2 === 0) {
                             content = extract;
