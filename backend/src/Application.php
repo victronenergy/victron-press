@@ -416,13 +416,17 @@ class Application implements RequestHandlerInterface
             return new TextResponse(
                 base64_decode($file['content']),
                 200,
-                ['Content-Type' => 'text/markdown; charset=UTF-8']
+                [
+                    'Content-Type' => 'text/markdown; charset=UTF-8',
+                    'Commit-Hash'  => $file['sha'],
+                ]
             );
         }
 
         // Else, download and return the file contents
         return (new GuzzleClient())->request('GET', $file['download_url'])
             ->withHeader('Content-Type', 'text/markdown; charset=UTF-8')
+            ->withHeader('Commit-Hash', $file['sha'])
         ;
     }
 
