@@ -105,7 +105,9 @@ module.exports = {
                 viewOnGitHub: 'View on GitHub',
                 fileLockedModalTitle: 'This page is locked',
                 fileLockedModalCopy: 'This page is currently already being edited by:',
-                close: 'Close'
+                close: 'Close',
+                snippet: 'Included snippet:',
+                snippetToClick: 'Click to edit its content',
             },
             '/de': {
                 lang: 'de-DE',
@@ -145,7 +147,9 @@ module.exports = {
                 viewOnGitHub: 'Auf GitHub ansehen',
                 fileLockedModalTitle: 'Diese Seite ist gesperrt',
                 fileLockedModalCopy: 'Diese Seite wird zur Zeit bereits bearbeitet von:',
-                close: 'Schließen'
+                close: 'Schließen',
+                snippet: 'Included snippet:',
+                snippetToClick: 'Click to edit its content',
             },
             '/es/': {
                 lang: 'es-ES',
@@ -185,7 +189,9 @@ module.exports = {
                 viewOnGitHub: 'Ver en GitHub',
                 fileLockedModalTitle: 'Esta página está bloqueada',
                 fileLockedModalCopy: 'Actualmente esta página está ya siendo editado por:',
-                close: 'Cerrar'
+                close: 'Cerrar',
+                snippet: 'Included snippet:',
+                snippetToClick: 'Click to edit its content',
             },
             '/fr/': {
                 lang: 'fr-FR',
@@ -225,7 +231,9 @@ module.exports = {
                 viewOnGitHub: 'Voir sur GitHub',
                 fileLockedModalTitle: 'Cette page est verrouillée',
                 fileLockedModalCopy: "Cette page est actuellement en cours de modification par:",
-                close: 'Fermer'
+                close: 'Fermer',
+                snippet: 'Page externe incluse:',
+                snippetToClick: 'Cliquez pour éditer le contenu',
             },
             '/nl/': {
                 lang: 'nl-NL',
@@ -265,7 +273,9 @@ module.exports = {
                 viewOnGitHub: 'Bekijk op GitHub',
                 fileLockedModalTitle: 'Deze pagina is gelocked',
                 fileLockedModalCopy: 'Deze pagina wordt op dit moment al bewerkt door:',
-                close: 'Sluiten'
+                close: 'Sluiten',
+                snippet: 'Included snippet:',
+                snippetToClick: 'Click to edit its content',
             },
             '/se/': {
                 lang: 'se-SE',
@@ -305,7 +315,9 @@ module.exports = {
                 viewOnGitHub: 'Visa på GitHub',
                 fileLockedModalTitle: 'Den här sidan är låst',
                 fileLockedModalCopy: 'Denna sida är för närvarande redan redigerad av:',
-                close: 'Stänga'
+                close: 'Stänga',
+                snippet: 'Included snippet:',
+                snippetToClick: 'Click to edit its content',
             },
         },
     },

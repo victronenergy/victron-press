@@ -1,4 +1,4 @@
-// Allows adding a page break
+// Include (parts of) other Markdown files
 //
 'use strict';
 
@@ -19,7 +19,7 @@ module.exports = function include_plugin(md, options) {
     // Rule for replacing include tag with token
     md.inline.ruler.after('emphasis', 'include', (state, silent) => {
         // Reject if the token does not start with the correct char
-        if (state.src.charCodeAt(state.pos) !== 0x5B /* [ */) {
+        if (state.src.charCodeAt(state.pos) !== 0x5B /* [ */ ) {
             return false;
         }
 
@@ -38,12 +38,7 @@ module.exports = function include_plugin(md, options) {
             token.state = state;
 
             // Update pos so the parser can continue
-            var newline = state.src.indexOf('\n', state.pos);
-            if (newline !== -1) {
-              state.pos = newline;
-            } else {
-              state.pos = state.pos + state.posMax + 1;
-            }
+            state.pos += match[0].length;
         }
 
         return true;
@@ -59,17 +54,23 @@ module.exports = function include_plugin(md, options) {
         const filePath = tokens[idx].filePath[0] == '/' ?
             path.join(basePath, tokens[idx].filePath) :
             path.join(path.dirname(selfPath), tokens[idx].filePath);
-        if (!((':' + filePath) in env.includes)) {
+        const heading = tokens[idx].heading;
+        const cacheKey = (':' + filePath + ':' + (heading || ''));
+        if (!(cacheKey in env.includes)) {
             // We set it empty first to block any circular recursion
-            env.includes[':' + filePath] = '';
+            env.includes[cacheKey] = '';
+
+            // Unique number for the subdocument
+            const subDocId = Object.keys(env.includes).length;
 
             // Check if the included file exists
             if (fs.existsSync(filePath)) {
                 // Read the included file
-                let { content } = vuepressUtil.parseFrontmatter(fs.readFileSync(filePath, 'utf-8'));
+                let {
+                    content
+                } = vuepressUtil.parseFrontmatter(fs.readFileSync(filePath, 'utf-8'));
 
                 // If a specific heading was specified, extract it
-                const heading = tokens[idx].heading;
                 if (heading) {
                     const firstHeading = (new RegExp(`^(#+) ${md.utils.escapeRE(heading)}$`, 'im')).exec(content);
                     if (!firstHeading) return '';
@@ -81,7 +82,7 @@ module.exports = function include_plugin(md, options) {
                     // enough for the time being).
                     const nextHeadingRegex = new RegExp(`(^|\n)#{1,${firstHeading[1].length}} [^\n]+(\n|$)`, 'g');
                     let nextHeading;
-                    while((nextHeading = nextHeadingRegex.exec(content))) {
+                    while ((nextHeading = nextHeadingRegex.exec(content))) {
                         const extract = content.substr(0, nextHeading.index);
                         if ((extract.match(blockRegex) || []).length % 2 === 0) {
                             content = extract;
@@ -95,6 +96,7 @@ module.exports = function include_plugin(md, options) {
                     basePath: basePath,
                     selfPath: filePath,
                     includes: env.includes,
+                    docId: subDocId,
                 };
                 if ('selfUrl' in env) {
                     // Use the relative path to the included file to calculate the new selfUrl
@@ -110,9 +112,9 @@ module.exports = function include_plugin(md, options) {
                     // VuePress "enhances" the render() function to return an object
                     html = html.html;
                 }
-                env.includes[':' + filePath] = html;
+                env.includes[cacheKey] = html;
             }
         }
-        return env.includes[':' + filePath];
+        return env.includes[cacheKey];
     };
 };
