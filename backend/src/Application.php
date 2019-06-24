@@ -186,8 +186,9 @@ class Application implements RequestHandlerInterface
 
             // If a file was specified, save it in the session so we may
             // redirect the user back there once they completed the log in
-            if (!empty($request->getQueryParams()['file'])) {
-                $session->set('redirect_file', $request->getQueryParams()['file']);
+            $filePath = $request->getQueryParams()['file'];
+            if (!empty($filePath) && !preg_match('#((^|/)\.[^/]+(/|$)|^\d{3}\.md$|(^|/)README\.md$)#i', $filePath)) {
+                $session->set('redirect_file', $filePath);
             }
 
             // GitHub OAuth2 provider
@@ -385,7 +386,7 @@ class Application implements RequestHandlerInterface
         if (!$session->has('user_name')) {
             throw new UnauthorizedException('Not logged in');
         }
-        
+
         // Sanity check the filename
         $filePath = $pathParams['file'];
         if (preg_match('#((^|/)\.[^/]+(/|$)|^\d{3}\.md$|(^|/)README\.md$)#i', $filePath)) {
