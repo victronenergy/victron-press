@@ -21,6 +21,7 @@ export default new Vuex.Store({
         fileLockedUntil: null,
         sidebarVisible: true,
         editorContent: '',
+        commitHash: null,
     },
     mutations: {
         isInEditMode(state, value) {
@@ -61,6 +62,9 @@ export default new Vuex.Store({
         },
         fileLockedUntil(state, value) {
             state.fileLockedUntil = value;
+        },
+        commitHash(state, value) {
+            state.commitHash = value;
         },
     },
     actions: {

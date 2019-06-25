@@ -27,11 +27,13 @@
 
 <script>
 import Navbar from "./Navbar.vue";
-import PageCreate from "./PageCreate";
 import VicpressEditor from "./VicpressEditor";
 
 export default {
-  components: { Navbar, PageCreate, VicpressEditor },
+  components: { 
+    Navbar,
+    VicpressEditor
+  },
   data() {
     return {
       canCreatePage: false,
@@ -50,15 +52,6 @@ export default {
       !!window.location.pathname.match(/\.html$/) &&
       !window.location.pathname.match(/(^\/\d{3}\.html$|\/README\.html$)/);
   },
-  methods: {
-    commitClicked() {
-      this.$refs.pageCreate.toggleCommitModal();
-    },
-    // onHasSaved() {
-    //   this.hasSaved = true;
-    //   this.editModeEnabled = false;
-    // }
-  }
 };
 </script>
 

@@ -181,6 +181,7 @@ export default {
             ).then(() => {
               // Editor is ready, load the content and show
               this.$store.commit('editorContent', data);
+              // this.$store.commit('commitHash', data);
               this.editorValue = data;
               this.editorVisible = true;
             });
@@ -226,6 +227,7 @@ export default {
 
     getMDContents() {
       return axios.get(this.path).then(response => {
+        this.$store.commit('commitHash', response.headers['commit-hash']);
         return response.data;
       });
     }

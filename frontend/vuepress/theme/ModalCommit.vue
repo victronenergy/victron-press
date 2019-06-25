@@ -91,13 +91,17 @@ export default {
         path += ".md";
       }
 
+      let headers = {
+        "Commit-Message": this.customCommitMessage,
+      };
 
+      if(this.$store.state.commitHash) { //add commithash if it exists
+        headers["Commit-Hash"] = this.$store.state.commitHash;
+      }
 
       axios
         .put(path, this.$store.state.editorContent, {
-          headers: {
-            "Commit-Message": this.customCommitMessage
-          }
+          headers: headers
         })
         .then(response => {
           if (
