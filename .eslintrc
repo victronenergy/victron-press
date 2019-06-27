@@ -1,12 +1,18 @@
 {
     "extends": [
+        "plugin:vue/recommended",
         "eslint:recommended",
-        "plugin:vue/essential"
+        "prettier/vue",
+        "plugin:prettier/recommended"
     ],
     "env": {
         "commonjs": true,
         "es6": true,
         "shared-node-browser": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2019,
+        "parser": "babel-eslint"
     },
     "rules": {
         "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }]

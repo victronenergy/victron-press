@@ -30,17 +30,10 @@
 
 <script>
 import axios from "axios";
-import Vue from "vue";
 import "tui-editor/dist/tui-editor.css";
 import "codemirror/lib/codemirror.css";
 
-import {
-  resolvePage,
-  normalize,
-  makeRelative,
-  outboundRE,
-  endingSlashRE
-} from "./util";
+import { normalize, makeRelative, endingSlashRE } from "./util";
 
 export default {
   name: "PageEdit",
@@ -65,7 +58,6 @@ export default {
           addImageBlobHook: function(blob, callback) {
             var reader = new FileReader();
             reader.onloadend = function() {
-              var base64data = reader.result;
               axios
                 .put(blob.name, reader.result, {
                   headers: {
