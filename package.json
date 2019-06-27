@@ -1,6 +1,6 @@
 {
   "name": "victron-press",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "Victron Energy documentation application",
   "author": "Victron Energy",
   "homepage": "https://github.com/victronenergy/victron-press",
@@ -26,20 +26,20 @@
   "devDependencies": {
     "cross-spawn": "^6.0.5",
     "dotenv-webpack": "^1.7.0",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.2.2",
+    "eslint": "^6.0.1",
+    "eslint-plugin-vue": "^5.2.3",
     "fs-extra": "^8.0.1",
     "fs-move": "github:DvdGiessen/fs-move#cli",
     "globby": "^9.2.0",
     "markdown-it-anchor": "^5.2.4",
     "npm-run-all": "^4.1.5",
-    "puppeteer": "^1.17.0",
+    "puppeteer": "^1.18.1",
     "rimraf": "^2.6.3",
     "symlink-dir": "^3.1.0"
   },
   "dependencies": {
-    "@sentry/browser": "^5.4.0",
-    "@sentry/integrations": "^5.4.1",
+    "@sentry/browser": "^5.4.3",
+    "@sentry/integrations": "^5.4.2",
     "@toast-ui/vue-editor": "^1.1.1",
     "axios": "^0.19.0",
     "markdown-it-abbr": "^1.0.4",
@@ -50,7 +50,7 @@
     "markdown-it-table-of-contents": "^0.4.4",
     "markdown-it-task-lists": "^2.1.1",
     "markdown-it-video": "^0.6.3",
-    "tui-editor": "^1.4.1",
+    "tui-editor": "^1.4.3",
     "vue-directive-tooltip": "^1.5.1",
     "vuepress": "^0.14.11",
     "vuex": "^3.1.1"
