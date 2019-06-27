@@ -6,6 +6,7 @@
         <directory name="backend/web" />
     </projectFiles>
     <issueHandlers>
+        <!-- The used GitHub client has dynamically accessed interfaces -->
         <UndefinedInterfaceMethod>
             <errorLevel type="suppress">
                 <referencedMethod name="Github\Api\ApiInterface::contents" />
@@ -14,6 +15,13 @@
                 <referencedMethod name="Github\Api\ApiInterface::merge" />
             </errorLevel>
         </UndefinedInterfaceMethod>
+        <!-- Tests can have redundant conditions -->
+        <RedundantCondition>
+            <errorLevel type="suppress">
+                <directory name="backend/test" />
+            </errorLevel>
+        </RedundantCondition>
+        <!-- PHPUnit's base classes contain unset properties. We won't set these either -->
         <PropertyNotSetInConstructor>
             <errorLevel type="suppress">
                 <directory name="backend/test" />

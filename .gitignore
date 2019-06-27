@@ -9,3 +9,4 @@
 /.phpunit.result.cache
 /coverage.xml
 .vscode/
+.DS_Store

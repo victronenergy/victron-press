@@ -90,7 +90,6 @@ export default {
       };
 
       if (this.$store.state.commitHash) {
-        //add commithash if it exists
         headers["Parent-Commit-Hash"] = this.$store.state.commitHash;
       }
 

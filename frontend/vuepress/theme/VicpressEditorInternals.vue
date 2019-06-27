@@ -181,7 +181,6 @@ export default {
             ).then(() => {
               // Editor is ready, load the content and show
               this.$store.commit("editorContent", data);
-              // this.$store.commit('commitHash', data);
               this.editorValue = data;
               this.editorVisible = true;
             });

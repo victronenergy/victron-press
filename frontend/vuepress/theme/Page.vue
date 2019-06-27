@@ -135,7 +135,7 @@ export default {
       return path;
     },
     editAllowed() {
-      if (this.$page.frontmatter.hasOwnProperty("editAllowed")) {
+      if ('editAllowed' in this.$page.frontmatter) {
         return this.$page.frontmatter.editAllowed;
       } else {
         return true;
