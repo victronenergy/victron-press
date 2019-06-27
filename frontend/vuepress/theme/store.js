@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import axios from "axios";
-import { resolvePage, normalize, endingSlashRE } from "./util";
+import axios from 'axios';
+import { normalize, endingSlashRE } from './util';
 
 Vue.config.devtools = true;
 Vue.use(Vuex);
@@ -68,53 +68,70 @@ export default new Vuex.Store({
         },
     },
     actions: {
-        lockFile({state, commit}, context) {
+        lockFile({ state, commit }, context) {
             let path = normalize(context.$page.path);
             if (endingSlashRE.test(path)) {
-              path += "README.md";
+                path += 'README.md';
             } else {
-              path += ".md";
+                path += '.md';
             }
-            
-            const url = "/api/v1/lock?file=" + path.split("/")[1];
+
+            const url = '/api/v1/lock?file=' + path.split('/')[1];
 
             return new Promise((resolve, reject) => {
-                axios.post(url).then(response => {
-                    if (response.data.lockedBy) { 
-                        commit('fileLockedBy', response.data.lockedBy);
-                    }
-                    if (response.data.lockedUntil) { 
-                        commit('fileLockedUntil', response.data.lockedUntil);
-                    }
-                    response.data.success ? resolve(response) : reject(response);
-                  }).catch(error => { //server gives back 409
-                    if(error.response.status === 409){
-                      if (error.response.data.lockedBy) {
-                        commit('fileLockedBy', error.response.data.lockedBy);
-                      }
-                      if (error.response.data.lockedUntil) {
-                        commit('fileLockedUntil', error.response.data.lockedUntil);
-                      }
-                    }
-                    reject(error);
-                });
+                axios
+                    .post(url)
+                    .then(response => {
+                        if (response.data.lockedBy) {
+                            commit('fileLockedBy', response.data.lockedBy);
+                        }
+                        if (response.data.lockedUntil) {
+                            commit(
+                                'fileLockedUntil',
+                                response.data.lockedUntil
+                            );
+                        }
+                        response.data.success
+                            ? resolve(response)
+                            : reject(response);
+                    })
+                    .catch(error => {
+                        // 409 = Conflicted = Already locked by someone else
+                        if (error.response.status === 409) {
+                            if (error.response.data.lockedBy) {
+                                commit(
+                                    'fileLockedBy',
+                                    error.response.data.lockedBy
+                                );
+                            }
+                            if (error.response.data.lockedUntil) {
+                                commit(
+                                    'fileLockedUntil',
+                                    error.response.data.lockedUntil
+                                );
+                            }
+                        }
+                        reject(error);
+                    });
             });
         },
 
         unlockFile(state, context) {
-          let path = normalize(context.$page.path);
-          if (endingSlashRE.test(path)) {
-            path += "README.md";
-          } else {
-            path += ".md";
-          }
-          const unlockURL = "/api/v1/unlock?file=" + path.split("/")[1];
+            let path = normalize(context.$page.path);
+            if (endingSlashRE.test(path)) {
+                path += 'README.md';
+            } else {
+                path += '.md';
+            }
+            const unlockURL = '/api/v1/unlock?file=' + path.split('/')[1];
 
-          return new Promise((resolve, reject) => {
-            axios.post(unlockURL).then(response => {
-              response.status === 204 ? resolve(response) : reject(response)
+            return new Promise((resolve, reject) => {
+                axios.post(unlockURL).then(response => {
+                    response.status === 204
+                        ? resolve(response)
+                        : reject(response);
+                });
             });
-          });
-        }
-    }
+        },
+    },
 });

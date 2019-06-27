@@ -12,7 +12,9 @@
           ref="commitMessageInput"
         >
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;"
+        >
           <a @click="$store.commit('commitModalVisible', false)">{{ translate('cancel') }}</a>
           <input
             type="submit"
@@ -30,28 +32,20 @@
             style="margin: 0;"
             :value="translate('saving')"
           >
-
-          <!-- <a
-            v-if="$store.state.isSaving"
-            class="button disabled"
-            style="margin: 0;"
-          >{{ translate('saving') }}</a> -->
         </div>
       </form>
     </div>
 
     <div slot="footer"></div>
-
   </modal>
 </template>
 
 <script>
-import Vue from 'vue';
+import Vue from "vue";
 import Modal from "./Modal";
 import { normalize, endingSlashRE } from "./util";
 import axios from "axios";
-import { mapState } from 'vuex';
-
+import { mapState } from "vuex";
 
 export default {
   components: { Modal },
@@ -60,13 +54,13 @@ export default {
       customCommitMessage: ""
     };
   },
-  computed: mapState(['commitModalVisible']),
+  computed: mapState(["commitModalVisible"]),
   watch: {
     commitModalVisible(newValue, oldValue) {
-      if(newValue === true) {
+      if (newValue === true) {
         Vue.nextTick().then(() => {
           this.$refs.commitMessageInput.focus();
-        })
+        });
       }
     }
   },
@@ -92,11 +86,12 @@ export default {
       }
 
       let headers = {
-        "Commit-Message": this.customCommitMessage,
+        "Commit-Message": this.customCommitMessage
       };
 
-      if(this.$store.state.commitHash) { //add commithash if it exists
-        headers["Commit-Hash"] = this.$store.state.commitHash;
+      if (this.$store.state.commitHash) {
+        //add commithash if it exists
+        headers["Parent-Commit-Hash"] = this.$store.state.commitHash;
       }
 
       axios
@@ -114,15 +109,13 @@ export default {
             this.$store.commit("saveSuccess", true);
             this.$store.commit("commitModalVisible", false);
             this.$store.commit("isInEditMode", false);
-            // this.$emit("saveSuccess", true);
             this.$store.commit("sidebarVisible", true);
             this.$router.push({});
           }
         })
-        .then(this.$store.dispatch('unlockFile', this))
+        .then(this.$store.dispatch("unlockFile", this))
         .catch(response => {
-          // this.$store.commit('isSaving', false);
-          // this.$emit("saveFailed", true);
+          // TODO: handle error
         });
     }
   }

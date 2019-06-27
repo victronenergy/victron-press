@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 const Dotenv = require('dotenv-webpack');
 const fs = require('fs-extra');
 const path = require('path');
@@ -106,8 +108,7 @@ module.exports = {
                 fileLockedModalTitle: 'This page is locked',
                 fileLockedModalCopy: 'This page is currently already being edited by:',
                 close: 'Close',
-                snippet: 'Included snippet:',
-                snippetToClick: 'Click to edit its content',
+                includedSnippet: 'Included snippet:',
             },
             '/de': {
                 lang: 'de-DE',
@@ -148,8 +149,7 @@ module.exports = {
                 fileLockedModalTitle: 'Diese Seite ist gesperrt',
                 fileLockedModalCopy: 'Diese Seite wird zur Zeit bereits bearbeitet von:',
                 close: 'Schließen',
-                snippet: 'Included snippet:',
-                snippetToClick: 'Click to edit its content',
+                includedSnippet: 'Eingeschlossenes Fragment:',
             },
             '/es/': {
                 lang: 'es-ES',
@@ -190,8 +190,7 @@ module.exports = {
                 fileLockedModalTitle: 'Esta página está bloqueada',
                 fileLockedModalCopy: 'Actualmente esta página está ya siendo editado por:',
                 close: 'Cerrar',
-                snippet: 'Included snippet:',
-                snippetToClick: 'Click to edit its content',
+                includedSnippet: 'Fragmento incluido:',
             },
             '/fr/': {
                 lang: 'fr-FR',
@@ -232,8 +231,7 @@ module.exports = {
                 fileLockedModalTitle: 'Cette page est verrouillée',
                 fileLockedModalCopy: "Cette page est actuellement en cours de modification par:",
                 close: 'Fermer',
-                snippet: 'Page externe incluse:',
-                snippetToClick: 'Cliquez pour éditer le contenu',
+                includedSnippet: 'Fragment externe incluse:',
             },
             '/nl/': {
                 lang: 'nl-NL',
@@ -274,8 +272,7 @@ module.exports = {
                 fileLockedModalTitle: 'Deze pagina is gelocked',
                 fileLockedModalCopy: 'Deze pagina wordt op dit moment al bewerkt door:',
                 close: 'Sluiten',
-                snippet: 'Included snippet:',
-                snippetToClick: 'Click to edit its content',
+                includedSnippet: 'Ingesloten fragment:',
             },
             '/se/': {
                 lang: 'se-SE',
@@ -316,8 +313,7 @@ module.exports = {
                 fileLockedModalTitle: 'Den här sidan är låst',
                 fileLockedModalCopy: 'Denna sida är för närvarande redan redigerad av:',
                 close: 'Stänga',
-                snippet: 'Included snippet:',
-                snippetToClick: 'Click to edit its content',
+                includedSnippet: 'Inkluderat fragment:',
             },
         },
     },

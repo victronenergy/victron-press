@@ -132,13 +132,13 @@ export default {
       import("markdown-it-sup"),
       import("markdown-it-task-lists"),
       import("../../../../frontend/markdown-it-plugins/floating-image"),
-      //import("../../../../frontend/markdown-it-plugins/predefined-tooltip"),
-      import("../../../../frontend/markdown-it-plugins/video-thumb"),
       import("../../../../frontend/markdown-it-plugins/include-preview"),
+      //import("../../../../frontend/markdown-it-plugins/predefined-tooltip"),
       [import("../../../../frontend/markdown-it-plugins/url-fixer"), {
         forceHttps: true,
         forceMarkdownExt: "html",
-      }]
+      }],
+      import("../../../../frontend/markdown-it-plugins/video-thumb")
     ].map(plugin =>
       typeof plugin[Symbol.iterator] === "function" ? plugin : [plugin]
     );
@@ -180,7 +180,7 @@ export default {
               )
             ).then(() => {
               // Editor is ready, load the content and show
-              this.$store.commit('editorContent', data);
+              this.$store.commit("editorContent", data);
               // this.$store.commit('commitHash', data);
               this.editorValue = data;
               this.editorVisible = true;
@@ -227,7 +227,7 @@ export default {
 
     getMDContents() {
       return axios.get(this.path).then(response => {
-        this.$store.commit('commitHash', response.headers['commit-hash']);
+        this.$store.commit("commitHash", response.headers["commit-hash"]);
         return response.data;
       });
     }

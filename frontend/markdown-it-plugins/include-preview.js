@@ -9,7 +9,7 @@ module.exports = function include_preview_plugin(md, options) {
     // Rule for replacing include tag with token
     md.inline.ruler.after('emphasis', 'include', (state, silent) => {
         // Reject if the token does not start with the correct char
-        if (state.src.charCodeAt(state.pos) !== 0x5B /* [ */ ) {
+        if (state.src.charCodeAt(state.pos) !== 0x5b /* [ */) {
             return false;
         }
 
@@ -38,9 +38,15 @@ module.exports = function include_preview_plugin(md, options) {
     md.renderer.rules.include = (tokens, idx, options, env, self) => {
         var filePath = tokens[idx].filePath;
         // remove the .md of the file
-        var pathname = filePath.substring(0, filePath.length - 3) + '.html?editmode=true'
+        var pathname =
+            filePath.substring(0, filePath.length - 3) + '.html?editmode=true';
         // return built of link
-        var url = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port
+        var url =
+            window.location.protocol +
+            '//' +
+            window.location.hostname +
+            ':' +
+            window.location.port;
         if (filePath.charCodeAt(0) == 47) {
             url = url + pathname;
 

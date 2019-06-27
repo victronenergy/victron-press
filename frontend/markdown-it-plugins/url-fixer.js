@@ -72,7 +72,7 @@ module.exports = function url_fixer(md, options) {
         'base',
         'return (new URL(url, base)).toString();'
     );
-    const splitPath = new Function('path', 'return path.split(\'/\');');
+    const splitPath = new Function('path', "return path.split('/');");
 
     function fixUrl(url, token, env) {
         // Do not process data URL's
@@ -104,7 +104,7 @@ module.exports = function url_fixer(md, options) {
         }
 
         // Some operations are only possible if we can parse the URL
-        if(isParsable) {
+        if (isParsable) {
             const parsedUrl = isParsable ? parseUrl(url, selfUrl) : null;
 
             // Force HTTPS for specified domains
@@ -144,7 +144,8 @@ module.exports = function url_fixer(md, options) {
             if (
                 selfUrl &&
                 parsedUrl.origin === parsedSelfUrl.origin &&
-                (options.forceRelative || (isRelative && !options.forceAbsolute))
+                (options.forceRelative ||
+                    (isRelative && !options.forceAbsolute))
             ) {
                 // Appearantly this triggers Webpack to see this as a ES6 module,
                 // so we aquire the desired result using eval
@@ -191,7 +192,8 @@ module.exports = function url_fixer(md, options) {
                     for (let i in urlPath) {
                         urlPath[i] += '/';
                     }
-                    url = urlPrefix + urlPath.join('') + urlBasename + urlSuffix;
+                    urlPath = urlPath.join('');
+                    url = urlPrefix + urlPath + urlBasename + urlSuffix;
                 }
             } else {
                 // Render absolute URL

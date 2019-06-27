@@ -6,7 +6,9 @@
     <h3 slot="header" class="no-heading-number">{{translate('fileLockedModalTitle')}}</h3>
     <div slot="body">
       <p>{{translate('fileLockedModalCopy')}}</p>
-      <p><strong>{{$store.state.fileLockedBy}}</strong></p>
+      <p>
+        <strong>{{$store.state.fileLockedBy}}</strong>
+      </p>
     </div>
 
     <div slot="footer" style="display: flex; justify-content: space-between; align-items: center;">
@@ -16,13 +18,11 @@
 </template>
 
 <script>
-// import axios from "axios";
-// import { normalize, endingSlashRE } from "./util";
 import Modal from "./Modal";
 
 export default {
-    components: { Modal },
-}
+  components: { Modal }
+};
 </script>
 
 <style>

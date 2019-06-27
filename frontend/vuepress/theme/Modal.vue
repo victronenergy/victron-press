@@ -28,21 +28,21 @@ export default {
   name: "modal",
   data() {
     return {
-      escapeKeyHandler: (e) => {
-        if(e.key === "Escape") {
-          this.$emit('close');
+      escapeKeyHandler: e => {
+        if (e.key === "Escape") {
+          this.$emit("close");
         }
       }
-    }
+    };
   },
   mounted() {
-    if(window){
-      window.addEventListener('keydown', this.escapeKeyHandler);
+    if (window) {
+      window.addEventListener("keydown", this.escapeKeyHandler);
     }
   },
   destroyed() {
-    if(window){
-      window.removeEventListener('keydown', this.escapeKeyHandler);
+    if (window) {
+      window.removeEventListener("keydown", this.escapeKeyHandler);
     }
   }
 };

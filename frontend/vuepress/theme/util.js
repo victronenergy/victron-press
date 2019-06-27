@@ -90,6 +90,7 @@ export function resolvePage(pages, rawPath, base) {
             });
         }
     }
+    // eslint-disable-next-line no-console
     console.error(
         `[vuepress] No matching page found for sidebar item "${rawPath}"`
     );
@@ -226,6 +227,7 @@ function resolveItem(item, pages, base, isNested) {
         });
     } else {
         if (isNested) {
+            // eslint-disable-next-line no-console
             console.error(
                 '[vuepress] Nested sidebar groups are not supported. ' +
                     'Consider using navbar + categories instead.'

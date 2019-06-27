@@ -33,8 +33,7 @@
 import ModalCommit from "./ModalCommit";
 import ModalDelete from "./ModalDelete";
 import VicpressEditorInternals from "./VicpressEditorInternals";
-import { resolvePage, normalize, endingSlashRE } from "./util";
-import axios from "axios";
+import { normalize, endingSlashRE } from "./util";
 
 export default {
   components: { ModalCommit, ModalDelete, VicpressEditorInternals },
@@ -42,16 +41,15 @@ export default {
   data() {
     return {
       fileLockInterval: null
-    }
+    };
   },
   mounted() {
     this.$store.commit("sidebarVisible", false);
 
     this.fileLockInterval = setInterval(() => {
-      if(!this.$store.state.fileLockedModalVisible)
-        this.$store.dispatch('lockFile', this);
+      if (!this.$store.state.fileLockedModalVisible)
+        this.$store.dispatch("lockFile", this);
     }, 60000);
-    
   },
   computed: {
     path() {
@@ -70,6 +68,7 @@ export default {
       return false;
     },
     gitHubUrl() {
+      /* global process */
       return `https://github.com/${process.env.GITHUB_USER}/${
         process.env.GITHUB_REPO
       }/blob/${process.env.GITHUB_BRANCH}${this.path}`;
@@ -79,7 +78,7 @@ export default {
     stopEditing() {
       this.$store.commit("isInEditMode", false);
       this.$store.commit("sidebarVisible", true);
-      this.$store.dispatch('unlockFile', this);
+      this.$store.dispatch("unlockFile", this);
       this.$router.push({});
     },
     toggleDeleteModal() {

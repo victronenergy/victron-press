@@ -222,7 +222,9 @@ function table_renderer(state, startLine, endLine, silent) {
             }
 
             token = state.push('inline', '', 0);
-            token.content = columns[i - prevColspan] ? columns[i- prevColspan].trim() : '';
+            token.content = columns[i - prevColspan]
+                ? columns[i - prevColspan].trim()
+                : '';
             if (columns[i - prevColspan]) {
                 if (columns[i - prevColspan].trim().indexOf('@cols=') !== -1) {
                     token.content = tdContent;
@@ -232,7 +234,7 @@ function table_renderer(state, startLine, endLine, silent) {
 
             if (tdColspan) {
                 i = i + (tdColspan - 1);
-                prevColspan = (tdColspan - 1);
+                prevColspan = tdColspan - 1;
                 tdColspan = 0;
             }
 

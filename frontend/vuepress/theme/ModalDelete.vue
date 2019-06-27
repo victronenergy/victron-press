@@ -29,11 +29,11 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import Vue from "vue";
 import axios from "axios";
 import { normalize, endingSlashRE } from "./util";
 import Modal from "./Modal";
-import { mapState } from 'vuex';
+import { mapState } from "vuex";
 
 export default {
   components: { Modal },
@@ -43,14 +43,15 @@ export default {
     };
   },
   computed: {
-    ...mapState(['deleteModalVisible']),
+    ...mapState(["deleteModalVisible"]),
     title() {
       if (window) {
-        return window.location.pathname.split("/")[1].split(".")[0]; //a bit brittle...
+        // TODO: replace with a less brittle solution
+        return window.location.pathname.split("/")[1].split(".")[0];
       } else {
         return "no-title";
       }
-    },
+    }
   },
   methods: {
     tryDelete() {
@@ -77,13 +78,13 @@ export default {
   },
   watch: {
     deleteModalVisible(newValue, oldValue) {
-      if(newValue === true) {
+      if (newValue === true) {
         Vue.nextTick().then(() => {
           this.$refs.deleteConfirmationTextInput.focus();
-        })
+        });
       }
     }
-  },
+  }
 };
 </script>
 

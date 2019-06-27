@@ -30,7 +30,7 @@ import Navbar from "./Navbar.vue";
 import VicpressEditor from "./VicpressEditor";
 
 export default {
-  components: { 
+  components: {
     Navbar,
     VicpressEditor
   },
@@ -51,7 +51,7 @@ export default {
     this.canCreatePage =
       !!window.location.pathname.match(/\.html$/) &&
       !window.location.pathname.match(/(^\/\d{3}\.html$|\/README\.html$)/);
-  },
+  }
 };
 </script>
 

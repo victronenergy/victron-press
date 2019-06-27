@@ -66,6 +66,7 @@ There are multiple ways to work with the backend part of the repository:
    - `/test/` contains the backend application tests.
    - `/web/` contains the docroot files for the backend.
  - `/frontend/` contains the JavaScript frontend application.
+   - `/markdown-it-plugins/` contains custom plugins for the Markdown renderer.
    - `/markdown-pdf/` contains formatting files used when generating PDF files.
    - `/vuepress/` contains the VuePress configuration and templates.
  - `/data/docs/` contains a checkout of the Markdown files with the actual documentation.

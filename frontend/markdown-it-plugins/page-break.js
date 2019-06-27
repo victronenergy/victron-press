@@ -31,9 +31,9 @@ module.exports = function page_break_plugin(md, options) {
             // Update pos so the parser can continue
             var newline = state.src.indexOf('\n', state.pos);
             if (newline !== -1) {
-              state.pos = newline;
+                state.pos = newline;
             } else {
-              state.pos = state.pos + state.posMax + 1;
+                state.pos = state.pos + state.posMax + 1;
             }
         }
 
