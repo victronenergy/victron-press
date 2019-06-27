@@ -393,6 +393,14 @@ class Application implements RequestHandlerInterface
             throw new BadRequestException('Bad filename');
         }
 
+        // Sanity check the section name
+        $section = $request->getQueryParams()['section'] ?? null;
+        if (empty($section)) {
+            $section = null;
+        } elseif (!preg_match('/^[ [:graph:]]+$/i', $section)) {
+            throw new BadRequestException('Bad section name');
+        }
+
         // Retrieve the file information from GitHub
         $file = null;
         try {
@@ -411,10 +419,66 @@ class Application implements RequestHandlerInterface
             throw $e;
         }
 
-        // If the contents are already included, just return those
+        // Retrieve the contents if already returned in the API call
+        $contents = null;
         if (isset($file['content']) && $file['encoding'] === 'base64') {
+            $contents = base64_decode($file['content']);
+        }
+
+        // If a specific section was requested, try to extract it
+        if ($section !== null) {
+            // Retrieve the content if needed
+            if ($contents === null) {
+                $contents = (new GuzzleClient())
+                    ->request('GET', $file['download_url'])
+                    ->getBody()->__toString();
+            }
+
+            // Extract the section
+            if (preg_match('/^(#+) ' . preg_quote($section, '/') . '$/im', $contents, $matches, \PREG_OFFSET_CAPTURE)) {
+                $headingOffset = (int) $matches[0][1];
+                $headingLength = \strlen($matches[0][0]);
+                $headingLevel = \strlen($matches[1][0]);
+                $contents = substr($contents, $headingOffset);
+                $nextHeadingOffset = 0;
+                $nextHeadingLength = $headingLength;
+
+                // The end of the extract is the next heading of equal or higher level, ignoring headers
+                // contained in a code fence or container (we check this by counting, which is not by any means
+                // an accurate solution, but it's a lot cheaper than doing a full token parse and works well
+                // enough for the time being).
+                while (true) {
+                    if (preg_match(
+                        '/(^|\n)#{1,' . $headingLevel . '} [^\n]+(\n|$)/',
+                        $contents,
+                        $matches,
+                        \PREG_OFFSET_CAPTURE,
+                        $nextHeadingOffset + $nextHeadingLength
+                    )) {
+                        $nextHeadingOffset = (int) $matches[0][1];
+                        $nextHeadingLength = \strlen($matches[0][0]);
+                        $extract = substr($contents, 0, $nextHeadingOffset);
+                        if (preg_match_all(
+                            '/(^|\n)(```[a-zA-Z0-9]*|::: [a-zA-Z0-9]+( [^\n]+)?)(\n|$)/',
+                            $extract,
+                            $matches,
+                            0,
+                            $headingLength
+                        ) % 2 === 0) {
+                            $contents = $extract;
+                            break;
+                        }
+                        continue;
+                    }
+                    break;
+                }
+            }
+        }
+
+        // If the contents are available locally, return those
+        if ($contents !== null) {
             return new TextResponse(
-                base64_decode($file['content']),
+                $contents,
                 200,
                 [
                     'Content-Type' => 'text/markdown; charset=UTF-8',
@@ -446,6 +510,14 @@ class Application implements RequestHandlerInterface
         $filePath = $pathParams['file'];
         if (preg_match('#((^|/)\.[^/]+(/|$)|^\d{3}\.md$|(^|/)README\.md$)#i', $filePath)) {
             throw new BadRequestException('Bad filename');
+        }
+
+        // Sanity check the section name
+        $section = $request->getQueryParams()['section'];
+        if (empty($section)) {
+            $section = null;
+        } elseif (!preg_match('/^[ [:graph:]]+$/i', $section)) {
+            throw new BadRequestException('Bad section name');
         }
 
         // Retrieve user data from the session
@@ -508,9 +580,12 @@ class Application implements RequestHandlerInterface
         );
         $shaHead = $commits[0]['sha'];
 
-        // Determine base for the commit
-        // TODO: Support better merging by using the SHA of the file the user retrieved when editing started
-        $shaBase = $shaHead;
+        // Retrieve the SHA of the file the user retrieved when editing started,
+        // which we'll use as the base for the new commit
+        $shaBase = implode('', $request->getHeader('Parent-Commit-Hash'));
+        if (empty($shaBase) || !preg_match('/^[0-9a-f]{40}$/i', $shaBase)) {
+            $shaBase = $shaHead;
+        }
 
         // Branch name for making the commits
         $branch = 'heads/victronpress-' . substr($filesToCommitHash, 0, 8);
@@ -585,6 +660,71 @@ class Application implements RequestHandlerInterface
                         ['name' => $userName, 'email' => $userEmail]
                     );
                 } else {
+                    // Special case: Partial editing of Markdown files
+                    if ($fileName === $filePath && $section !== null) {
+                        // Retrieve the base contents
+                        $baseContents = null;
+                        if (isset($fileInfo['content']) && $fileInfo['encoding'] === 'base64') {
+                            $baseContents = base64_decode($fileInfo['content']);
+                        } else {
+                            $baseContents = (new GuzzleClient())
+                                ->request('GET', $fileInfo['download_url'])
+                                ->getBody()->__toString();
+                        }
+
+                        // Extract the section
+                        if (preg_match(
+                            '/^(#+) ' . preg_quote($section, '/') . '$/im',
+                            $baseContents,
+                            $matches,
+                            \PREG_OFFSET_CAPTURE
+                        )) {
+                            $headingOffset = (int) $matches[0][1];
+                            $headingLength = \strlen($matches[0][0]);
+                            $headingLevel = \strlen($matches[1][0]);
+                            $nextHeadingOffset = $headingOffset;
+                            $nextHeadingLength = $headingLength;
+
+                            // The end of the extract is the next heading of equal or higher level, ignoring headers
+                            // contained in a code fence or container (we check this by counting, which is not by any
+                            // means an accurate solution, but it's a lot cheaper than doing a full token parse and
+                            // works well enough for the time being).
+                            while (true) {
+                                if (preg_match(
+                                    '/(^|\n)#{1,' . $headingLevel . '} [^\n]+(\n|$)/',
+                                    $baseContents,
+                                    $matches,
+                                    \PREG_OFFSET_CAPTURE,
+                                    $nextHeadingOffset + $nextHeadingLength
+                                )) {
+                                    $nextHeadingOffset = (int) $matches[0][1];
+                                    $nextHeadingLength = \strlen($matches[0][0]);
+                                    $extract = substr(
+                                        $baseContents,
+                                        $headingOffset,
+                                        $nextHeadingOffset - $headingOffset
+                                    );
+                                    if (preg_match_all(
+                                        '/(^|\n)(```[a-zA-Z0-9]*|::: [a-zA-Z0-9]+( [^\n]+)?)(\n|$)/',
+                                        $extract,
+                                        $matches,
+                                        0,
+                                        $headingLength
+                                    ) % 2 === 0) {
+                                        $fileContents = substr($baseContents, 0, $headingOffset)
+                                            . $fileContents
+                                            . substr($baseContents, $nextHeadingOffset);
+                                        break;
+                                    }
+                                    continue;
+                                }
+                                $fileContents = substr($baseContents, 0, $headingOffset) . $fileContents;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Commit the updated file contents
                     $client->api('repo')->contents()->update(
                         $this->config['GITHUB_USER'],
                         $this->config['GITHUB_REPO'],
