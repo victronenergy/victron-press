@@ -44,6 +44,13 @@ COPY data/docs/ ./data/docs/
 COPY .git/ ./.git/
 
 # Set correct permissions and build the frontend
+#
+# Note: By default, Docker runs a container with a /dev/shm shared memory space 64MB.
+# This is typically too small for Chrome and will cause Chrome to crash when rendering
+# large pages. To fix, we launch the browser with the --disable-dev-shm-usage flag.
+# This will write shared memory files into /tmp instead of /dev/shm.
+# See crbug.com/736452 for more details.
+#
 # Note: Chromium in Docker, which is used for PDF generation, doesn't run without
 # extra privileges (--add-cap SYS_ADMIN), which during a Docker build we cannot grant.
 # Since we're running in a Docker container and generate all the content Chromium
@@ -53,7 +60,7 @@ RUN rm -rf data/docs/.vuepress && \
     chmod 644 .env && \
     find data/docs/ -type d -exec chmod 755 {} \; && \
     find data/docs/ -type f -exec chmod 644 {} \; && \
-    sudo -u www-data PUPPETEER_NO_SANDBOX=true npm run build
+    sudo -u www-data PUPPETEER_DISABLE_DEV_SHM_USAGE=true PUPPETEER_NO_SANDBOX=true npm run build
 
 # Backend build
 FROM php:7.3-cli-alpine AS backend

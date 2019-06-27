@@ -62,9 +62,9 @@ Promise.all([
         }
     ),
     puppeteer.launch({
-        ...(process.env.PUPPETEER_NO_SANDBOX === 'true' && {
-            args: ['--no-sandbox'],
-        }),
+        args: []
+            .concat(process.env.PUPPETEER_DISABLE_DEV_SHM_USAGE === 'true' ? ['--disable-dev-shm-usage'] : [])
+            .concat(process.env.PUPPETEER_NO_SANDBOX === 'true' ? ['--no-sandbox'] : [])
     }),
     Promise.all([
         fs.readFile(path.join(__dirname, 'pdf.css')),
@@ -119,7 +119,7 @@ Promise.all([
                                     basePath: inputDir,
                                     selfPath: path.join(inputDir, filePath),
                                 }
-                            );
+                            ) || '&nbsp;'; // Prevent puppeteer crash on empty body
                             return `
                                 <!DOCTYPE html>
                                 <html>
