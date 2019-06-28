@@ -20,7 +20,8 @@ module.exports = function inline_relative_images(md, options) {
     const optionsBasePath = (options || {}).basePath || '';
 
     md.core.ruler.push('inline-relative-images', function(state) {
-        const basePath = state.env.basePath || (options || {}).basePath || optionsBasePath;
+        const basePath =
+            state.env.basePath || (options || {}).basePath || optionsBasePath;
         const selfPath = state.env.selfPath || '';
         let hasFixed = false;
         for (let i = 0; i < state.tokens.length; i++) {
@@ -36,9 +37,13 @@ module.exports = function inline_relative_images(md, options) {
                                 if (RELATIVE_REGEX.exec(oldUrl)) {
                                     const ext = path.extname(oldUrl);
                                     if (mimeTypes[ext]) {
-                                        const urlPath = oldUrl[0] == '/' ?
-                                            path.join(basePath, oldUrl) :
-                                            path.join(path.dirname(selfPath), oldUrl);
+                                        const urlPath =
+                                            oldUrl[0] == '/'
+                                                ? path.join(basePath, oldUrl)
+                                                : path.join(
+                                                      path.dirname(selfPath),
+                                                      oldUrl
+                                                  );
                                         if (fs.existsSync(urlPath)) {
                                             const imageData = fs
                                                 .readFileSync(urlPath)

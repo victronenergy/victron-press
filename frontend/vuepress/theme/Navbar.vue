@@ -1,71 +1,84 @@
 <template>
-  <header class="navbar" :class="{ 'has-sidebar-toggle': sidebarToggleEnabled }">
-    <SidebarButton v-if="sidebarToggleEnabled" @toggle-sidebar="$emit('toggle-sidebar')"/>
+    <header
+        class="navbar"
+        :class="{ 'has-sidebar-toggle': sidebarToggleEnabled }"
+    >
+        <SidebarButton
+            v-if="sidebarToggleEnabled"
+            @toggle-sidebar="$emit('toggle-sidebar')"
+        />
 
-    <img class="logo" src="./images/victron-logo.svg" :alt="$siteTitle">
+        <img class="logo" src="./images/victron-logo.svg" :alt="$siteTitle" />
 
-    <span
-      ref="siteName"
-      class="site-name"
-      v-if="$siteTitle"
-      :class="{ 'can-hide': $site.themeConfig.logo }"
-    >{{ $siteTitle }}</span>
+        <span
+            v-if="$siteTitle"
+            ref="siteName"
+            class="site-name"
+            :class="{ 'can-hide': $site.themeConfig.logo }"
+            >{{ $siteTitle }}</span
+        >
 
-    <div class="links" :style="{
-        'max-width': linksWrapMaxWidth + 'px'
-      }">
-      <SearchBox v-if="$site.themeConfig.search !== false"/>
-      <NavLinks class="can-hide"/>
-    </div>
-  </header>
+        <div
+            class="links"
+            :style="{
+                'max-width': linksWrapMaxWidth + 'px',
+            }"
+        >
+            <SearchBox v-if="$site.themeConfig.search !== false" />
+            <NavLinks class="can-hide" />
+        </div>
+    </header>
 </template>
 
 <script>
-import SidebarButton from "./SidebarButton.vue";
-import SearchBox from "./SearchBox.vue";
-import NavLinks from "./NavLinks.vue";
+import SidebarButton from './SidebarButton.vue';
+import SearchBox from './SearchBox.vue';
+import NavLinks from './NavLinks.vue';
 
 export default {
-  components: { SidebarButton, NavLinks, SearchBox },
+    components: { SidebarButton, NavLinks, SearchBox },
 
-  props: {
-    sidebarToggleEnabled: {
-      type: Boolean,
-      default: true
-    }
-  },
+    props: {
+        sidebarToggleEnabled: {
+            type: Boolean,
+            default: true,
+        },
+    },
 
-  data() {
-    return {
-      linksWrapMaxWidth: null
-    };
-  },
+    data() {
+        return {
+            linksWrapMaxWidth: null,
+        };
+    },
 
-  mounted() {
-    const MOBILE_DESKTOP_BREAKPOINT = 719; // TODO: refer to config.styl
-    const NAVBAR_VERTICAL_PADDING =
-      parseInt(css(this.$el, "paddingLeft")) +
-      parseInt(css(this.$el, "paddingRight"));
-    const handleLinksWrapWidth = () => {
-      if (document.documentElement.clientWidth < MOBILE_DESKTOP_BREAKPOINT) {
-        this.linksWrapMaxWidth = null;
-      } else {
-        this.linksWrapMaxWidth =
-          this.$el.offsetWidth -
-          NAVBAR_VERTICAL_PADDING -
-          ((this.$refs.siteName && this.$refs.siteName.offsetWidth) || 0);
-      }
-    };
-    handleLinksWrapWidth();
-    window.addEventListener("resize", handleLinksWrapWidth, false);
-  }
+    mounted() {
+        const MOBILE_DESKTOP_BREAKPOINT = 719; // TODO: refer to config.styl
+        const NAVBAR_VERTICAL_PADDING =
+            parseInt(css(this.$el, 'paddingLeft')) +
+            parseInt(css(this.$el, 'paddingRight'));
+        const handleLinksWrapWidth = () => {
+            if (
+                document.documentElement.clientWidth < MOBILE_DESKTOP_BREAKPOINT
+            ) {
+                this.linksWrapMaxWidth = null;
+            } else {
+                this.linksWrapMaxWidth =
+                    this.$el.offsetWidth -
+                    NAVBAR_VERTICAL_PADDING -
+                    ((this.$refs.siteName && this.$refs.siteName.offsetWidth) ||
+                        0);
+            }
+        };
+        handleLinksWrapWidth();
+        window.addEventListener('resize', handleLinksWrapWidth, false);
+    },
 };
 
 function css(el, property) {
-  // NOTE: Known bug, will return 'auto' if style value is 'auto'
-  const win = el.ownerDocument.defaultView;
-  // null means not to return pseudo styles
-  return win.getComputedStyle(el, null)[property];
+    // NOTE: Known bug, will return 'auto' if style value is 'auto'
+    const win = el.ownerDocument.defaultView;
+    // null means not to return pseudo styles
+    return win.getComputedStyle(el, null)[property];
 }
 </script>
 

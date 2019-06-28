@@ -20,7 +20,7 @@ module.exports = {
             plugins: [new Dotenv()],
         };
     },
-    chainWebpack: (config) => {
+    chainWebpack: config => {
         config.resolve.symlinks(false);
     },
     markdown: {
@@ -40,19 +40,29 @@ module.exports = {
                 vine: { width: 600, height: 600, embed: 'simple' },
                 prezi: { width: 550, height: 400 },
             });
-            md.use(require('../../frontend/markdown-it-plugins/floating-image'));
+            md.use(
+                require('../../frontend/markdown-it-plugins/floating-image')
+            );
             md.use(require('../../frontend/markdown-it-plugins/include'), {
                 basePath: path.join(__dirname, '../../data/docs'),
             });
             md.use(require('../../frontend/markdown-it-plugins/page-break'));
-            md.use(require('../../frontend/markdown-it-plugins/table-renderer'));
-            const glossaryFile = path.join(__dirname, '../../data/docs/glossary.json');
-            md.use(require('../../frontend/markdown-it-plugins/predefined-tooltip'), {
-                tooltips: fs.existsSync(glossaryFile) ?
-                    JSON.parse(fs.readFileSync(glossaryFile, 'utf8')) :
-                    {},
-                position: 'top',
-            });
+            md.use(
+                require('../../frontend/markdown-it-plugins/table-renderer')
+            );
+            const glossaryFile = path.join(
+                __dirname,
+                '../../data/docs/glossary.json'
+            );
+            md.use(
+                require('../../frontend/markdown-it-plugins/predefined-tooltip'),
+                {
+                    tooltips: fs.existsSync(glossaryFile)
+                        ? JSON.parse(fs.readFileSync(glossaryFile, 'utf8'))
+                        : {},
+                    position: 'top',
+                }
+            );
             md.use(require('../../frontend/markdown-it-plugins/url-fixer'), {
                 forceHttps: true,
                 forceMarkdownExt: 'html',
@@ -69,6 +79,7 @@ module.exports = {
         // Enable automatic in-page navigation
         sidebar: 'auto',
 
+        // prettier-ignore
         locales: {
             '/': {
                 tableOfContents: 'Table of contents',
@@ -79,8 +90,8 @@ module.exports = {
                 editLink: 'Edit this page',
                 deleteLink: 'Delete this page',
                 commitButton: 'Commit changes',
-                pageDoesntExistYet: 'This page doesn\'t exist yet.',
-                pageDoesntExist: 'This page doesn\'t exist.',
+                pageDoesntExistYet: "This page doesn't exist yet.",
+                pageDoesntExist: "This page doesn't exist.",
                 wantToCreatePage: 'Do you want to create it?',
                 downloadAsPdf: 'Download as PDF',
                 success: 'Success',
@@ -100,8 +111,8 @@ module.exports = {
                 unauthorizedHeader: 'Contribute to Victron Documentation',
                 unauthorizedCopy: 'To make changes to the Victron Documentation, your log in using your GitHub account.',
                 continue: 'Continue',
-                forbiddenHeader: 'You don\'t have the right permissions',
-                forbiddenCopy: 'You\'ve successfully logged in through GitHub, but your account doesn\'t have the required permissions. Please contact Victron Energy to request collaborator permissions.',
+                forbiddenHeader: "You don't have the right permissions",
+                forbiddenCopy: "You've successfully logged in through GitHub, but your account doesn't have the required permissions. Please contact Victron Energy to request collaborator permissions.",
                 saveFailedHeader: 'Failed to edit the page',
                 saveFailedCopy: 'Something went wrong while editing this page. Please try again later.',
                 viewOnGitHub: 'View on GitHub',
@@ -221,15 +232,15 @@ module.exports = {
                 commitMesasgeHeader: 'Engager le changement',
                 commitMessageExplanation: 'Veuillez écrire un court message de validation concernant vos modifications.',
                 unauthorizedHeader: 'Contribuer à la documentation de Victron',
-                unauthorizedCopy: 'Pour apporter des modifications à la documentation Victron, connectez-vous à l\'aide de votre compte GitHub.',
+                unauthorizedCopy: "Pour apporter des modifications à la documentation Victron, connectez-vous à l'aide de votre compte GitHub.",
                 continue: 'Continuer',
                 forbiddenHeader: 'Vous n’avez pas les bonnes permissions',
                 forbiddenCopy: 'Vous vous êtes connecté avec succès via GitHub, mais votre compte ne dispose pas des autorisations requises. Veuillez contacter Victron Energy pour demander les autorisations de collaborateur.',
                 saveFailedHeader: 'Échec de la modification de la page',
-                saveFailedCopy: 'Quelque chose s\'est mal passé lors de l\'édition de cette page. Veuillez réessayer plus tard.',
+                saveFailedCopy: "Quelque chose s'est mal passé lors de l'édition de cette page. Veuillez réessayer plus tard.",
                 viewOnGitHub: 'Voir sur GitHub',
                 fileLockedModalTitle: 'Cette page est verrouillée',
-                fileLockedModalCopy: "Cette page est actuellement en cours de modification par:",
+                fileLockedModalCopy: 'Cette page est actuellement en cours de modification par:',
                 close: 'Fermer',
                 includedSnippet: 'Fragment externe incluse:',
             },
@@ -265,7 +276,7 @@ module.exports = {
                 unauthorizedCopy: 'Om wijzigingen door te kunnen voeren aan de Victron Documentatie moet u zich aanmelden met uw GitHub-account.',
                 continue: 'Doorgaan',
                 forbiddenHeader: 'U beschikt niet over de vereiste rechten',
-                forbiddenCopy: 'U bent succesvol ingelogd via GitHub, maar uw account beschikt niet over de vereiste rechten. Neem contact op met Victron Energy en om \'collaborator\'-rechten aan te vragen.',
+                forbiddenCopy: "U bent succesvol ingelogd via GitHub, maar uw account beschikt niet over de vereiste rechten. Neem contact op met Victron Energy en om 'collaborator'-rechten aan te vragen.",
                 saveFailedHeader: 'Aanpassen van pagina mislukt',
                 saveFailedCopy: 'Er is iets mis gegaan bij het aanpassen van de pagina. Probeert u het later opnieuw.',
                 viewOnGitHub: 'Bekijk op GitHub',
@@ -315,7 +326,7 @@ module.exports = {
                 close: 'Stänga',
                 includedSnippet: 'Inkluderat fragment:',
             },
-        },
+        }
     },
     locales: {
         '/': {

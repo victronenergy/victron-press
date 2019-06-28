@@ -1,28 +1,44 @@
 <template>
-  <div class="sidebar-group" :class="{ first, collapsable }">
-    <p class="sidebar-heading" :class="{ open }" @click="$emit('toggle')">
-      <span>{{ translate('tableOfContents') }}</span>
-      <span class="arrow" v-if="collapsable" :class="open ? 'down' : 'right'"></span>
-    </p>
+    <div class="sidebar-group" :class="{ first, collapsable }">
+        <p class="sidebar-heading" :class="{ open }" @click="$emit('toggle')">
+            <span>{{ translate('tableOfContents') }}</span>
+            <span
+                v-if="collapsable"
+                class="arrow"
+                :class="open ? 'down' : 'right'"
+            ></span>
+        </p>
 
-    <DropdownTransition>
-      <ul ref="items" class="sidebar-group-items" v-if="open || !collapsable">
-        <li v-for="child in item.children" :key="child">
-          <SidebarLink :item="child"/>
-        </li>
-      </ul>
-    </DropdownTransition>
-  </div>
+        <DropdownTransition>
+            <ul
+                v-if="open || !collapsable"
+                ref="items"
+                class="sidebar-group-items"
+            >
+                <li v-for="child in item.children" :key="child">
+                    <SidebarLink :item="child" />
+                </li>
+            </ul>
+        </DropdownTransition>
+    </div>
 </template>
 
 <script>
-import SidebarLink from "./SidebarLink.vue";
-import DropdownTransition from "./DropdownTransition.vue";
+import SidebarLink from './SidebarLink.vue';
+import DropdownTransition from './DropdownTransition.vue';
 
 export default {
-  name: "SidebarGroup",
-  props: ["item", "first", "open", "collapsable"],
-  components: { SidebarLink, DropdownTransition }
+    name: 'SidebarGroup',
+    components: { SidebarLink, DropdownTransition },
+    props: {
+        item: {
+            type: Object, // See util.js:237
+            required: true,
+        },
+        first: Boolean,
+        open: Boolean,
+        collapsable: Boolean,
+    },
 };
 </script>
 

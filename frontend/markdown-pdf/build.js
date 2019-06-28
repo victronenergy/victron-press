@@ -26,7 +26,7 @@ const markdownitRenderer = new markdownit({
         slugify: require('vuepress/lib/markdown/slugify'),
         permalink: true,
         permalinkBefore: true,
-        permalinkSymbol: "#"
+        permalinkSymbol: '#',
     })
     .use(require('markdown-it-table-of-contents'), {
         slugify: require('vuepress/lib/markdown/slugify'),
@@ -63,8 +63,16 @@ Promise.all([
     ),
     puppeteer.launch({
         args: []
-            .concat(process.env.PUPPETEER_DISABLE_DEV_SHM_USAGE === 'true' ? ['--disable-dev-shm-usage'] : [])
-            .concat(process.env.PUPPETEER_NO_SANDBOX === 'true' ? ['--no-sandbox'] : [])
+            .concat(
+                process.env.PUPPETEER_DISABLE_DEV_SHM_USAGE === 'true'
+                    ? ['--disable-dev-shm-usage']
+                    : []
+            )
+            .concat(
+                process.env.PUPPETEER_NO_SANDBOX === 'true'
+                    ? ['--no-sandbox']
+                    : []
+            ),
     }),
     Promise.all([
         fs.readFile(path.join(__dirname, 'pdf.css')),
@@ -111,15 +119,17 @@ Promise.all([
                     fs
                         .readFile(path.join(inputDir, filePath), 'utf8')
                         .then(md => {
-                            const frontmatter = vuepressUtil.parseFrontmatter(md);
-                            const inferredTitle = vuepressUtil.inferTitle(frontmatter);
-                            const html = markdownitRenderer.render(
-                                frontmatter.content,
-                                {
+                            const frontmatter = vuepressUtil.parseFrontmatter(
+                                md
+                            );
+                            const inferredTitle = vuepressUtil.inferTitle(
+                                frontmatter
+                            );
+                            const html =
+                                markdownitRenderer.render(frontmatter.content, {
                                     basePath: inputDir,
                                     selfPath: path.join(inputDir, filePath),
-                                }
-                            ) || '&nbsp;'; // Prevent puppeteer crash on empty body
+                                }) || '&nbsp;'; // Prevent puppeteer crash on empty body
                             return `
                                 <!DOCTYPE html>
                                 <html>

@@ -1,27 +1,24 @@
 <template>
-  <div class="theme-container">
-    <Navbar :sidebarToggleEnabled="false"/>
+    <div class="theme-container">
+        <Navbar :sidebar-toggle-enabled="false" />
 
-    <div class="content">
-      <h1>{{ translate('forbiddenHeader') }}</h1>
-      <p>{{ translate('forbiddenCopy') }}</p>
+        <div class="content">
+            <h1>{{ translate('forbiddenHeader') }}</h1>
+            <p>{{ translate('forbiddenCopy') }}</p>
+        </div>
     </div>
-  </div>
 </template>
 
-
-
 <script>
-import Navbar from "./Navbar.vue";
+import Navbar from './Navbar.vue';
 export default {
-  components: { Navbar }
+    components: { Navbar },
 };
 </script>
 
-
 <style scoped>
 .content {
-  text-align: center;
-  padding-top: 100px;
+    text-align: center;
+    padding-top: 100px;
 }
 </style>

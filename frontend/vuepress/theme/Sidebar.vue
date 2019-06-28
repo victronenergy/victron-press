@@ -1,91 +1,99 @@
 <template>
-  <div class="sidebar">
-    <NavLinks/>
-    <slot name="top"/>
-    <ul class="sidebar-links">
-      <nav class="downloads" v-if="this.$route.path.length > 5">
-        <div class="nav-item">
-          <a class="sidebar-link" :href="this.$route.path.replace('html', 'pdf')">
-            <i class="sg-vrm-icon_44_file-16px"></i>
-            {{ translate('downloadAsPdf') }}
-          </a>
-        </div>
-      </nav>
-    </ul>
+    <div class="sidebar">
+        <NavLinks />
+        <slot name="top" />
+        <ul class="sidebar-links">
+            <nav v-if="this.$route.path.length > 5" class="downloads">
+                <div class="nav-item">
+                    <a
+                        class="sidebar-link"
+                        :href="this.$route.path.replace('html', 'pdf')"
+                    >
+                        <i class="sg-vrm-icon_44_file-16px"></i>
+                        {{ translate('downloadAsPdf') }}
+                    </a>
+                </div>
+            </nav>
+        </ul>
 
-    <ul class="sidebar-links" v-if="items.length">
-      <li v-for="(item, i) in items" :key="i">
-        <SidebarGroup
-          v-if="item.type === 'group'"
-          :item="item"
-          :first="i === 0"
-          :open="i === openGroupIndex"
-          :collapsable="item.collapsable || item.collapsible"
-          @toggle="toggleGroup(i)"
-        />
-        <SidebarLink v-else :item="item"/>
-      </li>
-    </ul>
-    <slot name="bottom"/>
-  </div>
+        <ul v-if="items.length" class="sidebar-links">
+            <li v-for="(item, i) in items" :key="i">
+                <SidebarGroup
+                    v-if="item.type === 'group'"
+                    :item="item"
+                    :first="i === 0"
+                    :open="i === openGroupIndex"
+                    :collapsable="item.collapsable || item.collapsible"
+                    @toggle="toggleGroup(i)"
+                />
+                <SidebarLink v-else :item="item" />
+            </li>
+        </ul>
+        <slot name="bottom" />
+    </div>
 </template>
 
 <script>
-import SidebarGroup from "./SidebarGroup.vue";
-import SidebarLink from "./SidebarLink.vue";
-import NavLinks from "./NavLinks.vue";
-import { isActive } from "./util";
+import SidebarGroup from './SidebarGroup.vue';
+import SidebarLink from './SidebarLink.vue';
+import NavLinks from './NavLinks.vue';
+import { isActive } from './util';
 
 export default {
-  components: { SidebarGroup, SidebarLink, NavLinks },
+    components: { SidebarGroup, SidebarLink, NavLinks },
 
-  props: ["items"],
-
-  data() {
-    return {
-      openGroupIndex: 0
-    };
-  },
-
-  created() {
-    this.refreshIndex();
-  },
-
-  watch: {
-    $route() {
-      this.refreshIndex();
-    }
-  },
-
-  methods: {
-    refreshIndex() {
-      const index = resolveOpenGroupIndex(this.$route, this.items);
-      if (index > -1) {
-        this.openGroupIndex = index;
-      }
+    props: {
+        items: {
+            type: Array,
+            default: () => [],
+        },
     },
 
-    toggleGroup(index) {
-      this.openGroupIndex = index === this.openGroupIndex ? -1 : index;
+    data() {
+        return {
+            openGroupIndex: 0,
+        };
     },
 
-    isActive(page) {
-      return isActive(this.$route, page.path);
-    }
-  }
+    watch: {
+        $route() {
+            this.refreshIndex();
+        },
+    },
+
+    created() {
+        this.refreshIndex();
+    },
+
+    methods: {
+        refreshIndex() {
+            const index = resolveOpenGroupIndex(this.$route, this.items);
+            if (index > -1) {
+                this.openGroupIndex = index;
+            }
+        },
+
+        toggleGroup(index) {
+            this.openGroupIndex = index === this.openGroupIndex ? -1 : index;
+        },
+
+        isActive(page) {
+            return isActive(this.$route, page.path);
+        },
+    },
 };
 
 function resolveOpenGroupIndex(route, items) {
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    if (
-      item.type === "group" &&
-      item.children.some(c => isActive(route, c.path))
-    ) {
-      return i;
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (
+            item.type === 'group' &&
+            item.children.some(c => isActive(route, c.path))
+        ) {
+            return i;
+        }
     }
-  }
-  return -1;
+    return -1;
 }
 </script>
 

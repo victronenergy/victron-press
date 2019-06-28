@@ -1,285 +1,320 @@
 <template>
-  <div class="page" :class="{ 'edit-mode': $store.state.isInEditMode }">
-    <slot name="top"/>
+    <div class="page" :class="{ 'edit-mode': $store.state.isInEditMode }">
+        <slot name="top" />
 
-    <div class="tip custom-block save-success-block" v-if="$store.state.saveSuccess">
-      <p class="custom-block-title">{{ translate('success') }}</p>
-      <p>{{ translate('saveSuccessMessage') }}</p>
-    </div>
-
-    <div class="tip custom-block save-success-block danger" v-if="$store.state.saveFailed">
-      <p class="custom-block-title">{{ translate('saveFailedHeader') }}</p>
-      <p>{{ translate('saveFailedCopy') }}</p>
-    </div>
-
-    <div class="tip custom-block save-success-block" v-if="$store.state.deleteSuccess">
-      <p class="custom-block-title">{{ translate('success') }}</p>
-      <p>{{ translate('deleteSuccessMessage') }}</p>
-    </div>
-
-    <modal-file-locked></modal-file-locked>
-
-    <ClientOnly
-      v-if="$store.state.isInEditMode && !$store.state.saveSuccess && !$store.state.saveFailed"
-    >
-      <vicpress-editor :mode="'edit'"></vicpress-editor>
-    </ClientOnly>
-
-    <Content v-else :custom="false"/>
-
-    <div class="page-edit" v-if="!$store.state.isInEditMode && editAllowed">
-      <div class="edit-link" v-if="this.$site.themeConfig.enableEditor">
-        <a
-          v-if="!$store.state.isInEditMode && !$store.state.deleteSuccess"
-          @click="tryEdit"
-          rel="noopener noreferrer"
-        >{{ translate('editLink') }}</a>
-        <a
-          v-else-if="!$store.state.isInEditMode && !$store.state.deleteSuccess"
-          @click="stopEditing()"
-          rel="noopener noreferrer"
-        >{{ translate('backLink') }}</a>
-      </div>
-
-      <div style="display: flex; align-items: center;">
-        <div class="last-updated" v-if="lastUpdated">
-          <span class="prefix">{{ translate('lastUpdated') }}:</span>
-          <span class="time">{{ lastUpdated }}</span>
+        <div
+            v-if="$store.state.saveSuccess"
+            class="tip custom-block save-success-block"
+        >
+            <p class="custom-block-title">{{ translate('success') }}</p>
+            <p>{{ translate('saveSuccessMessage') }}</p>
         </div>
-        <a
-          class="button"
-          @click="commitClicked()"
-          v-if="$store.state.isInEditMode"
-        >{{ translate('commitButton') }}</a>
-      </div>
+
+        <div
+            v-if="$store.state.saveFailed"
+            class="tip custom-block save-success-block danger"
+        >
+            <p class="custom-block-title">
+                {{ translate('saveFailedHeader') }}
+            </p>
+            <p>{{ translate('saveFailedCopy') }}</p>
+        </div>
+
+        <div
+            v-if="$store.state.deleteSuccess"
+            class="tip custom-block save-success-block"
+        >
+            <p class="custom-block-title">{{ translate('success') }}</p>
+            <p>{{ translate('deleteSuccessMessage') }}</p>
+        </div>
+
+        <modal-file-locked></modal-file-locked>
+
+        <ClientOnly
+            v-if="
+                $store.state.isInEditMode &&
+                    !$store.state.saveSuccess &&
+                    !$store.state.saveFailed
+            "
+        >
+            <vicpress-editor :mode="'edit'"></vicpress-editor>
+        </ClientOnly>
+
+        <Content v-else :custom="false" />
+
+        <div v-if="!$store.state.isInEditMode && editAllowed" class="page-edit">
+            <div v-if="this.$site.themeConfig.enableEditor" class="edit-link">
+                <a
+                    v-if="
+                        !$store.state.isInEditMode &&
+                            !$store.state.deleteSuccess
+                    "
+                    rel="noopener noreferrer"
+                    @click="tryEdit"
+                    >{{ translate('editLink') }}</a
+                >
+                <a
+                    v-else-if="
+                        !$store.state.isInEditMode &&
+                            !$store.state.deleteSuccess
+                    "
+                    rel="noopener noreferrer"
+                    @click="stopEditing()"
+                    >{{ translate('backLink') }}</a
+                >
+            </div>
+
+            <div style="display: flex; align-items: center;">
+                <div v-if="lastUpdated" class="last-updated">
+                    <span class="prefix">{{ translate('lastUpdated') }}:</span>
+                    <span class="time">{{ lastUpdated }}</span>
+                </div>
+                <a
+                    v-if="$store.state.isInEditMode"
+                    class="button"
+                    @click="commitClicked()"
+                    >{{ translate('commitButton') }}</a
+                >
+            </div>
+        </div>
+
+        <div v-if="prev || next" class="page-nav">
+            <p class="inner">
+                <span v-if="prev" class="prev">
+                    ←
+                    <router-link v-if="prev" class="prev" :to="prev.path">{{
+                        prev.title || prev.path
+                    }}</router-link>
+                </span>
+
+                <span v-if="next" class="next">
+                    <router-link v-if="next" :to="next.path">{{
+                        next.title || next.path
+                    }}</router-link
+                    >→
+                </span>
+            </p>
+        </div>
+
+        <slot name="bottom" />
     </div>
-
-    <div class="page-nav" v-if="prev || next">
-      <p class="inner">
-        <span v-if="prev" class="prev">
-          ←
-          <router-link v-if="prev" class="prev" :to="prev.path">{{ prev.title || prev.path }}</router-link>
-        </span>
-
-        <span v-if="next" class="next">
-          <router-link v-if="next" :to="next.path">{{ next.title || next.path }}</router-link>→
-        </span>
-      </p>
-    </div>
-
-    <slot name="bottom"/>
-  </div>
 </template>
 
 <script>
-import axios from "axios";
-import { resolvePage, normalize, endingSlashRE } from "./util";
-import VicpressEditor from "./VicpressEditor";
-import ModalFileLocked from "./ModalFileLocked";
+import axios from 'axios';
+import { resolvePage, normalize, endingSlashRE } from './util';
+import VicpressEditor from './VicpressEditor';
+import ModalFileLocked from './ModalFileLocked';
 
 export default {
-  props: ["sidebarItems"],
-  data() {
-    return {
-      deleteConfirmationText: null
-    };
-  },
-
-  components: { VicpressEditor, ModalFileLocked },
-
-  mounted() {
-    this.$store.commit(
-      "isInEditMode",
-      window.location.search.includes("editmode")
-    );
-
-    if (this.$store.state.isInEditMode) {
-      this.$emit("setSidebar", false);
-
-      let isAuthorized = true;
-
-      this.isSubscribed()
-        .then(data => {
-          return new Promise((resolve, reject) => {
-            data.success ? resolve() : reject(data);
-          });
-        })
-        .catch(data => {
-          isAuthorized = false;
-          this.$router.push({
-            name: "unauthorized",
-            query: { redirectUrl: data.redirectUrl }
-          });
-        })
-        .then(() => {
-          if (isAuthorized) {
-            return this.$store.dispatch("lockFile", this);
-          }
-        })
-        .catch(data => {
-          this.$store.commit("fileLockedModalVisible", true);
-        });
-    } else {
-      this.$emit("setSidebar", true);
-    }
-  },
-
-  computed: {
-    path() {
-      let path = normalize(this.$page.path);
-      if (endingSlashRE.test(path)) {
-        path += "README.md";
-      } else {
-        path += ".md";
-      }
-      return path;
+    components: { VicpressEditor, ModalFileLocked },
+    props: {
+        sidebarItems: {
+            type: Array,
+            default: () => [],
+        },
     },
-    editAllowed() {
-      if ('editAllowed' in this.$page.frontmatter) {
-        return this.$page.frontmatter.editAllowed;
-      } else {
-        return true;
-      }
-    },
-    lastUpdated() {
-      if (this.$page.lastUpdated) {
-        return new Date(this.$page.lastUpdated).toLocaleString(this.$lang);
-      }
-      return false;
+    data() {
+        return {
+            deleteConfirmationText: null,
+        };
     },
 
-    title() {
-      if (window) {
-        //client only
-        return window.location.pathname.split("/")[1].split(".")[0]; //a bit brittle...
-      } else {
-        return "no-title";
-      }
+    computed: {
+        path() {
+            let path = normalize(this.$page.path);
+            if (endingSlashRE.test(path)) {
+                path += 'README.md';
+            } else {
+                path += '.md';
+            }
+            return path;
+        },
+        editAllowed() {
+            if ('editAllowed' in this.$page.frontmatter) {
+                return this.$page.frontmatter.editAllowed;
+            } else {
+                return true;
+            }
+        },
+        lastUpdated() {
+            if (this.$page.lastUpdated) {
+                return new Date(this.$page.lastUpdated).toLocaleString(
+                    this.$lang
+                );
+            }
+            return false;
+        },
+
+        title() {
+            if (window) {
+                //client only
+                return window.location.pathname.split('/')[1].split('.')[0]; //a bit brittle...
+            } else {
+                return 'no-title';
+            }
+        },
+
+        prev() {
+            const prev = this.$page.frontmatter.prev;
+            if (prev === false) {
+                return;
+            } else if (prev) {
+                return resolvePage(this.$site.pages, prev, this.$route.path);
+            } else {
+                return resolvePrev(this.$page, this.sidebarItems);
+            }
+        },
+
+        next() {
+            const next = this.$page.frontmatter.next;
+            if (next === false) {
+                return;
+            } else if (next) {
+                return resolvePage(this.$site.pages, next, this.$route.path);
+            } else {
+                return resolveNext(this.$page, this.sidebarItems);
+            }
+        },
     },
 
-    prev() {
-      const prev = this.$page.frontmatter.prev;
-      if (prev === false) {
-        return;
-      } else if (prev) {
-        return resolvePage(this.$site.pages, prev, this.$route.path);
-      } else {
-        return resolvePrev(this.$page, this.sidebarItems);
-      }
-    },
+    mounted() {
+        this.$store.commit(
+            'isInEditMode',
+            window.location.search.includes('editmode')
+        );
 
-    next() {
-      const next = this.$page.frontmatter.next;
-      if (next === false) {
-        return;
-      } else if (next) {
-        return resolvePage(this.$site.pages, next, this.$route.path);
-      } else {
-        return resolveNext(this.$page, this.sidebarItems);
-      }
-    }
-  },
+        if (this.$store.state.isInEditMode) {
+            this.$emit('setSidebar', false);
 
-  methods: {
-    isSubscribed() {
-      const url = "/api/v1/auth?file=" + this.path.split("/")[1];
-      return axios.get(url).then(response => {
-        return response.data;
-      });
-    },
-    setSaveSuccess(state) {
-      this.saveSuccess = state;
-      this.$store.commit("saveSuccess", state);
-    },
+            let isAuthorized = true;
 
-    setSaveFailed(state) {
-      this.saveFailed = state;
-      this.$store.commit("saveFailed", state);
-    },
-
-    tryEdit() {
-      let canEdit = true;
-      let isAuthorized = true;
-
-      this.isSubscribed()
-        .then(data => {
-          return new Promise((resolve, reject) => {
-            data.success ? resolve() : reject(data);
-          });
-        })
-        .catch(data => {
-          isAuthorized = false;
-          this.$router.push({
-            name: "unauthorized",
-            query: { redirectUrl: data.redirectUrl }
-          });
-        })
-        .then(() => {
-          if (isAuthorized) {
-            return this.$store.dispatch("lockFile", this);
-          }
-        })
-        .catch(data => {
-          canEdit = false;
-          this.$store.commit("fileLockedModalVisible", true);
-        })
-        .then(() => {
-          if (canEdit && isAuthorized) {
-            this.doEdit();
-          }
-        });
-    },
-    tryLockFile() {
-      const url = "/api/v1/lock?file=" + this.path.split("/")[1];
-      return axios.post(url).then(response => {
-        const success = response.data.success;
-        if (!success) {
-          throw new Error("Locked!");
+            this.isSubscribed()
+                .then(data => {
+                    return new Promise((resolve, reject) => {
+                        data.success ? resolve() : reject(data);
+                    });
+                })
+                .catch(data => {
+                    isAuthorized = false;
+                    this.$router.push({
+                        name: 'unauthorized',
+                        query: { redirectUrl: data.redirectUrl },
+                    });
+                })
+                .then(() => {
+                    if (isAuthorized) {
+                        return this.$store.dispatch('lockFile', this);
+                    }
+                })
+                .catch(data => {
+                    this.$store.commit('fileLockedModalVisible', true);
+                });
         } else {
-          return response.data;
+            this.$emit('setSidebar', true);
         }
-      });
     },
-    doEdit() {
-      this.saveSuccess = false;
-      this.$store.commit("saveSuccess", false);
 
-      this.saveFailed = false;
-      this.$store.commit("saveFailed", false);
+    methods: {
+        isSubscribed() {
+            const url = '/api/v1/auth?file=' + this.path.split('/')[1];
+            return axios.get(url).then(response => {
+                return response.data;
+            });
+        },
+        setSaveSuccess(state) {
+            this.saveSuccess = state;
+            this.$store.commit('saveSuccess', state);
+        },
 
-      this.isInEditMode = true;
-      this.$store.commit("isInEditMode", true);
+        setSaveFailed(state) {
+            this.saveFailed = state;
+            this.$store.commit('saveFailed', state);
+        },
 
-      this.$store.commit("sidebarVisible", false);
+        tryEdit() {
+            let canEdit = true;
+            let isAuthorized = true;
 
-      this.$router.push({ query: Object.assign({}, { editmode: true }) });
-    }
-  }
+            this.isSubscribed()
+                .then(data => {
+                    return new Promise((resolve, reject) => {
+                        data.success ? resolve() : reject(data);
+                    });
+                })
+                .catch(data => {
+                    isAuthorized = false;
+                    this.$router.push({
+                        name: 'unauthorized',
+                        query: { redirectUrl: data.redirectUrl },
+                    });
+                })
+                .then(() => {
+                    if (isAuthorized) {
+                        return this.$store.dispatch('lockFile', this);
+                    }
+                })
+                .catch(data => {
+                    canEdit = false;
+                    this.$store.commit('fileLockedModalVisible', true);
+                })
+                .then(() => {
+                    if (canEdit && isAuthorized) {
+                        this.doEdit();
+                    }
+                });
+        },
+        tryLockFile() {
+            const url = '/api/v1/lock?file=' + this.path.split('/')[1];
+            return axios.post(url).then(response => {
+                const success = response.data.success;
+                if (!success) {
+                    throw new Error('Locked!');
+                } else {
+                    return response.data;
+                }
+            });
+        },
+        doEdit() {
+            this.saveSuccess = false;
+            this.$store.commit('saveSuccess', false);
+
+            this.saveFailed = false;
+            this.$store.commit('saveFailed', false);
+
+            this.isInEditMode = true;
+            this.$store.commit('isInEditMode', true);
+
+            this.$store.commit('sidebarVisible', false);
+
+            this.$router.push({ query: Object.assign({}, { editmode: true }) });
+        },
+    },
 };
 
 function resolvePrev(page, items) {
-  return find(page, items, -1);
+    return find(page, items, -1);
 }
 
 function resolveNext(page, items) {
-  return find(page, items, 1);
+    return find(page, items, 1);
 }
 
 function find(page, items, offset) {
-  const res = [];
-  items.forEach(item => {
-    if (item.type === "group") {
-      res.push(...(item.children || []));
-    } else {
-      res.push(item);
+    const res = [];
+    items.forEach(item => {
+        if (item.type === 'group') {
+            res.push(...(item.children || []));
+        } else {
+            res.push(item);
+        }
+    });
+    for (let i = 0; i < res.length; i++) {
+        const cur = res[i];
+        if (cur.type === 'page' && cur.path === page.path) {
+            return res[i + offset];
+        }
     }
-  });
-  for (let i = 0; i < res.length; i++) {
-    const cur = res[i];
-    if (cur.type === "page" && cur.path === page.path) {
-      return res[i + offset];
-    }
-  }
 }
 </script>
 
