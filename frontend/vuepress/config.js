@@ -24,6 +24,22 @@ module.exports = {
         config.resolve.symlinks(false);
     },
     markdown: {
+        anchor: {
+            renderPermalink: ((defaultRenderer, editLinkRenderer) => (
+                slug,
+                opts,
+                state,
+                idx
+            ) => {
+                defaultRenderer(slug, opts, state, idx);
+                if (state.tokens[idx].tag === 'h2') {
+                    editLinkRenderer(slug, opts, state, idx);
+                }
+            })(
+                require('markdown-it-anchor').defaults.renderPermalink,
+                require('../../frontend/markdown-it-plugins/anchor-edit-link')
+            ),
+        },
         config: md => {
             md.set({
                 linkify: true,
