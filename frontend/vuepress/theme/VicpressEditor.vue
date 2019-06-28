@@ -99,6 +99,7 @@ export default {
     },
     methods: {
         stopEditing() {
+            this.$store.commit('sectionToEdit', null);
             this.$store.commit('isInEditMode', false);
             this.$store.commit('sidebarVisible', true);
             this.$store.dispatch('unlockFile', this);

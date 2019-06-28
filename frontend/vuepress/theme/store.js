@@ -22,6 +22,7 @@ export default new Vuex.Store({
         sidebarVisible: true,
         editorContent: '',
         commitHash: null,
+        sectionToEdit: null,
     },
     mutations: {
         isInEditMode(state, value) {
@@ -65,6 +66,9 @@ export default new Vuex.Store({
         },
         commitHash(state, value) {
             state.commitHash = value;
+        },
+        sectionToEdit(state, value) {
+            state.sectionToEdit = value;
         },
     },
     actions: {

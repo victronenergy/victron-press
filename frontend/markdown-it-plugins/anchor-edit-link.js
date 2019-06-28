@@ -15,7 +15,7 @@ module.exports = (slug, opts, state, idx) => {
                 ['class', 'edit-section'],
                 [
                     '@click',
-                    'tryEdit(' +
+                    '$parent.tryEdit(' +
                         JSON.stringify(state.tokens[idx + 1].content) +
                         ')',
                 ],

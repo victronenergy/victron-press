@@ -130,8 +130,9 @@ h1, h2, h3, h4, h5, h6
   &:hover .header-anchor
     opacity: 1
 
-h1
-  font-size 2.2rem
+h1 {
+  font-size: 2.2rem;
+}
 
 h2
   font-size 1.65rem
@@ -220,6 +221,22 @@ th, td
 
 .snippet-desc {
   font-weight: bold
+}
+
+.edit-section {
+  float: right;
+  font-size: 14px;
+  position relative;
+  top: 7px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+h2:hover {
+  .edit-section {
+    opacity: 1;
+  }
 }
 
 @require './mobile.styl'

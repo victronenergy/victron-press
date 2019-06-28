@@ -20,9 +20,9 @@
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;"
                 >
-                    <a @click="$store.commit('commitModalVisible', false)">{{
-                        translate('cancel')
-                    }}</a>
+                    <a @click="$store.commit('commitModalVisible', false)">
+                        {{ translate('cancel') }}
+                    </a>
                     <input
                         v-if="!$store.state.isSaving"
                         type="submit"
@@ -91,6 +91,11 @@ export default {
             } else {
                 path += '.md';
             }
+
+            const section = this.$store.state.sectionToEdit;
+            const sectionPart = section === null ? '' : `?section=${section}`;
+
+            path = path + sectionPart;
 
             let headers = {
                 'Commit-Message': this.customCommitMessage,

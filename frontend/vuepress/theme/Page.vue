@@ -50,7 +50,7 @@
                             !$store.state.deleteSuccess
                     "
                     rel="noopener noreferrer"
-                    @click="tryEdit"
+                    @click="tryEdit()"
                     >{{ translate('editLink') }}</a
                 >
                 <a
@@ -82,15 +82,14 @@
             <p class="inner">
                 <span v-if="prev" class="prev">
                     ←
-                    <router-link v-if="prev" class="prev" :to="prev.path">{{
-                        prev.title || prev.path
-                    }}</router-link>
+                    <router-link v-if="prev" class="prev" :to="prev.path">
+                        {{ prev.title || prev.path }}
+                    </router-link>
                 </span>
 
                 <span v-if="next" class="next">
-                    <router-link v-if="next" :to="next.path">{{
-                        next.title || next.path
-                    }}</router-link
+                    <router-link v-if="next" :to="next.path">
+                        {{ next.title || next.path }} </router-link
                     >→
                 </span>
             </p>
@@ -102,7 +101,7 @@
 
 <script>
 import axios from 'axios';
-import { resolvePage, normalize, endingSlashRE } from './util';
+import { resolvePage, normalize, endingSlashRE, getUrlParameter } from './util';
 import VicpressEditor from './VicpressEditor';
 import ModalFileLocked from './ModalFileLocked';
 
@@ -179,10 +178,13 @@ export default {
     },
 
     mounted() {
-        this.$store.commit(
-            'isInEditMode',
-            window.location.search.includes('editmode')
-        );
+        this.$store.commit('isInEditMode', !!getUrlParameter('editmode'));
+
+        if (getUrlParameter('section')) {
+            this.$store.commit('sectionToEdit', getUrlParameter('section'));
+        } else {
+            this.$store.commit('sectionToEdit', null);
+        }
 
         if (this.$store.state.isInEditMode) {
             this.$emit('setSidebar', false);
@@ -232,7 +234,7 @@ export default {
             this.$store.commit('saveFailed', state);
         },
 
-        tryEdit() {
+        tryEdit(section) {
             let canEdit = true;
             let isAuthorized = true;
 
@@ -251,6 +253,12 @@ export default {
                 })
                 .then(() => {
                     if (isAuthorized) {
+                        if (section !== undefined) {
+                            this.$store.commit('sectionToEdit', section);
+                        } else {
+                            this.$store.commit('sectionToEdit', null);
+                        }
+
                         return this.$store.dispatch('lockFile', this);
                     }
                 })
@@ -287,7 +295,21 @@ export default {
 
             this.$store.commit('sidebarVisible', false);
 
-            this.$router.push({ query: Object.assign({}, { editmode: true }) });
+            if (this.$store.state.sectionToEdit !== null) {
+                this.$router.push({
+                    query: Object.assign(
+                        {},
+                        {
+                            editmode: true,
+                            section: this.$store.state.sectionToEdit,
+                        }
+                    ),
+                });
+            } else {
+                this.$router.push({
+                    query: Object.assign({}, { editmode: true }),
+                });
+            }
         },
     },
 };

@@ -247,7 +247,10 @@ export default {
         },
 
         getMDContents() {
-            return axios.get(this.path).then(response => {
+            const section = this.$store.state.sectionToEdit;
+            const sectionPart = section === null ? '' : `?section=${section}`;
+
+            return axios.get(this.path + sectionPart).then(response => {
                 this.$store.commit(
                     'commitHash',
                     response.headers['commit-hash']

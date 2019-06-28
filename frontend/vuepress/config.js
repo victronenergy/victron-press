@@ -136,6 +136,7 @@ module.exports = {
                 fileLockedModalCopy: 'This page is currently already being edited by:',
                 close: 'Close',
                 includedSnippet: 'Included snippet:',
+                editSectionLink: 'Edit this section'
             },
             '/de': {
                 lang: 'de-DE',
@@ -177,6 +178,7 @@ module.exports = {
                 fileLockedModalCopy: 'Diese Seite wird zur Zeit bereits bearbeitet von:',
                 close: 'Schließen',
                 includedSnippet: 'Eingeschlossenes Fragment:',
+                editSectionLink: 'Sektion bearbeiten',
             },
             '/es/': {
                 lang: 'es-ES',
@@ -218,6 +220,7 @@ module.exports = {
                 fileLockedModalCopy: 'Actualmente esta página está ya siendo editado por:',
                 close: 'Cerrar',
                 includedSnippet: 'Fragmento incluido:',
+                editSectionLink: 'Editar esta sección',
             },
             '/fr/': {
                 lang: 'fr-FR',
@@ -259,6 +262,7 @@ module.exports = {
                 fileLockedModalCopy: 'Cette page est actuellement en cours de modification par:',
                 close: 'Fermer',
                 includedSnippet: 'Fragment externe incluse:',
+                editSectionLink: 'Modifier cette section',
             },
             '/nl/': {
                 lang: 'nl-NL',
@@ -300,6 +304,7 @@ module.exports = {
                 fileLockedModalCopy: 'Deze pagina wordt op dit moment al bewerkt door:',
                 close: 'Sluiten',
                 includedSnippet: 'Ingesloten fragment:',
+                editSectionLink: 'Bewerk dit hoofdstuk',
             },
             '/se/': {
                 lang: 'se-SE',
@@ -341,6 +346,7 @@ module.exports = {
                 fileLockedModalCopy: 'Denna sida är för närvarande redan redigerad av:',
                 close: 'Stänga',
                 includedSnippet: 'Inkluderat fragment:',
+                editSectionLink: 'Redigera detta avsnitt',
             },
         }
     },
