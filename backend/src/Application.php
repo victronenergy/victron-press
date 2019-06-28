@@ -441,7 +441,7 @@ class Application implements RequestHandlerInterface
             }
 
             // Extract the section
-            if (preg_match('/^(#+) ' . preg_quote($section, '/') . '$/im', $contents, $matches, \PREG_OFFSET_CAPTURE)) {
+            if (preg_match('/^(#{2}) ' . preg_quote($section, '/') . '$/im', $contents, $matches, \PREG_OFFSET_CAPTURE)) {
                 $headingOffset = (int) $matches[0][1];
                 $headingLength = \strlen($matches[0][0]);
                 $headingLevel = \strlen($matches[1][0]);
@@ -680,7 +680,7 @@ class Application implements RequestHandlerInterface
 
                         // Extract the section
                         if (preg_match(
-                            '/^(#+) ' . preg_quote($section, '/') . '$/im',
+                            '/^(#{2}) ' . preg_quote($section, '/') . '$/im',
                             $baseContents,
                             $matches,
                             \PREG_OFFSET_CAPTURE
