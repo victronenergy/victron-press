@@ -7,6 +7,12 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 const vuepressUtil = require('vuepress/lib/util');
 
+// Handle unhandled promise rejections
+process.on('unhandledRejection', function(err, promise) {
+    console.error('Unhandled rejected', promise);
+    process.exit(1);
+});
+
 const inputDir = path.join(__dirname, '../../data/docs');
 const outputDir = path.join(__dirname, '../../data/build/pdf');
 
@@ -179,5 +185,5 @@ Promise.all([
                 )
             )
         )
-    ).then(() => browser.close())
+    ).finally(() => browser.close())
 );
