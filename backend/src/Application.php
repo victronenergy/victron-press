@@ -55,6 +55,12 @@ class Application implements RequestHandlerInterface
         'u[ggkrz]|v[eio]|w[ao]|x[h]|y[io]|z[aahu]';
 
     /**
+     * Regex for matching all supported image file extensions.
+     */
+    private const IMAGE_EXT_REGEX = '[gG][iI][fF]|[jJ][pP][gG]|[jJ][pP][eE][gG]|[pP][nN][gG]|[sS][vV][gG]|' .
+        '[wW][eE][bB][pP]';
+
+    /**
      * Number of seconds a Markdown file remains locked.
      */
     private const LOCK_DURATION = 15 * 60;
@@ -149,13 +155,13 @@ class Application implements RequestHandlerInterface
             [$this, 'handleNonExistingLanguage']
         );
         $this->router->map('GET', '/{file:.+\.md}', [$this, 'handleGetMarkdown']);
-        $this->router->map('GET', '/{file:.+\.(?:gif|jpg|jpeg|png|svg|webp)}', [$this, 'handleGetImage']);
+        $this->router->map('GET', '/{file:.+\.(?:' . self::IMAGE_EXT_REGEX . ')}', [$this, 'handleGetImage']);
         $this->router->map('GET', '/{file:.*}', [$this, 'handleNonExisting']);
 
         // Handlers for editing
         $this->router->map('PUT', '/{file:.+\.md}', [$this, 'handleSaveMarkdown']);
         $this->router->map('DELETE', '/{file:.+\.md}', [$this, 'handleDeleteMarkdown']);
-        $this->router->map('PUT', '/{file:.+\.(?:gif|jpg|jpeg|png|svg|webp)}', [$this, 'handleUploadImage']);
+        $this->router->map('PUT', '/{file:.+\.(?:' . self::IMAGE_EXT_REGEX . ')}', [$this, 'handleUploadImage']);
     }
 
     /**
