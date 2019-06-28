@@ -441,7 +441,12 @@ class Application implements RequestHandlerInterface
             }
 
             // Extract the section
-            if (preg_match('/^(#{2}) ' . preg_quote($section, '/') . '$/im', $contents, $matches, \PREG_OFFSET_CAPTURE)) {
+            if (preg_match(
+                '/^(#{2}) ' . preg_quote($section, '/') . '$/im',
+                $contents,
+                $matches,
+                \PREG_OFFSET_CAPTURE
+            )) {
                 $headingOffset = (int) $matches[0][1];
                 $headingLength = \strlen($matches[0][0]);
                 $headingLevel = \strlen($matches[1][0]);
@@ -450,9 +455,9 @@ class Application implements RequestHandlerInterface
                 $nextHeadingLength = $headingLength;
 
                 // The end of the extract is the next heading of equal or higher level, ignoring headers
-                // contained in a code fence or container (we check this by counting, which is not by any means
-                // an accurate solution, but it's a lot cheaper than doing a full token parse and works well
-                // enough for the time being).
+                // contained in a code fence (we check this by counting, which is not by any means an accurate
+                // solution, but it's a lot cheaper than doing a full token parse and works well enough for
+                // the time being).
                 while (true) {
                     if (preg_match(
                         '/(^|\n)#{1,' . $headingLevel . '} [^\n]+(\n|$)/',
@@ -465,7 +470,7 @@ class Application implements RequestHandlerInterface
                         $nextHeadingLength = \strlen($matches[0][0]);
                         $extract = substr($contents, 0, $nextHeadingOffset);
                         if (preg_match_all(
-                            '/(^|\n)(```[a-zA-Z0-9]*|::: [a-zA-Z0-9]+( [^\n]+)?)(\n|$)/',
+                            '/(^|\n)(```[a-zA-Z0-9]*)(\n|$)/',
                             $extract,
                             $matches,
                             0,
@@ -692,9 +697,9 @@ class Application implements RequestHandlerInterface
                             $nextHeadingLength = $headingLength;
 
                             // The end of the extract is the next heading of equal or higher level, ignoring headers
-                            // contained in a code fence or container (we check this by counting, which is not by any
-                            // means an accurate solution, but it's a lot cheaper than doing a full token parse and
-                            // works well enough for the time being).
+                            // contained in a code fence (we check this by counting, which is not by any means an
+                            // accurate solution, but it's a lot cheaper than doing a full token parse and works well
+                            // enough for the time being).
                             while (true) {
                                 if (preg_match(
                                     '/(^|\n)#{1,' . $headingLevel . '} [^\n]+(\n|$)/',
@@ -711,7 +716,7 @@ class Application implements RequestHandlerInterface
                                         $nextHeadingOffset - $headingOffset
                                     );
                                     if (preg_match_all(
-                                        '/(^|\n)(```[a-zA-Z0-9]*|::: [a-zA-Z0-9]+( [^\n]+)?)(\n|$)/',
+                                        '/(^|\n)(```[a-zA-Z0-9]*)(\n|$)/',
                                         $extract,
                                         $matches,
                                         0,

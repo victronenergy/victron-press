@@ -85,14 +85,14 @@ module.exports = function include_plugin(md, options) {
                     );
 
                     // The end of the extract is the next heading of equal or higher level, ignoring headers
-                    // contained in a code fence or container (we check this by counting, which is not by any means
-                    // an accurate solution, but it's a lot cheaper than doing a full token parse and works well
-                    // enough for the time being).
+                    // contained in a code fence (we check this by counting, which is not by any means an accurate
+                    // solution, but it's a lot cheaper than doing a full token parse and works well enough for
+                    // the time being).
                     const nextHeadingRegex = new RegExp(
                         `(^|\n)#{1,${firstHeading[1].length}} [^\n]+(\n|$)`,
                         'g'
                     );
-                    const blockRegex = /(^|\n)(```[a-zA-Z0-9]*|::: [a-zA-Z0-9]+( [^\n]+)?)(\n|$)/g;
+                    const blockRegex = /(^|\n)(```[a-zA-Z0-9]*)(\n|$)/g;
                     let nextHeading;
                     while ((nextHeading = nextHeadingRegex.exec(content))) {
                         const extract = content.substr(0, nextHeading.index);
