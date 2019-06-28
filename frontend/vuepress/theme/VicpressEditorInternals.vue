@@ -79,8 +79,22 @@ export default {
                                     );
                                 })
                                 .catch(error => {
-                                    console.log(error);
-                                    window.alert('Invalid image');
+                                    console.log(error, error.response);
+                                    if (
+                                        error.response &&
+                                        error.reponse.status === 405
+                                    ) {
+                                        window.alert(
+                                            'Unrecognized image file name.'
+                                        );
+                                    } else if (
+                                        error.response &&
+                                        error.reponse.status === 415
+                                    ) {
+                                        window.alert('Unsupported image type.');
+                                    } else {
+                                        window.alert('Failed to upload image');
+                                    }
                                 });
                         };
                         reader.readAsArrayBuffer(blob);
