@@ -409,15 +409,30 @@ class Application implements RequestHandlerInterface
 
         // Retrieve the file information from GitHub
         $file = null;
+        $commitHash = null;
         try {
+            // Connect to GitHub API
             $client = new GithubClient();
             $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
+
+            // Retrieve file info
             $file = $client->api('repo')->contents()->show(
                 $this->config['GITHUB_USER'],
                 $this->config['GITHUB_REPO'],
                 $filePath,
                 $this->config['GITHUB_BRANCH']
             );
+
+            // Retrieve the commit that last modified the file
+            $commits = $client->api('repo')->commits()->all(
+                $this->config['GITHUB_USER'],
+                $this->config['GITHUB_REPO'],
+                [
+                    'sha'  => $this->config['GITHUB_BRANCH'],
+                    'path' => $filePath,
+                ]
+            );
+            $commitHash = $commits[0]['sha'];
         } catch (\Exception $e) {
             if ($e->getCode() === 404) {
                 throw new NotFoundException('Markdown file does not exist in repository', $e);
@@ -493,7 +508,7 @@ class Application implements RequestHandlerInterface
                 200,
                 [
                     'Content-Type' => 'text/markdown; charset=UTF-8',
-                    'Commit-Hash'  => $file['sha'],
+                    'Commit-Hash'  => $commitHash,
                 ]
             );
         }
@@ -501,7 +516,7 @@ class Application implements RequestHandlerInterface
         // Else, download and return the file contents
         return (new GuzzleClient())->request('GET', $file['download_url'])
             ->withHeader('Content-Type', 'text/markdown; charset=UTF-8')
-            ->withHeader('Commit-Hash', $file['sha'])
+            ->withHeader('Commit-Hash', $commitHash)
         ;
     }
 
@@ -589,13 +604,13 @@ class Application implements RequestHandlerInterface
             $this->config['GITHUB_REPO'],
             ['sha' => $this->config['GITHUB_BRANCH']]
         );
-        $shaHead = $commits[0]['sha'];
+        $commitHashHead = $commits[0]['sha'];
 
         // Retrieve the SHA of the file the user retrieved when editing started,
         // which we'll use as the base for the new commit
-        $shaBase = implode('', $request->getHeader('Parent-Commit-Hash'));
-        if (empty($shaBase) || !preg_match('/^[0-9a-f]{40}$/i', $shaBase)) {
-            $shaBase = $shaHead;
+        $commitHashBase = implode('', $request->getHeader('Parent-Commit-Hash'));
+        if (empty($commitHashBase) || !preg_match('/^[0-9a-f]{40}$/i', $commitHashBase)) {
+            $commitHashBase = $commitHashHead;
         }
 
         // Branch name for making the commits
@@ -606,7 +621,10 @@ class Application implements RequestHandlerInterface
         $mergeCompleted = false;
         $mergeException = null;
         $markdownFileExisted = null;
-        foreach ($shaBase === $shaHead ? [$shaHead] : [$shaBase, $shaHead] as $sha) {
+        $commitHashBases = $commitHashBase === $commitHashHead
+            ? [$commitHashHead]
+            : [$commitHashBase, $commitHashHead];
+        foreach ($commitHashBases as $commitHash) {
             // Check if the branch already exists
             $branchInfo = null;
             try {
@@ -626,14 +644,14 @@ class Application implements RequestHandlerInterface
                 $client->api('gitData')->references()->create(
                     $this->config['GITHUB_USER'],
                     $this->config['GITHUB_REPO'],
-                    ['ref' => $reference, 'sha' => $sha]
+                    ['ref' => $reference, 'sha' => $commitHash]
                 );
             } else {
                 $client->api('gitData')->references()->update(
                     $this->config['GITHUB_USER'],
                     $this->config['GITHUB_REPO'],
                     $branch,
-                    ['sha' => $sha, 'force' => true]
+                    ['sha' => $commitHash, 'force' => true]
                 );
             }
 
