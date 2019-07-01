@@ -108,6 +108,7 @@ module.exports = function include_plugin(md, options) {
 
                 // Initialize a new environment for rendering the included file
                 const newEnv = {
+                    isIncluded: true,
                     basePath: basePath,
                     selfPath: filePath,
                     includes: env.includes,

@@ -32,7 +32,7 @@ module.exports = {
                 idx
             ) => {
                 defaultRenderer(slug, opts, state, idx);
-                if (state.tokens[idx].tag === 'h2') {
+                if (!state.env.isIncluded && state.tokens[idx].tag === 'h2') {
                     editLinkRenderer(slug, opts, state, idx);
                 }
             })(
