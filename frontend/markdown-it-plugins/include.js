@@ -4,7 +4,7 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const vuepressUtil = require('vuepress/lib/util');
+const { parseFrontmatter } = require('@vuepress/shared-utils');
 
 module.exports = function include_plugin(md, options) {
     // Regex for matching include tag
@@ -65,7 +65,7 @@ module.exports = function include_plugin(md, options) {
             // Check if the included file exists
             if (fs.existsSync(filePath)) {
                 // Read the included file
-                let { content } = vuepressUtil.parseFrontmatter(
+                let { content } = parseFrontmatter(
                     fs.readFileSync(filePath, 'utf-8')
                 );
 

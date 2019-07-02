@@ -136,23 +136,23 @@ export default {
         // Load markdown-it plugins (to be attached later in onEditorLoad)
         this.editorMarkdownPlugins = [
             // Plugins used by VuePress
-            // import("vuepress/lib/markdown/component"),
-            // import("vuepress/lib/markdown/highlightLines"),
-            // import("vuepress/lib/markdown/preWrapper"),
-            // import("vuepress/lib/markdown/snippet"),
-            // import("vuepress/lib/markdown/hoist"),
-            // import("vuepress/lib/markdown/containers"),
+            // import('@vuepress/markdown/lib/component'),
+            // import('@vuepress/markdown/lib/highlightLines'),
+            // import('@vuepress/markdown/lib/preWrapper'),
+            // import('@vuepress/markdown/lib/snippet'),
+            // import('@vuepress/markdown/lib/hoist'),
+            // import('vuepress-plugin-container'), // TODO fix multiple load
             import('markdown-it-emoji'),
-            // [import("markdown-it-anchor"), {
-            //   slugify: import("vuepress/lib/markdown/slugify"), // TODO fix this
+            // [import('markdown-it-anchor'), {
+            //   slugify: import('@vuepress/shared-utils').slugify, // TODO fix this
             //   permalink: true,
             //   permalinkBefore: true,
-            //   permalinkSymbol: "#"
+            //   permalinkSymbol: '#',
             // }],
-            // [import("markdown-it-table-of-contents"), {
-            //   slugify: import("vuepress/lib/markdown/slugify"), // TODO fix this
+            // [import('markdown-it-table-of-contents'), {
+            //   slugify: import('@vuepress/shared-utils').slugify, // TODO fix this
             //   includeLevel: [2, 3],
-            //   format: import("vuepress/lib/util/parseHeaders").parseHeaders  // TODO fix this
+            //   format: import('@vuepress/shared-utils').parseHeaders, // TODO fix this
             // }],
             // Custom plugins
             import('markdown-it-abbr'),

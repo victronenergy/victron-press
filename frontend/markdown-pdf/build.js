@@ -5,7 +5,7 @@ const globby = require('globby');
 const markdownit = require('markdown-it');
 const path = require('path');
 const puppeteer = require('puppeteer');
-const vuepressUtil = require('vuepress/lib/util');
+const { inferTitle, parseFrontmatter } = require('@vuepress/shared-utils');
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', function(err, promise) {
@@ -19,25 +19,39 @@ const outputDir = path.join(__dirname, '../../data/build/pdf');
 const markdownitRenderer = new markdownit({
     html: true,
     linkify: true,
-    highlight: require('vuepress/lib/markdown/highlight'),
+    highlight: require('@vuepress/markdown/lib/highlight'),
 })
     // Plugins used by VuePress
-    .use(require('vuepress/lib/markdown/component'))
-    .use(require('vuepress/lib/markdown/highlightLines'))
-    .use(require('vuepress/lib/markdown/preWrapper'))
-    .use(require('vuepress/lib/markdown/snippet'))
-    .use(require('vuepress/lib/markdown/containers'))
+    .use(require('@vuepress/markdown/lib/component'))
+    .use(require('@vuepress/markdown/lib/highlightLines'))
+    .use(require('@vuepress/markdown/lib/preWrapper'))
+    .use(require('@vuepress/markdown/lib/snippet'))
+    .use(
+        require('vuepress-plugin-container')({
+            type: 'tip',
+        }).extendMarkdown
+    )
+    .use(
+        require('vuepress-plugin-container')({
+            type: 'warning',
+        }).extendMarkdown
+    )
+    .use(
+        require('vuepress-plugin-container')({
+            type: 'danger',
+        }).extendMarkdown
+    )
     .use(require('markdown-it-emoji'))
     .use(require('markdown-it-anchor'), {
-        slugify: require('vuepress/lib/markdown/slugify'),
+        slugify: require('@vuepress/shared-utils').slugify,
         permalink: true,
         permalinkBefore: true,
         permalinkSymbol: '#',
     })
     .use(require('markdown-it-table-of-contents'), {
-        slugify: require('vuepress/lib/markdown/slugify'),
+        slugify: require('@vuepress/shared-utils').slugify,
         includeLevel: [2, 3],
-        format: require('vuepress/lib/util/parseHeaders').parseHeaders,
+        format: require('@vuepress/shared-utils').parseHeaders,
     })
     // Custom plugins
     .use(require('markdown-it-abbr'))
@@ -125,14 +139,10 @@ Promise.all([
                     fs
                         .readFile(path.join(inputDir, filePath), 'utf8')
                         .then(md => {
-                            const frontmatter = vuepressUtil.parseFrontmatter(
-                                md
-                            );
-                            const inferredTitle = vuepressUtil.inferTitle(
-                                frontmatter
-                            );
+                            const { data, content } = parseFrontmatter(md);
+                            const inferredTitle = inferTitle(data, content);
                             const html =
-                                markdownitRenderer.render(frontmatter.content, {
+                                markdownitRenderer.render(content, {
                                     basePath: inputDir,
                                     selfPath: path.join(inputDir, filePath),
                                 }) || '&nbsp;'; // Prevent puppeteer crash on empty body

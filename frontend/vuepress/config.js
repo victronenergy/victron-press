@@ -15,6 +15,15 @@ module.exports = {
             },
         ],
     ],
+    plugins: {
+        '@vuepress/pwa': {
+            serviceWorker: true,
+            updatePopup: true,
+            generateSWConfig: {
+                // https://developers.google.com/web/tools/workbox/modules/workbox-build#full_generatesw_config
+            },
+        },
+    },
     configureWebpack: config => {
         return {
             plugins: [new Dotenv()],
@@ -40,7 +49,7 @@ module.exports = {
                 require('../../frontend/markdown-it-plugins/anchor-edit-link')
             ),
         },
-        config: md => {
+        extendMarkdown: md => {
             md.set({
                 linkify: true,
             });
