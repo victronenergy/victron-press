@@ -10,7 +10,6 @@ export default ({ Vue, options, router, siteData }) => {
     Vue.use(Tooltip);
     Vue.use(Vuex);
     Vue.mixin({ store });
-    Vue.config.devtools = true;
 
     Vue.mixin({
         methods: {
@@ -36,7 +35,6 @@ export default ({ Vue, options, router, siteData }) => {
         {
             name: 'forbidden',
             path: '/403.html',
-            // props: { redirectLink },
             component: Forbidden,
         },
     ]);

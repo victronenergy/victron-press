@@ -418,7 +418,7 @@ function find(page, items, offset) {
     margin-top: 0;
     border-top: 1px solid $borderColor;
     padding-top: 1rem;
-    overflow: auto; // clear float
+    overflow: auto;
   }
 
   .next {
@@ -433,10 +433,6 @@ function find(page, items, offset) {
 
 @media (max-width: $MQMobile) {
   .page-edit {
-    .edit-link {
-      // margin-bottom .5rem
-    }
-
     .last-updated {
       font-size: 0.8em;
       float: none;
