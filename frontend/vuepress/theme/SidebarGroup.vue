@@ -15,7 +15,7 @@
                 ref="items"
                 class="sidebar-group-items"
             >
-                <li v-for="child in item.children" :key="child">
+                <li v-for="(child, i) in item.children" :key="i">
                     <SidebarLink :item="child" />
                 </li>
             </ul>
