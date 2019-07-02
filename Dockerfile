@@ -5,6 +5,9 @@ FROM node:latest AS frontend
 RUN id www-data >/dev/null 2>&1 || useradd -s /usr/sbin/nologin -d /var/www www-data && \
     mkdir -p /var/www && chown -R www-data:www-data /var/www
 
+# Let Node scripts know we want them optimized for production
+ARG NODE_ENV=production
+
 # Install dependencies and create workspace directory
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
