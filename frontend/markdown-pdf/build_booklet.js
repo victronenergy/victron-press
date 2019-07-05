@@ -114,10 +114,11 @@ Promise.all([
             ${css}
         `
     ),
+    fs.readFile(path.join(__dirname, 'frontpage.css')),
     fs.readFile(
         path.join(__dirname, '../vuepress/theme/images/victron-logo.svg')
     ),
-]).then(([_, filePaths, browser, css, logoSVG]) =>
+]).then(([_, filePaths, browser, css, fp_css, logoSVG]) =>
     Promise.all(
         filePaths.map(async filePath =>
             Promise.all([
@@ -164,6 +165,7 @@ Promise.all([
                                     }) || '&nbsp;'; // Prevent puppeteer crash on empty body
 
                                 // Put all HTML of the other languages in a separate div, so that we can have page breaks between them
+                                frontPage = createFrontPage(frontmatter, browser, css, fp_css, []);
                                 const langs = htmls.map(h => `<div class="page-break">${h}</div>`);
                                 return `
                                     <!DOCTYPE html>
@@ -171,8 +173,13 @@ Promise.all([
                                     <head>
                                         <title>${inferredTitle}</title>
                                         <style>${css}</style>
+                                        <style>${fp_css}</style>
                                     </head>
-                                    <body><div class="page-break">${html}</div> ${langs}</body>
+                                    <body>
+                                        ${frontPage}
+                                        <div class="page-break"> ${html} </div> 
+                                        ${langs}
+                                    </body>
                                     </html>
                                 `;
                             }),
@@ -182,12 +189,9 @@ Promise.all([
                                 page.emulateMedia('screen').then(() => page)
                             ),
                     ]).then(async ([html, page]) => {
-                        console.log(html)
                         await page.setContent(html);
-                        console.log(await page.content())
-                        //console.log(page);
-                        res = page.pdf({
-                            format: 'A4',
+                        return page.pdf({
+                            format: 'A6',
                             margin: {
                                 top: '25mm',
                                 right: '10mm',
@@ -197,23 +201,21 @@ Promise.all([
                             displayHeaderFooter: true,
                             headerTemplate: `
                                 <style>${css}</style>
+                                <style>${frontPage}</style>
                                 <header>
                                     <img src="data:image/svg+xml;base64,${logoSVG.toString(
                                         'base64'
                                     )}" class="logo" />
-                                    ${filePath.replace(/\.md$/, '')}
                                 </header>`,
                             footerTemplate: `
                                 <style>${css}</style>
+                                <style>${frontPage}</style>
                                 <footer>
                                     <span class="pageNumber"></span> / <span class="totalPages"></span>
                                 </footer>`,
                         });
-                        console.log(await res);
-                        return res;
                     }),
                 ).then(pdf => {
-                    console.log(pdf);
                     fs.writeFile( 
                         path.join(outputDir, filePath.replace('.md', '.pdf')),
                         pdf
@@ -223,3 +225,33 @@ Promise.all([
         )
     ).finally(() => browser.close())
 );
+
+manual_translations = {
+    'en': 'Manual',
+    'nl': 'Handleiding',
+    'fr': 'Manuel',
+    'de': 'Anleitung',
+    'es': 'Manual',
+    'se': 'Anvandarhandbok',
+}
+
+function createFrontPage(frontmatter, languages) {
+    // Combine all elements in the frontmatter into 1 dict
+    console.log(Object.assign({}, ...frontmatter.data.meta));
+
+    logoSVG = fs.readFile(
+        path.join(__dirname, '../vuepress/theme/images/victron-logo.svg')
+    )
+
+    html = `
+        <div class="page-break frontpage">
+            <table style="border: none !important">
+                    ${Object.keys(manual_translations).map(key => `<tr><td> ${manual_translations[key]} </td>
+                    <td class="label-cell"> <span class="rotated"> ${key} </span> </td></tr>`)}
+            </table>
+        </div>
+    `;
+
+    return html;
+
+}
