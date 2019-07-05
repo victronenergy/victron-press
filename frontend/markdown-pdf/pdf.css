@@ -33,10 +33,20 @@ footer {
     font-size: 9px;
     font-weight: 400;
     padding: 0.25cm 1cm;
-    text-align: right;
+    text-align: center;
     text-size-adjust: 100%;
     user-select: none;
     width: 100%;
+}
+
+footer > span{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+span.doc-title {
+    color: lightgray;
+    float: right;
 }
 
 p {
@@ -243,7 +253,6 @@ h4,
 h5,
 h6 {
     border: none;
-    /* font-weight: 300; */
     font-weight: 700;
     line-height: 1.4;
     margin: 20px 0 10px;
@@ -267,18 +276,15 @@ h3 {
 
 h4 {
     font-size: 13px;
-    /* font-weight: 700; */
     line-height: 1;
 }
 
 h5 {
     font-size: 12px;
-    /* font-weight: 700; */
 }
 
 h6 {
     font-size: 11px;
-    /* font-weight: 700; */
 }
 
 h1 .octicon-link,

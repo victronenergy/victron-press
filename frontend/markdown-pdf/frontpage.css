@@ -1,0 +1,63 @@
+.frontpage {
+    /*border-left: 10px solid blue;*/
+    height: 100%;
+}
+
+header .logo {
+    float: center;
+    height: 30px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.frontpage table {
+    border-collapse: separate;
+    border-spacing: 0 5px;
+}
+
+.frontpage table td {
+    text-align: right;
+    color: cornflowerblue;
+    border: none !important;
+}
+
+.label-cell {
+    background-color: #333333;
+    width: 10%;
+    text-align: center;
+    color: white;
+    text-transform: uppercase;
+}
+
+.rotated {
+    position: relative;
+    margin-left: 4px;
+    color: white;
+    transform-origin: right 10 0;
+    translate: 20 0;
+    transform: rotate(90deg);
+    float: left;
+}
+
+.title {
+    text-align: left;
+    color: cornflowerblue;
+
+    position:absolute;                  
+    bottom:0;                          
+    left:20;
+}
+
+.title > i {
+    font-size: 8px;
+}
+
+.qrcode {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+
+    height: 25%;
+    width: auto;
+}

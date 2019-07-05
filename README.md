@@ -55,6 +55,7 @@ The following environment variables should be provided (for example via the
   be the same repository that is checked out in `/data/docs`.
 - `GITHUB_REPO`. Required. The repository name containing the Markdown files.
 - `GITHUB_BRANCH`. Required. The branch name containing the Markdown files.
+- `BASE_URL`. Required. Base URL of where the documentation is located.
 - `SENTRY_DSN_FRONTEND`. Optional. Sentry DSN for logging errors that occur in the frontend.
 - `SENTRY_DSN_BACKEND`. Optional. Sentry DSN for logging errors that occur in the frontend.
 

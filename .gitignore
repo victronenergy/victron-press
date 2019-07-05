@@ -8,5 +8,7 @@
 /.php_cs.cache
 /.phpunit.result.cache
 /coverage.xml
+/docker-compose.yaml
+/docker-compose.yml
 .vscode/
 .DS_Store

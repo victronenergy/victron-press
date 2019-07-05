@@ -1,0 +1,91 @@
+body { 
+    font-size: 8px;
+    margin-right: 10mm;
+}
+
+header { 
+    font-size: 6px;
+}
+
+footer { 
+    font-size: 6px;
+    color: black;
+}
+
+div.sidebar {
+    position: fixed;
+    z-index: 1000;
+    top: 20%;
+    right: 0px; 
+    width: 50px; 
+    margin-top: 50px;
+    margin-bottom: auto;
+}
+
+table.sidebar {
+    text-align: center;
+    text-transform: uppercase;
+    margin-right: 5mm;
+    color: black;
+    transform-origin: right 10 0;
+    translate: 20 100;
+    transform:rotate(90deg);
+    float: left;
+}
+
+td.sidebar {
+    border: none;
+    background: lightgray;
+}
+
+td.sidebar.selected {
+    border: none;
+    background: gray;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    border: none;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 10px 0 10px;
+}
+
+h1 {
+    font-size: 14px;
+    line-height: 30px;
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 12px;
+    line-height: 25px;
+    break-before: page;
+}
+
+h3 {
+    font-size: 11px;
+    line-height: 20px;
+}
+
+h4 {
+    font-size: 10px;
+    line-height: 1;
+}
+
+h5 {
+    font-size: 9px;
+}
+
+h6 {
+    font-size: 8px;
+}
+
+.empty-page {
+    page-break-after: always;
+    visibility: hidden;
+}

@@ -32,7 +32,7 @@ RUN chown -R www-data:www-data frontend/ && \
 
 # Copy environment variables, for security filtered to only contain relevant values
 COPY .env ./
-RUN sed -i -E '/^(SENTRY_DSN_FRONTEND|GITHUB_USER|GITHUB_REPO|GITHUB_BRANCH)=/!d' .env
+RUN sed -i -E '/^(GITHUB_USER|GITHUB_REPO|GITHUB_BRANCH|BASE_URL|SENTRY_DSN_FRONTEND)=/!d' .env
 
 # Prime the cache by building a single documentation file that almost never changes
 COPY data/docs/README.md ./data/docs/README.md
