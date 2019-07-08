@@ -5,6 +5,7 @@
 
 body { /* loading in this css file means we're making a booklet, so change the font-size */
     font-size: 8px;
+    margin-right: 20mm;
 }
 
 header { /* loading in this css file means we're making a booklet, so change the font-size */
@@ -59,4 +60,28 @@ header .logo {
     position:absolute;                  
     bottom:0;                          
     left:20;
+}
+
+div.sidebar {
+    position: fixed;
+    right: 0;
+    margin-top: 35px;
+    margin-bottom: auto;
+}
+
+table.sidebar {
+    /* position: relative; */
+    text-align: center;
+    text-transform: uppercase;
+    margin-right: 5mm;
+    color: black;
+    transform-origin: right 10 0;
+    translate: 20 100;
+    transform:rotate(90deg);
+    float: left;
+}
+
+td.sidebar {
+    border: none;
+    background: lightgray;
 }

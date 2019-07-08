@@ -166,7 +166,16 @@ Promise.all([
                                     </head>
                                     <body>
                                         ${frontPage}
-                                        <div class="page-break"> ${html} </div> 
+                                        <div class="page-break"> 
+                                            ${html}
+                                            <div class="sidebar">
+                                                <table class="sidebar">
+                                                    <tr>
+                                                        ${languages.get(filePath).map(lang => `<td class="sidebar">${lang}</td>`).join('')}
+                                                    </tr>
+                                                </table>
+                                            </div> 
+                                        </div>
                                         ${otherLanguages}
                                     </body>
                                     </html>
@@ -182,7 +191,6 @@ Promise.all([
             )
         )
     ).finally(arg => {
-        //console.log(arg);
         browser.close();
     })
 );
@@ -225,7 +233,7 @@ async function renderPDF(browser, html, css, frontPageCSS, logoSVG, format='A4')
         format: format,
         margin: {
             top: '25mm',
-            right: '10mm',
+            right: '0mm',
             bottom: '25mm',
             left: '10mm',
         },
