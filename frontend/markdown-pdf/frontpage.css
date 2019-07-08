@@ -51,3 +51,12 @@ header .logo {
     transform: rotate(90deg);
     float: left;
 }
+
+.title {
+    text-align: left;
+    color: cornflowerblue;
+
+    position:absolute;                  
+    bottom:0;                          
+    left:20;
+}

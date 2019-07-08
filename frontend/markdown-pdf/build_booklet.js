@@ -58,6 +58,9 @@ const markdownitRenderer = new markdownit({
     .use(require('../markdown-it-plugins/video-thumb'));
 
 const args = process.argv.slice(2);
+
+var languages = new Map();
+
 Promise.all([
     fs.ensureDir(outputDir),
     globby(
@@ -122,6 +125,7 @@ Promise.all([
     Promise.all(
         filePaths.map(async filePath =>
             Promise.all([
+                console.log(filePath),
                 fs.ensureDir(path.dirname(path.join(outputDir, filePath))),
                 globby(
                     ['./*/' + filePath],
@@ -130,43 +134,28 @@ Promise.all([
                         gitignore: true
                     }
                 )
-            ]).then(([_, filePathss]) => 
+            ]).then(([,_, filePathss]) => 
                 Promise.all(
-                    filePathss.map(async filePathLang =>
+                    filePathss.map(async filePathLang => 
                         fs
                             .readFile(path.join(inputDir, filePathLang), 'utf8')
-                            .then(md => {
-                                const frontmatter = vuepressUtil.parseFrontmatter(
-                                    md
-                                );
-                                const html =
-                                    markdownitRenderer.render(frontmatter.content, {
-                                        basePath: inputDir,
-                                        selfPath: path.join(inputDir, filePath),
-                                    }) || '&nbsp;'; // Prevent puppeteer crash on empty body
-                                return html
-                            }),
+                            .then(md => generateHTMLFromMarkdown(md, filePathLang)),
                     )
-                ).then(htmls =>
+                ).then(otherLanguages =>
                     Promise.all([
                         fs
                             .readFile(path.join(inputDir, filePath), 'utf8')
-                            .then(md => {
+                            .then(async md => {
                                 const frontmatter = vuepressUtil.parseFrontmatter(
                                     md
                                 );
                                 const inferredTitle = vuepressUtil.inferTitle(
                                     frontmatter
                                 );
-                                const html =
-                                    markdownitRenderer.render(frontmatter.content, {
-                                        basePath: inputDir,
-                                        selfPath: path.join(inputDir, filePath),
-                                    }) || '&nbsp;'; // Prevent puppeteer crash on empty body
+                                const html = await generateHTMLFromMarkdown(md, filePath);
 
                                 // Put all HTML of the other languages in a separate div, so that we can have page breaks between them
-                                frontPage = createFrontPage(frontmatter, browser, css, fp_css, []);
-                                const langs = htmls.map(h => `<div class="page-break">${h}</div>`);
+                                frontPage = generateFrontPageHTML(frontmatter, /*browser, css, fp_css,*/ languages.get(filePath));
                                 return `
                                     <!DOCTYPE html>
                                     <html>
@@ -178,43 +167,12 @@ Promise.all([
                                     <body>
                                         ${frontPage}
                                         <div class="page-break"> ${html} </div> 
-                                        ${langs}
+                                        ${otherLanguages}
                                     </body>
                                     </html>
                                 `;
                             }),
-                        browser
-                            .newPage()
-                            .then(page =>
-                                page.emulateMedia('screen').then(() => page)
-                            ),
-                    ]).then(async ([html, page]) => {
-                        await page.setContent(html);
-                        return page.pdf({
-                            format: 'A6',
-                            margin: {
-                                top: '25mm',
-                                right: '10mm',
-                                bottom: '25mm',
-                                left: '10mm',
-                            },
-                            displayHeaderFooter: true,
-                            headerTemplate: `
-                                <style>${css}</style>
-                                <style>${frontPage}</style>
-                                <header>
-                                    <img src="data:image/svg+xml;base64,${logoSVG.toString(
-                                        'base64'
-                                    )}" class="logo" />
-                                </header>`,
-                            footerTemplate: `
-                                <style>${css}</style>
-                                <style>${frontPage}</style>
-                                <footer>
-                                    <span class="pageNumber"></span> / <span class="totalPages"></span>
-                                </footer>`,
-                        });
-                    }),
+                    ]).then(async html => renderPDF(browser, html, css, fp_css, logoSVG, 'A6')),
                 ).then(pdf => {
                     fs.writeFile( 
                         path.join(outputDir, filePath.replace('.md', '.pdf')),
@@ -223,21 +181,88 @@ Promise.all([
                 }),
             )
         )
-    ).finally(() => browser.close())
+    ).finally(arg => {
+        //console.log(arg);
+        browser.close();
+    })
 );
 
-manual_translations = {
-    'en': 'Manual',
-    'nl': 'Handleiding',
-    'fr': 'Manuel',
-    'de': 'Anleitung',
-    'es': 'Manual',
-    'se': 'Anvandarhandbok',
+async function generateHTMLFromMarkdown(md, filePath) {
+    const lang = filePath.split("/").length > 1 ? filePath.split("/")[0] : 'en';
+    const file = filePath.split("/").length > 1 ? filePath.split("/")[1] : filePath;
+    if (languages.has(file)) {
+        languages.get(file).push(lang);
+    } else {
+        languages.set(file, [lang]);
+    } 
+    const frontmatter = vuepressUtil.parseFrontmatter(
+        md
+    );
+    const html =
+        markdownitRenderer.render(frontmatter.content, {
+            basePath: inputDir,
+            selfPath: path.join(inputDir, filePath),
+        }) || '&nbsp;'; // Prevent puppeteer crash on empty body
+    
+    const result = `
+        <div class="page-break">
+            ${html}
+        </div>
+    `
+    return result;
 }
 
-function createFrontPage(frontmatter, languages) {
+async function renderPDF(browser, html, css, frontPageCSS, logoSVG, format='A4') {
+    const page = await browser
+        .newPage()
+        .then(page =>
+            page.emulateMedia('screen').then(() => page)
+        );
+    
+    await page.setContent(html);
+    
+    return page.pdf({
+        format: format,
+        margin: {
+            top: '25mm',
+            right: '10mm',
+            bottom: '25mm',
+            left: '10mm',
+        },
+        displayHeaderFooter: true,
+        headerTemplate: `
+            <style>${css}</style>
+            <style>${frontPageCSS}</style>
+            <header>
+                <img src="data:image/svg+xml;base64,${logoSVG.toString(
+                    'base64'
+                )}" class="logo" />
+            </header>`,
+        footerTemplate: `
+            <style>${css}</style>
+            <style>${frontPageCSS}</style>
+            <footer>
+                <span class="pageNumber"></span> / <span class="totalPages"></span>
+            </footer>`,
+    });
+}
+
+manual_translations = {
+    'en': [1, 'Manual'],
+    'nl': [2, 'Handleiding'],
+    'fr': [3, 'Manuel'],
+    'de': [4, 'Anleitung'],
+    'es': [5, 'Manual'],
+    'se': [6, 'Anvandarhandbok'],
+}
+
+function generateFrontPageHTML(frontmatter, languages) {
     // Combine all elements in the frontmatter into 1 dict
-    console.log(Object.assign({}, ...frontmatter.data.meta));
+    var meta = {};
+    frontmatter.data.meta.forEach(elem => {
+        meta[elem.name] = elem.content;
+    });
+    console.log(meta)
 
     logoSVG = fs.readFile(
         path.join(__dirname, '../vuepress/theme/images/victron-logo.svg')
@@ -246,9 +271,13 @@ function createFrontPage(frontmatter, languages) {
     html = `
         <div class="page-break frontpage">
             <table style="border: none !important">
-                    ${Object.keys(manual_translations).map(key => `<tr><td> ${manual_translations[key]} </td>
-                    <td class="label-cell"> <span class="rotated"> ${key} </span> </td></tr>`)}
+                    ${languages.map(key => `<tr><td> ${manual_translations[key]} </td>
+                    <td class="label-cell"> <span class="rotated"> ${key} </span> </td></tr>`).join('')}
             </table>
+            <div class="title">
+                <b>${meta.generic_name}</b><br>
+                ${meta.product_nos.join('<br>')}
+            </div>
         </div>
     `;
 
