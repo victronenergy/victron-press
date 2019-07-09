@@ -6,6 +6,8 @@ const markdownit = require('markdown-it');
 const path = require('path');
 const puppeteer = require('puppeteer');
 const vuepressUtil = require('vuepress/lib/util');
+const hummus = require('hummus');
+const memoryStreams = require('memory-streams');
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', function(err, promise) {
@@ -64,7 +66,7 @@ var languages = new Map();
 Promise.all([
     fs.ensureDir(outputDir),
     globby(
-        [...(args.length ? args : [`*.md`]), `!README.md`, `!.vuepress`],
+        [...(args.length ? args : [`**/*.md`]), `!README.md`, `!.vuepress`],
         {
             cwd: inputDir,
             gitignore: true,
@@ -118,94 +120,85 @@ Promise.all([
         `
     ),
     fs.readFile(path.join(__dirname, 'frontpage.css')),
+    fs.readFile(path.join(__dirname, 'booklet.css')),
     fs.readFile(
         path.join(__dirname, '../vuepress/theme/images/victron-logo.svg')
     ),
-]).then(([_, filePaths, browser, css, fp_css, logoSVG]) =>
+]).then(([_, filePaths, browser, css, fpCSS, bookletCSS, logoSVG]) =>
     Promise.all(
         filePaths.map(async filePath =>
-            Promise.all([
-                console.log(filePath),
-                fs.ensureDir(path.dirname(path.join(outputDir, filePath))),
-                globby(
-                    ['./*/' + filePath],
-                    {
-                        cwd: inputDir,
-                        gitignore: true
-                    }
-                )
-            ]).then(([,_, filePathss]) => 
-                Promise.all(
-                    filePathss.map(async filePathLang => 
-                        fs
-                            .readFile(path.join(inputDir, filePathLang), 'utf8')
-                            .then(md => generateHTMLFromMarkdown(md, filePathLang)),
-                    )
-                ).then(otherLanguages =>
-                    Promise.all([
+                Promise.all([
                         fs
                             .readFile(path.join(inputDir, filePath), 'utf8')
-                            .then(async md => {
-                                const frontmatter = vuepressUtil.parseFrontmatter(
-                                    md
-                                );
-                                const inferredTitle = vuepressUtil.inferTitle(
-                                    frontmatter
-                                );
-                                const html = await generateHTMLFromMarkdown(md, filePath);
-
-                                // Put all HTML of the other languages in a separate div, so that we can have page breaks between them
-                                frontPage = generateFrontPageHTML(frontmatter, /*browser, css, fp_css,*/ languages.get(filePath));
-                                return `
-                                    <!DOCTYPE html>
-                                    <html>
-                                    <head>
-                                        <title>${inferredTitle}</title>
-                                        <style>${css}</style>
-                                        <style>${fp_css}</style>
-                                    </head>
-                                    <body>
-                                        ${frontPage}
-                                        <div class="page-break"> 
-                                            ${html}
-                                            <div class="sidebar">
-                                                <table class="sidebar">
-                                                    <tr>
-                                                        ${languages.get(filePath).map(lang => `<td class="sidebar">${lang}</td>`).join('')}
-                                                    </tr>
-                                                </table>
-                                            </div> 
-                                        </div>
-                                        ${otherLanguages}
-                                    </body>
-                                    </html>
-                                `;
-                            }),
-                    ]).then(async html => renderPDF(browser, html, css, fp_css, logoSVG, 'A6')),
-                ).then(pdf => {
-                    fs.writeFile( 
-                        path.join(outputDir, filePath.replace('.md', '.pdf')),
-                        pdf
-                    );
-                }),
-            )
+                            .then(md => generateBodyFromMarkdown(md, filePath))
+                            .then(html => generatePDF(filePath, browser, html, css, logoSVG)),
+                ]).then(pdfs =>
+                    Promise.all(
+                        pdfs.map(pdf => 
+                            fs.writeFile( 
+                                path.join(outputDir, filePath.replace('.md', '.pdf')),
+                                pdf
+                            )
+                        ),
+                    )
+                )
         )
-    ).finally(arg => {
+    ).then(() => 
+    Promise.all(
+        Array.from(languages.keys(), async manual => {
+            if (fs.existsSync(path.join(inputDir, manual))) {
+                console.log(`${path.join(inputDir, manual)} exists`);
+                const frontmatter = vuepressUtil.parseFrontmatter(
+                    await fs.readFile(path.join(inputDir, manual), 'utf8')
+                );
+
+                // Combine all elements in the frontmatter into 1 dict
+                var meta = {};
+                if (frontmatter.data.meta) {
+                    frontmatter.data.meta.forEach(elem => {
+                        meta[elem.name] = elem.content;
+                    });
+                } else {
+                    return;
+                }
+
+                if (!meta.generate_booklet) {
+                    return;
+                }
+            } else {
+                console.log(`${path.join(inputDir, manual)} does not exist`);
+                return;
+            }
+
+            console.log(`Generating booklet for ${manual}`);
+
+            const langs = Array.from(languages.get(manual).keys());
+            const frontPage = generateFrontPagePDF(browser, manual, css, fpCSS, logoSVG, langs);
+            
+            var sidebarPDFs = new Map();
+            languages.get(manual).forEach((html, lang) => sidebarPDFs.set(lang, generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, langs)));
+            var noSidebarPDFs = new Map();
+            languages.get(manual).forEach((html, lang) => noSidebarPDFs.set(lang, generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, langs, false)));
+            
+            var pdfs = await mergeLeftRight(sidebarPDFs, noSidebarPDFs);
+            pdfs.set('fp', frontPage);
+
+            const booklet = await mergePDFs(...Array.from(pdfs.values()));
+            fs.writeFile(
+                path.join(outputDir, "manual_" + manual.replace(".md", ".pdf")),
+                booklet
+            )
+        })
+    )).finally(() => {
         browser.close();
     })
 );
 
-async function generateHTMLFromMarkdown(md, filePath) {
-    const lang = filePath.split("/").length > 1 ? filePath.split("/")[0] : 'en';
-    const file = filePath.split("/").length > 1 ? filePath.split("/")[1] : filePath;
-    if (languages.has(file)) {
-        languages.get(file).push(lang);
-    } else {
-        languages.set(file, [lang]);
-    } 
+async function generateBodyFromMarkdown(md, filePath) {
     const frontmatter = vuepressUtil.parseFrontmatter(
         md
     );
+
     const html =
         markdownitRenderer.render(frontmatter.content, {
             basePath: inputDir,
@@ -217,10 +210,44 @@ async function generateHTMLFromMarkdown(md, filePath) {
             ${html}
         </div>
     `
+    // Add generated HTML to a dict
+    const lang = filePath.split("/").length > 1 ? filePath.split("/")[0] : 'en';
+    const file = filePath.split("/").length > 1 ? filePath.split("/")[1] : filePath;
+    if (!languages.has(file)) {
+        languages.set(file, new Map());
+    } 
+    languages.get(file).set(lang, result);
+
     return result;
 }
 
-async function renderPDF(browser, html, css, frontPageCSS, logoSVG, format='A4') {
+async function generatePDF(filePath, browser, html, css, logoSVG) {
+    const frontmatter = vuepressUtil.parseFrontmatter(
+        await fs.readFile(path.join(inputDir, filePath), 'utf8')
+    );
+    const inferredTitle = vuepressUtil.inferTitle(
+        frontmatter
+    );
+
+    // Put all HTML of the other languages in a separate div, so that we can have page breaks between them
+    // frontPage = generateFrontPageHTML(frontmatter, /*browser, css, fp_css,*/ languages.get(filePath));
+    return renderPDF(browser, logoSVG, `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${inferredTitle}</title>
+            <style>${css}</style>
+        </head>
+            <body>
+                <div class="page-break"> 
+                    ${html}
+                </div>
+            </body>
+        </html>
+    `, css);
+}
+
+async function renderPDF(browser, logoSVG, html, css, fp_css= '', format='A4', margin={top: '25mm', right: '10mm', left: '10mm', bottom: '25mm'}) {
     const page = await browser
         .newPage()
         .then(page =>
@@ -231,16 +258,11 @@ async function renderPDF(browser, html, css, frontPageCSS, logoSVG, format='A4')
     
     return page.pdf({
         format: format,
-        margin: {
-            top: '25mm',
-            right: '0mm',
-            bottom: '25mm',
-            left: '10mm',
-        },
+        margin: margin,
         displayHeaderFooter: true,
         headerTemplate: `
             <style>${css}</style>
-            <style>${frontPageCSS}</style>
+            <style>${fp_css}</style>
             <header>
                 <img src="data:image/svg+xml;base64,${logoSVG.toString(
                     'base64'
@@ -248,7 +270,7 @@ async function renderPDF(browser, html, css, frontPageCSS, logoSVG, format='A4')
             </header>`,
         footerTemplate: `
             <style>${css}</style>
-            <style>${frontPageCSS}</style>
+            <style>${fp_css}</style>
             <footer>
                 <span class="pageNumber"></span> / <span class="totalPages"></span>
             </footer>`,
@@ -264,31 +286,144 @@ manual_translations = {
     'se': [6, 'Anvandarhandbok'],
 }
 
-function generateFrontPageHTML(frontmatter, languages) {
+async function generateFrontPagePDF(browser, filePath, css, fp_css, logoSVG, languages) {
+    const frontmatter = vuepressUtil.parseFrontmatter(
+        await fs.readFile(path.join(inputDir, filePath), 'utf8')
+    );
+
     // Combine all elements in the frontmatter into 1 dict
     var meta = {};
     frontmatter.data.meta.forEach(elem => {
         meta[elem.name] = elem.content;
     });
-    console.log(meta)
 
-    logoSVG = fs.readFile(
-        path.join(__dirname, '../vuepress/theme/images/victron-logo.svg')
-    )
+    const inferredTitle = vuepressUtil.inferTitle(
+        frontmatter
+    );
 
-    html = `
-        <div class="page-break frontpage">
-            <table style="border: none !important">
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>${inferredTitle}</title>
+        <style>${css}</style>
+        <style>${fp_css}</style>
+    </head>
+        <body>
+            <div class="page-break frontpage">
+                <table style="border: none !important">
                     ${languages.map(key => `<tr><td> ${manual_translations[key]} </td>
                     <td class="label-cell"> <span class="rotated"> ${key} </span> </td></tr>`).join('')}
-            </table>
-            <div class="title">
-                <b>${meta.generic_name}</b><br>
-                ${meta.product_nos.join('<br>')}
+                </table>
+                <div class="title">
+                    <b>${meta.generic_name}</b><br>
+                    ${meta.product_nos.join('<br>')}
+                </div>
             </div>
-        </div>
+        </body>
+    </html>
     `;
 
-    return html;
+    return renderPDF(browser, logoSVG, html, css, fp_css, 'A6', {top: '25mm', right: '5mm', left: '5mm', bottom: '5mm'});
+}
 
+async function generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, languages, display_sidebar = true) {
+
+    const tmp = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>${css}</style>
+        <style>${bookletCSS}</style>
+    </head>
+    <body>
+        <div class="page-break">
+            <div class="sidebar" ${display_sidebar ? 'style=""' : 'style="display: none !important"'}>
+                <table class="sidebar">
+                    <tr>
+                        ${languages.map(lang_ => {
+                            if (lang_ === lang) {
+                                return `<td class="sidebar selected">${lang_}</td>`
+                            } else {
+                                return `<td class="sidebar">${lang_}</td>`
+                            }
+                        }).join('')}
+                    </tr>
+                </table>
+            </div>  
+            ${html}
+        </div>
+    </body>
+    </html>
+    `;
+
+    return renderPDF(browser, logoSVG, tmp, css, bookletCSS, 'A6', {top: '25mm', right: '0mm', left: '10mm', bottom: '25mm'});
+}
+
+async function mergeLeftRight(sidebarPDFs, noSidebarPDFs, swith_LR=false) {
+    var result = new Map();
+    for (key of sidebarPDFs.keys()) {
+        if (swith_LR) {
+            var left = sidebarPDFs.get(key);
+            var right = noSidebarPDFs.get(key);
+        } else {
+            var left = noSidebarPDFs.get(key);
+            var right = sidebarPDFs.get(key);
+        }
+
+        var outStream = new memoryStreams.WritableStream();
+
+        try {
+            console.log(key);
+            console.log(sidebarPDFs);
+            console.log(noSidebarPDFs);
+            console.log(await left);
+            console.log(await right);
+            var pdfStreamLeft = new hummus.PDFRStreamForBuffer(await left);
+            var pdfStreamRight = new hummus.PDFRStreamForBuffer(await right);
+            var pdfWriter = hummus.createWriter(new hummus.PDFStreamForResponse(outStream));
+            
+            var leftCopyingContext = pdfWriter.createPDFCopyingContext(pdfStreamLeft);
+            var rightCopyingContext = pdfWriter.createPDFCopyingContext(pdfStreamRight);
+
+            for (var i = 0; i < leftCopyingContext.getSourceDocumentParser().getPagesCount(); i++) {
+                if (i % 2 == 0) {
+                    leftCopyingContext.appendPDFPageFromPDF(i);
+                } else {
+                    rightCopyingContext.appendPDFPageFromPDF(i);
+                }
+            }
+
+            pdfWriter.end();
+            var newBuffer = outStream.toBuffer();
+            outStream.end();
+
+            result.set(key, newBuffer);
+        } catch (e) {
+            outStream.end();
+            throw new Error("Error during PDF zip: " + e);
+        }
+        return result;
+    }
+}
+
+async function mergePDFs(...pdfBuffers) {
+    var outStream = new memoryStreams.WritableStream();
+
+    try {
+        var pdfStreams = pdfBuffers.map(async buf => new hummus.PDFRStreamForBuffer(await buf));
+        var firstStream = await pdfStreams[0];
+        var pdfWriter = hummus.createWriterToModify(firstStream, new hummus.PDFStreamForResponse(outStream));
+        for (var i = 1; i < pdfStreams.length; i++) {
+            pdfWriter.appendPDFPagesFromPDF(await pdfStreams[i]);
+        }
+        pdfWriter.end();
+        var newBuffer = outStream.toBuffer();
+        outStream.end();
+
+        return newBuffer;
+    } catch (e) {
+        outStream.end();
+        throw new Error("Error during PDF combination: " + e);
+    }
 }
