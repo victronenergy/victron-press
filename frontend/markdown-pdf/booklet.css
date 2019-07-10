@@ -9,6 +9,17 @@ header { /* loading in this css file means we're making a booklet, so change the
 
 footer { /* loading in this css file means we're making a booklet, so change the font-size */
     font-size: 6px;
+    color: black;
+}
+
+footer > span{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+span.doc-title {
+    color: lightgray;
+    float: right;
 }
 
 div.sidebar {
@@ -53,7 +64,7 @@ h6 {
     /* font-weight: 300; */
     font-weight: 700;
     line-height: 1.4;
-    margin: 20px 0 10px;
+    margin: 10px 0 10px;
 }
 
 h1 {
