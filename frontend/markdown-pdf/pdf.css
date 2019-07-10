@@ -480,10 +480,12 @@ kbd {
 
 h1 {
     counter-reset: h2;
+    break-after: avoid;
 }
 
 h2 {
     counter-reset: h3;
+    break-before: page;
 }
 
 h3 {
