@@ -8,6 +8,7 @@ const puppeteer = require('puppeteer');
 const vuepressUtil = require('vuepress/lib/util');
 const hummus = require('hummus');
 const memoryStreams = require('memory-streams');
+var util = require('util');
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', function(err, promise) {
@@ -62,6 +63,15 @@ const markdownitRenderer = new markdownit({
 const args = process.argv.slice(2);
 
 var languages = new Map();
+
+var ordering = [
+    'fp',
+    'en',
+    'es',
+    'de',
+    'fr',
+    'nl',
+]
 
 Promise.all([
     fs.ensureDir(outputDir),
@@ -132,6 +142,7 @@ Promise.all([
                             .readFile(path.join(inputDir, filePath), 'utf8')
                             .then(md => generateBodyFromMarkdown(md, filePath))
                             .then(html => generatePDF(filePath, browser, html, css, logoSVG)),
+                        fs.ensureDir(path.join(outputDir, ...filePath.split("/").slice(0, -1))), // Ensure the necessary output directories exist
                 ]).then(pdfs =>
                     Promise.all(
                         pdfs.map(pdf => 
@@ -147,7 +158,6 @@ Promise.all([
     Promise.all(
         Array.from(languages.keys(), async manual => {
             if (fs.existsSync(path.join(inputDir, manual))) {
-                console.log(`${path.join(inputDir, manual)} exists`);
                 const frontmatter = vuepressUtil.parseFrontmatter(
                     await fs.readFile(path.join(inputDir, manual), 'utf8')
                 );
@@ -166,24 +176,41 @@ Promise.all([
                     return;
                 }
             } else {
-                console.log(`${path.join(inputDir, manual)} does not exist`);
                 return;
             }
 
             console.log(`Generating booklet for ${manual}`);
 
-            const langs = Array.from(languages.get(manual).keys());
+            const langs = ordering.filter(value => languages.get(manual).has(value));
             const frontPage = generateFrontPagePDF(browser, manual, css, fpCSS, logoSVG, langs);
+            const emptyPage = renderEmptyPage(browser, 'A6');
             
             var sidebarPDFs = new Map();
-            languages.get(manual).forEach((html, lang) => sidebarPDFs.set(lang, generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, langs)));
             var noSidebarPDFs = new Map();
-            languages.get(manual).forEach((html, lang) => noSidebarPDFs.set(lang, generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, langs, false)));
-            
-            var pdfs = await mergeLeftRight(sidebarPDFs, noSidebarPDFs);
-            pdfs.set('fp', frontPage);
+            var pageCount = 1;
+            for (const lang of langs) {
+                const html = languages.get(manual).get(lang);
 
-            const booklet = await mergePDFs(...Array.from(pdfs.values()));
+                sidebarPDFs.set(lang, await generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, langs, true, pageCount));
+                noSidebarPDFs.set(lang, await generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, langs, false, pageCount));
+
+                pageCount += await getPageCount(sidebarPDFs.get(lang));
+                if (pageCount % 2 == 0) pageCount += 1;
+            }
+            
+            var merged = await mergeLeftRight(sidebarPDFs, noSidebarPDFs);
+            pdfs = [await frontPage, await emptyPage];
+            for (key of ordering) {
+                if (merged.has(key)) {
+                    const mergedPDF = merged.get(key)
+                    pdfs.push(mergedPDF);
+                    if ((await getPageCount(mergedPDF)) % 2 == 1) {
+                        pdfs.push(emptyPage);
+                    }
+                }
+            }
+
+            const booklet = await mergePDFs(...pdfs);
             fs.writeFile(
                 path.join(outputDir, "manual_" + manual.replace(".md", ".pdf")),
                 booklet
@@ -247,7 +274,7 @@ async function generatePDF(filePath, browser, html, css, logoSVG) {
     `, css);
 }
 
-async function renderPDF(browser, logoSVG, html, css, fp_css= '', format='A4', margin={top: '25mm', right: '10mm', left: '10mm', bottom: '25mm'}) {
+async function renderPDF(browser, logoSVG, html, css, fp_css= '', format='A4', margin={top: '25mm', right: '10mm', left: '10mm', bottom: '25mm'}, range='1-') {
     const page = await browser
         .newPage()
         .then(page =>
@@ -260,6 +287,7 @@ async function renderPDF(browser, logoSVG, html, css, fp_css= '', format='A4', m
         format: format,
         margin: margin,
         displayHeaderFooter: true,
+        pageRanges: range,
         headerTemplate: `
             <style>${css}</style>
             <style>${fp_css}</style>
@@ -272,18 +300,18 @@ async function renderPDF(browser, logoSVG, html, css, fp_css= '', format='A4', m
             <style>${css}</style>
             <style>${fp_css}</style>
             <footer>
-                <span class="pageNumber"></span> / <span class="totalPages"></span>
+                <span class="pageNumber"></span>
             </footer>`,
     });
 }
 
 manual_translations = {
-    'en': [1, 'Manual'],
-    'nl': [2, 'Handleiding'],
-    'fr': [3, 'Manuel'],
-    'de': [4, 'Anleitung'],
-    'es': [5, 'Manual'],
-    'se': [6, 'Anvandarhandbok'],
+    'en': 'Manual',
+    'nl': 'Handleiding',
+    'fr': 'Manuel',
+    'de': 'Anleitung',
+    'es': 'Manual',
+    'se': 'Anvandarhandbok',
 }
 
 async function generateFrontPagePDF(browser, filePath, css, fp_css, logoSVG, languages) {
@@ -327,7 +355,19 @@ async function generateFrontPagePDF(browser, filePath, css, fp_css, logoSVG, lan
     return renderPDF(browser, logoSVG, html, css, fp_css, 'A6', {top: '25mm', right: '5mm', left: '5mm', bottom: '5mm'});
 }
 
-async function generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, languages, display_sidebar = true) {
+async function renderEmptyPage(browser, format='A4') {
+    const page = await browser
+        .newPage()
+        .then(page =>
+            page.emulateMedia('screen').then(() => page)
+        );
+    
+    return page.pdf({
+        format: format
+    });
+}
+
+async function generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, languages, display_sidebar = true, pageNumber=10) {
 
     const tmp = `
     <!DOCTYPE html>
@@ -337,7 +377,8 @@ async function generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, la
         <style>${bookletCSS}</style>
     </head>
     <body>
-        <div class="page-break">
+        ${[...Array(pageNumber).keys()].map(() => `<div class="empty-page">empty</div>`)}
+        <div class="">
             <div class="sidebar" ${display_sidebar ? 'style=""' : 'style="display: none !important"'}>
                 <table class="sidebar">
                     <tr>
@@ -357,28 +398,28 @@ async function generateBooklet(browser, html, css, bookletCSS, logoSVG, lang, la
     </html>
     `;
 
-    return renderPDF(browser, logoSVG, tmp, css, bookletCSS, 'A6', {top: '25mm', right: '0mm', left: '10mm', bottom: '25mm'});
+    return renderPDF(browser, logoSVG, tmp, css, bookletCSS, 'A6', {top: '25mm', right: '0mm', left: '10mm', bottom: '25mm'}, range=`${pageNumber + 1}-`);
+}
+
+async function getPageCount(pdf) {
+    var pdfStream = hummus.createReader(new hummus.PDFRStreamForBuffer(await pdf));
+    return pdfStream.getPagesCount()
 }
 
 async function mergeLeftRight(sidebarPDFs, noSidebarPDFs, swith_LR=false) {
     var result = new Map();
     for (key of sidebarPDFs.keys()) {
         if (swith_LR) {
-            var left = sidebarPDFs.get(key);
-            var right = noSidebarPDFs.get(key);
-        } else {
             var left = noSidebarPDFs.get(key);
             var right = sidebarPDFs.get(key);
+        } else {
+            var left = sidebarPDFs.get(key);
+            var right = noSidebarPDFs.get(key);
         }
 
         var outStream = new memoryStreams.WritableStream();
 
         try {
-            console.log(key);
-            console.log(sidebarPDFs);
-            console.log(noSidebarPDFs);
-            console.log(await left);
-            console.log(await right);
             var pdfStreamLeft = new hummus.PDFRStreamForBuffer(await left);
             var pdfStreamRight = new hummus.PDFRStreamForBuffer(await right);
             var pdfWriter = hummus.createWriter(new hummus.PDFStreamForResponse(outStream));
@@ -403,8 +444,9 @@ async function mergeLeftRight(sidebarPDFs, noSidebarPDFs, swith_LR=false) {
             outStream.end();
             throw new Error("Error during PDF zip: " + e);
         }
-        return result;
     }
+
+    return result;
 }
 
 async function mergePDFs(...pdfBuffers) {

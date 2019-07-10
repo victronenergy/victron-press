@@ -87,3 +87,5 @@ h6 {
     font-size: 8px;
     /* font-weight: 700; */
 }
+
+.empty-page { page-break-after: always; visibility: hidden; }
