@@ -480,12 +480,16 @@ kbd {
 
 h1 {
     counter-reset: h2;
-    break-after: avoid;
 }
 
-h2 {
+h2:nth-child(1n+1) {
     counter-reset: h3;
     break-before: page;
+}
+
+h2:nth-child(0n+1) {
+    counter-reset: h3;
+    break-before: avoid !important;
 }
 
 h3 {
