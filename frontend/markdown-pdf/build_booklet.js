@@ -570,6 +570,7 @@ async function generateBooklet(
     pageNumber = 10
 ) {
     // Generate the HTML for the content of the booklet
+    console.log(html);
     const content = `
     <!DOCTYPE html>
     <html>
