@@ -11,3 +11,4 @@
 .vscode/
 .DS_Store
 docker-compose.yaml
+docker-compose.yml
