@@ -492,14 +492,9 @@ h1 {
     counter-reset: h2;
 }
 
-h2:nth-child(1n+1) {
+h2 {
     counter-reset: h3;
     break-before: page;
-}
-
-h2:nth-child(0n+1) {
-    counter-reset: h3;
-    break-before: avoid !important;
 }
 
 h3 {
