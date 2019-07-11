@@ -58,7 +58,8 @@ export default {
                 get language() {
                     return self.$lang ? self.$lang.replace('-', '_') : 'en_US';
                 },
-                exts: ['scrollSync', 'table'],
+                // exts: ['scrollSync', 'table'],
+                exts: ['table'],
                 hooks: {
                     addImageBlobHook: function(blob, callback) {
                         var reader = new FileReader();
@@ -130,7 +131,7 @@ export default {
 
     beforeMount() {
         // Load TUI.Editor plugins
-        import('tui-editor/dist/tui-editor-extScrollSync.js');
+        // import('tui-editor/dist/tui-editor-extScrollSync.js');
         import('tui-editor/dist/tui-editor-extTable.js');
 
         // Load markdown-it plugins (to be attached later in onEditorLoad)
