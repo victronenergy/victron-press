@@ -39,6 +39,16 @@ footer {
     width: 100%;
 }
 
+footer > span{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+span.doc-title {
+    color: lightgray;
+    float: right;
+}
+
 p {
     margin: 0 0 10px;
 }

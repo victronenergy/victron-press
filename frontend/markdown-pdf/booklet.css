@@ -12,16 +12,6 @@ footer { /* loading in this css file means we're making a booklet, so change the
     color: black;
 }
 
-footer > span{
-    margin-left: auto;
-    margin-right: auto;
-}
-
-span.doc-title {
-    color: lightgray;
-    float: right;
-}
-
 div.sidebar {
     position: fixed;
     z-index: 1000;
