@@ -122,7 +122,6 @@ Promise.all([
                     ? ['--no-sandbox']
                     : []
             ),
-        //devtools: true
     }),
     Promise.all([
         fs.readFile(path.join(__dirname, 'pdf.css')),
@@ -196,7 +195,7 @@ Promise.all([
             Promise.all(
                 // Loop over all distinct markdown files
                 Array.from(languages.keys(), async manual => {
-                    // Create variable to store config options of this manual 
+                    // Create variable to store config options of this manual
                     let config = {};
                     // Check whether the markdown file exists in the root folder
                     if (fs.existsSync(path.join(inputDir, manual))) {
