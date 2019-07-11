@@ -1,13 +1,13 @@
-body { /* loading in this css file means we're making a booklet, so change the font-size */
+body { 
     font-size: 8px;
     margin-right: 10mm;
 }
 
-header { /* loading in this css file means we're making a booklet, so change the font-size */
+header { 
     font-size: 6px;
 }
 
-footer { /* loading in this css file means we're making a booklet, so change the font-size */
+footer { 
     font-size: 6px;
     color: black;
 }
