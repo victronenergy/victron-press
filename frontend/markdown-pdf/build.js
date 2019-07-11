@@ -34,9 +34,9 @@ const markdownitRenderer = new markdownit({
     .use(require('markdown-it-emoji'))
     .use(require('markdown-it-anchor'), {
         slugify: require('vuepress/lib/markdown/slugify'),
-        permalink: true,
+        permalink: false,
         permalinkBefore: true,
-        permalinkSymbol: '',
+        permalinkSymbol: '#',
     })
     .use(require('markdown-it-table-of-contents'), {
         slugify: require('vuepress/lib/markdown/slugify'),
