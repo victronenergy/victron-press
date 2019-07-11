@@ -196,7 +196,7 @@ Promise.all([
                 // Loop over all distinct markdown files
                 Array.from(languages.keys(), async manual => {
                     // Create variable to store config options of this manual
-                    let config = {};
+                    let booklet_config = {};
                     // Check whether the markdown file exists in the root folder
                     if (fs.existsSync(path.join(inputDir, manual))) {
                         // Parse Frontmatter for config extraction
@@ -210,7 +210,7 @@ Promise.all([
                         // Combine all config elements in the frontmatter into 1 dict
                         if (frontmatter.data.config) {
                             frontmatter.data.config.forEach(elem => {
-                                config[elem.name] = elem.content;
+                                booklet_config[elem.name] = elem.content;
                             });
                         } else {
                             // If there is no config, this md file does not need to be converted to a booklet
@@ -218,7 +218,7 @@ Promise.all([
                         }
 
                         // If we don't need to generate a booklet for this md file, skip this file
-                        if (!config.generate_booklet) {
+                        if (!booklet_config.generate_booklet) {
                             return;
                         }
                     } else {
@@ -230,18 +230,20 @@ Promise.all([
 
                     // Create a booklet for each language set in the frontmatter
                     return Promise.all(
-                        Array.from(Object.keys(config.languages)).map(
+                        Array.from(Object.keys(booklet_config.languages)).map(
                             async set => {
                                 // Create an array with the different languages + ordering for this booklet
                                 const langs = ordering.filter(value => {
                                     return (
                                         languages.get(manual).has(value) &&
-                                        config.languages[set].includes(value)
+                                        booklet_config.languages[set].includes(
+                                            value
+                                        )
                                     );
                                 });
 
                                 // Print a warning to console.error when a language is specified in frontmatter, but no html is generated for that language.
-                                config.languages[set].forEach(lang => {
+                                booklet_config.languages[set].forEach(lang => {
                                     if (!languages.get(manual).has(lang)) {
                                         console.error(
                                             `Language ${lang} is specified in front matter of ${manual}, but cannot find markdown file ${lang}/${manual}`
@@ -281,7 +283,7 @@ Promise.all([
                                         lang,
                                         await generateBooklet(
                                             browser,
-                                            config.generic_name,
+                                            booklet_config.generic_name,
                                             html,
                                             css,
                                             bookletCSS,
@@ -298,7 +300,7 @@ Promise.all([
                                         lang,
                                         await generateBooklet(
                                             browser,
-                                            config.generic_name,
+                                            booklet_config.generic_name,
                                             html,
                                             css,
                                             bookletCSS,
@@ -526,9 +528,9 @@ async function generateFrontPagePDF(
     );
 
     // Combine all config elements in the frontmatter into 1 object
-    let config = {};
+    let booklet_config = {};
     frontmatter.data.config.forEach(elem => {
-        config[elem.name] = elem.content;
+        booklet_config[elem.name] = elem.content;
     });
 
     // Infer the title of the front page
@@ -560,9 +562,9 @@ async function generateFrontPagePDF(
                     }
                 </table>
                 <div class="title">
-                    <b>${config.generic_name}</b><br>
+                    <b>${booklet_config.generic_name}</b><br>
                     <i>${moment().format('YYYY-MM-MM hh:mm:ss')}</i><br>
-                    ${config.product_nos.join('<br>')}
+                    ${booklet_config.product_nos.join('<br>')}
                 </div>
                 <img src="${qrCode}" class="qrcode" />
             </div>
