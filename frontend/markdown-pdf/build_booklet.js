@@ -8,6 +8,7 @@ const puppeteer = require('puppeteer');
 const vuepressUtil = require('vuepress/lib/util');
 const hummus = require('hummus');
 const memoryStreams = require('memory-streams');
+var QRCode = require('qrcode');
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', function(err, promise) {
@@ -204,7 +205,8 @@ Promise.all([
                         css,
                         fpCSS,
                         logoSVG,
-                        langs
+                        langs,
+                        meta.url
                     );
 
                     //  Create an empty map to store, per language, generated PDF's with and without sidebar
@@ -458,7 +460,8 @@ async function generateFrontPagePDF(
     css,
     fp_css,
     logoSVG,
-    languages
+    languages,
+    url='google.com'
 ) {
     // Parse the frontmatter of the markdown file
     const frontmatter = vuepressUtil.parseFrontmatter(
@@ -473,6 +476,10 @@ async function generateFrontPagePDF(
 
     // Infer the title of the front page
     const inferredTitle = vuepressUtil.inferTitle(frontmatter);
+
+    // Generate QR code with link to online documentation
+    const qrCode = await QRCode.toDataURL(url);
+    console.log(qrCode);
 
     // Generate the HTML for the frontpage of the booklet
     const html = `
@@ -500,6 +507,7 @@ async function generateFrontPagePDF(
                     <b>${meta.generic_name}</b><br>
                     ${meta.product_nos.join('<br>')}
                 </div>
+                <img src="${qrCode}" class="qrcode" />
             </div>
         </body>
     </html>
@@ -570,7 +578,6 @@ async function generateBooklet(
     pageNumber = 10
 ) {
     // Generate the HTML for the content of the booklet
-    console.log(html);
     const content = `
     <!DOCTYPE html>
     <html>
