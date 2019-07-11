@@ -49,6 +49,10 @@ header .logo {
     left:20;
 }
 
+.title > i {
+    font-size: 8px;
+}
+
 .qrcode {
     position: absolute;
     bottom: 20px;
