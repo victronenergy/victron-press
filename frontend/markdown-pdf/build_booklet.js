@@ -84,6 +84,10 @@ const manual_translations = {
 // Define the ordering of the pages in the same ordering as the mapping above
 var ordering = Array.from(Object.keys(manual_translations));
 
+var DOCS_BASE_URL = process.env.DOCS_BASE_URL
+    ? process.env.DOCS_BASE_URL
+    : 'https://docs.victronenergy.com/';
+
 Promise.all([
     fs.ensureDir(outputDir),
     globby(
@@ -157,7 +161,7 @@ Promise.all([
                     ),
                 fs.ensureDir(
                     // Ensure the necessary output directories exist
-                    path.join(outputDir, ...filePath.split('/').slice(0, -1))
+                    path.join(outputDir, path.dirname(filePath))
                 ),
             ]).then(pdfs =>
                 Promise.all([
@@ -181,7 +185,7 @@ Promise.all([
                 Array.from(languages.keys(), async manual => {
                     // Check whether the markdown file exists in the root folder
                     if (fs.existsSync(path.join(inputDir, manual))) {
-                        // Parse Frontmatter for metadata extraction
+                        // Parse Frontmatter for config extraction
                         const frontmatter = vuepressUtil.parseFrontmatter(
                             await fs.readFile(
                                 path.join(inputDir, manual),
@@ -189,19 +193,19 @@ Promise.all([
                             )
                         );
 
-                        // Combine all metadata elements in the frontmatter into 1 dict
-                        var meta = {};
-                        if (frontmatter.data.meta) {
-                            frontmatter.data.meta.forEach(elem => {
-                                meta[elem.name] = elem.content;
+                        // Combine all config elements in the frontmatter into 1 dict
+                        var config = {};
+                        if (frontmatter.data.config) {
+                            frontmatter.data.config.forEach(elem => {
+                                config[elem.name] = elem.content;
                             });
                         } else {
-                            // If there is no metadata, this md file does not need to be converted to a booklet
+                            // If there is no config, this md file does not need to be converted to a booklet
                             return;
                         }
 
                         // If we don't need to generate a booklet for this md file, skip this file
-                        if (!meta.generate_booklet) {
+                        if (!config.generate_booklet) {
                             return;
                         }
                     } else {
@@ -213,15 +217,17 @@ Promise.all([
 
                     // Create a booklet for each language set in the frontmatter
                     return Promise.all(
-                        Array.from(Object.keys(meta.languages)).map(
+                        Array.from(Object.keys(config.languages)).map(
                             async set => {
                                 // Create an array with the different languages + ordering for this booklet
                                 const langs = ordering.filter(value => {
                                     return (
                                         languages.get(manual).has(value) &&
-                                        meta.languages[set].includes(value)
+                                        config.languages[set].includes(value)
                                     );
                                 });
+
+                                // TODO: warning when language in md but nog in languages.get(manual)
 
                                 // Generate the front page of this booklet
                                 const frontPage = generateFrontPagePDF(
@@ -231,7 +237,9 @@ Promise.all([
                                     fpCSS,
                                     logoSVG,
                                     langs,
-                                    meta.url
+                                    /* Dynamically generate link to online documentation */
+                                    DOCS_BASE_URL +
+                                        manual.replace('.md', '.html')
                                 );
 
                                 //  Create an empty map to store, per language, generated PDF's with and without sidebar
@@ -253,7 +261,7 @@ Promise.all([
                                         lang,
                                         await generateBooklet(
                                             browser,
-                                            meta.generic_name,
+                                            config.generic_name,
                                             html,
                                             css,
                                             bookletCSS,
@@ -270,7 +278,7 @@ Promise.all([
                                         lang,
                                         await generateBooklet(
                                             browser,
-                                            meta.generic_name,
+                                            config.generic_name,
                                             html,
                                             css,
                                             bookletCSS,
@@ -490,17 +498,17 @@ async function generateFrontPagePDF(
     fp_css,
     logoSVG,
     languages,
-    url = 'google.com'
+    url
 ) {
     // Parse the frontmatter of the markdown file
     const frontmatter = vuepressUtil.parseFrontmatter(
         await fs.readFile(path.join(inputDir, filePath), 'utf8')
     );
 
-    // Combine all meta elements in the frontmatter into 1 object
-    var meta = {};
-    frontmatter.data.meta.forEach(elem => {
-        meta[elem.name] = elem.content;
+    // Combine all config elements in the frontmatter into 1 object
+    var config = {};
+    frontmatter.data.config.forEach(elem => {
+        config[elem.name] = elem.content;
     });
 
     // Infer the title of the front page
@@ -532,9 +540,9 @@ async function generateFrontPagePDF(
                     }
                 </table>
                 <div class="title">
-                    <b>${meta.generic_name}</b><br>
+                    <b>${config.generic_name}</b><br>
                     <i>${moment().format('YYYY-MM-MM hh:mm:ss')}</i><br>
-                    ${meta.product_nos.join('<br>')}
+                    ${config.product_nos.join('<br>')}
                 </div>
                 <img src="${qrCode}" class="qrcode" />
             </div>
@@ -604,7 +612,7 @@ async function generateBooklet(
     lang,
     languages,
     display_sidebar = true,
-    pageNumber = 10
+    pageNumber = 1
 ) {
     // Generate the HTML for the content of the booklet
     const content = `
@@ -685,9 +693,9 @@ async function getPageCount(pdf) {
  * PDF where we have alternating pages with and without sidebar.
  * @param {*} sidebarPDFs Mapping containing the generated PDFs with sidebar, per language
  * @param {*} noSidebarPDFs Mapping containing the generated PDFs without sidebar, per language
- * @param {*} swith_LR Boolean indicating whether the sidebar should be on the left or the right page
+ * @param {*} switch_LR Boolean indicating whether the sidebar should be on the left or the right page
  */
-async function mergeLeftRight(sidebarPDFs, noSidebarPDFs, swith_LR = false) {
+async function mergeLeftRight(sidebarPDFs, noSidebarPDFs, switch_LR = false) {
     // Create a mapping to store the merged PDFs
     var result = new Map();
 
@@ -695,7 +703,7 @@ async function mergeLeftRight(sidebarPDFs, noSidebarPDFs, swith_LR = false) {
     for (const key of sidebarPDFs.keys()) {
         // Determine the left and the right page of the booklet, based on `switch_LR`
         var left, right;
-        if (swith_LR) {
+        if (switch_LR) {
             left = noSidebarPDFs.get(key);
             right = sidebarPDFs.get(key);
         } else {
