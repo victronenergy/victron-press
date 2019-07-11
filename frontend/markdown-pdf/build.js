@@ -8,8 +8,8 @@ const puppeteer = require('puppeteer');
 const vuepressUtil = require('vuepress/lib/util');
 const hummus = require('hummus');
 const memoryStreams = require('memory-streams');
-var QRCode = require('qrcode');
-var moment = require('moment');
+const QRCode = require('qrcode');
+const moment = require('moment');
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', function(err, promise) {
@@ -63,7 +63,7 @@ const markdownitRenderer = new markdownit({
 
 const args = process.argv.slice(2);
 
-var languages = new Map();
+let languages = new Map();
 
 // Define a mapping between language codes and translation of 'Manual'
 const manual_translations = {
@@ -97,7 +97,7 @@ const ordering = [
     'tr',
 ];
 
-var DOCS_BASE_URL = process.env.DOCS_BASE_URL
+const DOCS_BASE_URL = process.env.DOCS_BASE_URL
     ? process.env.DOCS_BASE_URL
     : 'https://docs.victronenergy.com/';
 
@@ -196,6 +196,8 @@ Promise.all([
             Promise.all(
                 // Loop over all distinct markdown files
                 Array.from(languages.keys(), async manual => {
+                    // Create variable to store config options of this manual 
+                    let config = {};
                     // Check whether the markdown file exists in the root folder
                     if (fs.existsSync(path.join(inputDir, manual))) {
                         // Parse Frontmatter for config extraction
@@ -207,7 +209,6 @@ Promise.all([
                         );
 
                         // Combine all config elements in the frontmatter into 1 dict
-                        var config = {};
                         if (frontmatter.data.config) {
                             frontmatter.data.config.forEach(elem => {
                                 config[elem.name] = elem.content;
@@ -263,11 +264,11 @@ Promise.all([
                                 );
 
                                 //  Create an empty map to store, per language, generated PDF's with and without sidebar
-                                var sidebarPDFs = new Map();
-                                var noSidebarPDFs = new Map();
+                                let sidebarPDFs = new Map();
+                                let noSidebarPDFs = new Map();
 
                                 // Store the page count so that we can set the correct page number per PDF
-                                var pageCount = 1;
+                                let pageCount = 1;
 
                                 // Loop through the languages that should be contained in this PDF
                                 for (const lang of langs) {
@@ -319,13 +320,13 @@ Promise.all([
                                 }
 
                                 // Merge PDF's with and without side bar, so that we only get a side bar on the right pages of the booklet
-                                var merged = await mergeLeftRight(
+                                const merged = await mergeLeftRight(
                                     sidebarPDFs,
                                     noSidebarPDFs
                                 );
 
                                 // Create an array to store the PDF's we want to merge into one booklet
-                                var pdfs = [await frontPage, await emptyPage];
+                                let pdfs = [await frontPage, await emptyPage];
 
                                 // Loop through through the languages in order
                                 for (const lang of ordering) {
@@ -526,7 +527,7 @@ async function generateFrontPagePDF(
     );
 
     // Combine all config elements in the frontmatter into 1 object
-    var config = {};
+    let config = {};
     frontmatter.data.config.forEach(elem => {
         config[elem.name] = elem.content;
     });
@@ -700,7 +701,7 @@ async function generateBooklet(
  */
 async function getPageCount(pdf) {
     // Create a Stream of the PDF contents
-    var pdfStream = hummus.createReader(
+    let pdfStream = hummus.createReader(
         new hummus.PDFRStreamForBuffer(await pdf)
     );
 
@@ -717,12 +718,12 @@ async function getPageCount(pdf) {
  */
 async function mergeLeftRight(sidebarPDFs, noSidebarPDFs, switch_LR = false) {
     // Create a mapping to store the merged PDFs
-    var result = new Map();
+    let result = new Map();
 
     // Loop through each of the keys in the mapping
     for (const key of sidebarPDFs.keys()) {
         // Determine the left and the right page of the booklet, based on `switch_LR`
-        var left, right;
+        let left, right;
         if (switch_LR) {
             left = noSidebarPDFs.get(key);
             right = sidebarPDFs.get(key);
@@ -732,30 +733,30 @@ async function mergeLeftRight(sidebarPDFs, noSidebarPDFs, switch_LR = false) {
         }
 
         // Create an output stream for the merged pdf
-        var outStream = new memoryStreams.WritableStream();
+        const outStream = new memoryStreams.WritableStream();
 
         try {
             // Create input streams for the left and right PDF
-            var pdfStreamLeft = new hummus.PDFRStreamForBuffer(await left);
-            var pdfStreamRight = new hummus.PDFRStreamForBuffer(await right);
+            const pdfStreamLeft = new hummus.PDFRStreamForBuffer(await left);
+            const pdfStreamRight = new hummus.PDFRStreamForBuffer(await right);
 
             // Create a writer for the output PDF
-            var pdfWriter = hummus.createWriter(
+            const pdfWriter = hummus.createWriter(
                 new hummus.PDFStreamForResponse(outStream)
             );
 
             // Create copying contexts for the left and right PDF so that we
             // can copy pages from these PDFs
-            var leftCopyingContext = pdfWriter.createPDFCopyingContext(
+            const leftCopyingContext = pdfWriter.createPDFCopyingContext(
                 pdfStreamLeft
             );
-            var rightCopyingContext = pdfWriter.createPDFCopyingContext(
+            const rightCopyingContext = pdfWriter.createPDFCopyingContext(
                 pdfStreamRight
             );
 
             // Loop through all pages, and append alternating left and right pages.
             for (
-                var i = 0;
+                let i = 0;
                 i <
                 leftCopyingContext.getSourceDocumentParser().getPagesCount();
                 i++
@@ -770,7 +771,7 @@ async function mergeLeftRight(sidebarPDFs, noSidebarPDFs, switch_LR = false) {
 
             // Close the PDF and write it to a Buffer
             pdfWriter.end();
-            var newBuffer = outStream.toBuffer();
+            const newBuffer = outStream.toBuffer();
             outStream.end();
 
             // Add the merged pdf to the result mapping
@@ -791,28 +792,28 @@ async function mergeLeftRight(sidebarPDFs, noSidebarPDFs, switch_LR = false) {
  */
 async function mergePDFs(...pdfBuffers) {
     // Create an output stream for the combined PDF
-    var outStream = new memoryStreams.WritableStream();
+    const outStream = new memoryStreams.WritableStream();
 
     try {
         // Create an input stream for each of the PDFs we want to combine
-        var pdfStreams = pdfBuffers.map(
+        const pdfStreams = pdfBuffers.map(
             async buf => new hummus.PDFRStreamForBuffer(await buf)
         );
 
         // Create a writer for the combined output PDF, from the first PDF (front page)
-        var pdfWriter = hummus.createWriterToModify(
+        const pdfWriter = hummus.createWriterToModify(
             await pdfStreams[0],
             new hummus.PDFStreamForResponse(outStream)
         );
 
         // Add all subsequent PDFs to the output PDF
-        for (var i = 1; i < pdfStreams.length; i++) {
+        for (let i = 1; i < pdfStreams.length; i++) {
             pdfWriter.appendPDFPagesFromPDF(await pdfStreams[i]);
         }
 
         // Close the PDF and write it to a Buffer
         pdfWriter.end();
-        var newBuffer = outStream.toBuffer();
+        const newBuffer = outStream.toBuffer();
         outStream.end();
 
         // Return the combined PDF
