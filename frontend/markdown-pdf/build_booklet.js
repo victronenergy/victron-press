@@ -9,6 +9,7 @@ const vuepressUtil = require('vuepress/lib/util');
 const hummus = require('hummus');
 const memoryStreams = require('memory-streams');
 var QRCode = require('qrcode');
+var moment = require('moment');
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', function(err, promise) {
@@ -193,107 +194,128 @@ Promise.all([
 
                     console.log(`Generating booklet for ${manual}`);
 
-                    // Create an array with the different languages + ordering for this booklet
-                    const langs = ordering.filter(value =>
-                        languages.get(manual).has(value)
-                    );
+                    // Create a booklet for each language set in the frontmatter
+                    return Promise.all(
+                        Array.from(Object.keys(meta.languages)).map(
+                            async set => {
+                                // Create an array with the different languages + ordering for this booklet
+                                const langs = ordering.filter(value => {
+                                    return (
+                                        languages.get(manual).has(value) &&
+                                        meta.languages[set].includes(value)
+                                    );
+                                });
 
-                    // Generate the front page of this booklet
-                    const frontPage = generateFrontPagePDF(
-                        browser,
-                        manual,
-                        css,
-                        fpCSS,
-                        logoSVG,
-                        langs,
-                        meta.url
-                    );
+                                // Generate the front page of this booklet
+                                const frontPage = generateFrontPagePDF(
+                                    browser,
+                                    manual,
+                                    css,
+                                    fpCSS,
+                                    logoSVG,
+                                    langs,
+                                    meta.url
+                                );
 
-                    //  Create an empty map to store, per language, generated PDF's with and without sidebar
-                    var sidebarPDFs = new Map();
-                    var noSidebarPDFs = new Map();
+                                //  Create an empty map to store, per language, generated PDF's with and without sidebar
+                                var sidebarPDFs = new Map();
+                                var noSidebarPDFs = new Map();
 
-                    // Store the page count so that we can set the correct page number per PDF
-                    var pageCount = 1;
+                                // Store the page count so that we can set the correct page number per PDF
+                                var pageCount = 1;
 
-                    // Loop through the languages that should be contained in this PDF
-                    for (const lang of langs) {
-                        // Get the HTML for language `lang`
-                        const html = languages.get(manual).get(lang);
+                                // Loop through the languages that should be contained in this PDF
+                                for (const lang of langs) {
+                                    // Get the HTML for language `lang`
+                                    const html = languages
+                                        .get(manual)
+                                        .get(lang);
 
-                        // Generate a PDF with sidebar for `lang` and store it in the sidebar map
-                        sidebarPDFs.set(
-                            lang,
-                            await generateBooklet(
-                                browser,
-                                meta.generic_name,
-                                html,
-                                css,
-                                bookletCSS,
-                                logoSVG,
-                                lang,
-                                langs,
-                                true,
-                                pageCount
-                            )
-                        );
+                                    // Generate a PDF with sidebar for `lang` and store it in the sidebar map
+                                    sidebarPDFs.set(
+                                        lang,
+                                        await generateBooklet(
+                                            browser,
+                                            meta.generic_name,
+                                            html,
+                                            css,
+                                            bookletCSS,
+                                            logoSVG,
+                                            lang,
+                                            langs,
+                                            true,
+                                            pageCount
+                                        )
+                                    );
 
-                        // Generate a PDF without sidebar for `lang` and store it in the sidebar map
-                        noSidebarPDFs.set(
-                            lang,
-                            await generateBooklet(
-                                browser,
-                                meta.generic_name,
-                                html,
-                                css,
-                                bookletCSS,
-                                logoSVG,
-                                lang,
-                                langs,
-                                false,
-                                pageCount
-                            )
-                        );
+                                    // Generate a PDF without sidebar for `lang` and store it in the sidebar map
+                                    noSidebarPDFs.set(
+                                        lang,
+                                        await generateBooklet(
+                                            browser,
+                                            meta.generic_name,
+                                            html,
+                                            css,
+                                            bookletCSS,
+                                            logoSVG,
+                                            lang,
+                                            langs,
+                                            false,
+                                            pageCount
+                                        )
+                                    );
 
-                        // Increment the page count with the amount of pages in the PDF for `lang`.
-                        // If the pageCount is even, we add an empty page later on, so we need to increment the page counter by 1
-                        pageCount += await getPageCount(sidebarPDFs.get(lang));
-                        if (pageCount % 2 == 0) pageCount += 1;
-                    }
+                                    // Increment the page count with the amount of pages in the PDF for `lang`.
+                                    // If the pageCount is even, we add an empty page later on, so we need to increment the page counter by 1
+                                    pageCount += await getPageCount(
+                                        sidebarPDFs.get(lang)
+                                    );
+                                    if (pageCount % 2 == 0) pageCount += 1;
+                                }
 
-                    // Merge PDF's with and without side bar, so that we only get a side bar on the right pages of the booklet
-                    var merged = await mergeLeftRight(
-                        sidebarPDFs,
-                        noSidebarPDFs
-                    );
+                                // Merge PDF's with and without side bar, so that we only get a side bar on the right pages of the booklet
+                                var merged = await mergeLeftRight(
+                                    sidebarPDFs,
+                                    noSidebarPDFs
+                                );
 
-                    // Create an array to store the PDF's we want to merge into one booklet
-                    var pdfs = [await frontPage, await emptyPage];
+                                // Create an array to store the PDF's we want to merge into one booklet
+                                var pdfs = [await frontPage, await emptyPage];
 
-                    // Loop through through the languages in order
-                    for (const lang of ordering) {
-                        // If the merged PDF has the language, add it to the array
-                        if (merged.has(lang)) {
-                            const mergedPDF = merged.get(lang);
-                            pdfs.push(mergedPDF);
+                                // Loop through through the languages in order
+                                for (const lang of ordering) {
+                                    // If the merged PDF has the language, add it to the array
+                                    if (merged.has(lang)) {
+                                        const mergedPDF = merged.get(lang);
+                                        pdfs.push(mergedPDF);
 
-                            // If the PDF has an odd amount of pages, we need to add an empty page for formatting
-                            if ((await getPageCount(mergedPDF)) % 2 == 1) {
-                                pdfs.push(emptyPage);
+                                        // If the PDF has an odd amount of pages, we need to add an empty page for formatting
+                                        if (
+                                            (await getPageCount(mergedPDF)) %
+                                                2 ==
+                                            1
+                                        ) {
+                                            pdfs.push(emptyPage);
+                                        }
+                                    }
+                                }
+
+                                // Create a booklet by merging all PDFs into one PDF
+                                const booklet = await mergePDFs(...pdfs);
+
+                                // Write the booklet to a file
+                                fs.writeFile(
+                                    path.join(
+                                        outputDir,
+                                        `manual_${set}_${manual.replace(
+                                            '.md',
+                                            '.pdf'
+                                        )}`
+                                    ),
+                                    booklet
+                                );
                             }
-                        }
-                    }
-
-                    // Create a booklet by merging all PDFs into one PDF
-                    const booklet = await mergePDFs(...pdfs);
-
-                    // Write the booklet to a file
-                    fs.writeFile(
-                        path.join(
-                            outputDir,
-                            'manual_' + manual.replace('.md', '.pdf')
-                        ),
-                        booklet
+                        )
                     );
                 })
             )
@@ -479,7 +501,6 @@ async function generateFrontPagePDF(
 
     // Generate QR code with link to online documentation
     const qrCode = await QRCode.toDataURL(url);
-    console.log(qrCode);
 
     // Generate the HTML for the frontpage of the booklet
     const html = `
@@ -505,6 +526,7 @@ async function generateFrontPagePDF(
                 </table>
                 <div class="title">
                     <b>${meta.generic_name}</b><br>
+                    <i>${moment().format('YYYY-MM-MM hh:mm:ss')}</i><br>
                     ${meta.product_nos.join('<br>')}
                 </div>
                 <img src="${qrCode}" class="qrcode" />
