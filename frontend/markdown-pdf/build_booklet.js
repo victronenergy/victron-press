@@ -81,8 +81,21 @@ const manual_translations = {
     tr: 'Talimatlar',
 };
 
-// Define the ordering of the pages in the same ordering as the mapping above
-var ordering = Array.from(Object.keys(manual_translations));
+// Define the ordering of the pages
+const ordering = [
+    'en',
+    'es',
+    'pt',
+    'de',
+    'fr',
+    'it',
+    'nl',
+    'se',
+    'fi',
+    'cz',
+    'ro',
+    'tr',
+];
 
 var DOCS_BASE_URL = process.env.DOCS_BASE_URL
     ? process.env.DOCS_BASE_URL
@@ -227,7 +240,14 @@ Promise.all([
                                     );
                                 });
 
-                                // TODO: warning when language in md but nog in languages.get(manual)
+                                // Print a warning to console.error when a language is specified in frontmatter, but no html is generated for that language.
+                                config.languages[set].forEach(lang => {
+                                    if (!languages.get(manual).includes(lang)) {
+                                        console.error(
+                                            `Language ${lang} is specified in front matter of ${manual}, but cannot find markdown file ${lang}/${manual}`
+                                        );
+                                    }
+                                });
 
                                 // Generate the front page of this booklet
                                 const frontPage = generateFrontPagePDF(
