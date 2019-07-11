@@ -242,7 +242,7 @@ Promise.all([
 
                                 // Print a warning to console.error when a language is specified in frontmatter, but no html is generated for that language.
                                 config.languages[set].forEach(lang => {
-                                    if (!languages.get(manual).includes(lang)) {
+                                    if (!languages.get(manual).has(lang)) {
                                         console.error(
                                             `Language ${lang} is specified in front matter of ${manual}, but cannot find markdown file ${lang}/${manual}`
                                         );
