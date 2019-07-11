@@ -65,7 +65,24 @@ const args = process.argv.slice(2);
 
 var languages = new Map();
 
-var ordering = ['fp', 'en', 'es', 'de', 'fr', 'nl'];
+// Define a mapping between language codes and translation of 'Manual'
+const manual_translations = {
+    en: 'Manual',
+    es: 'Manual',
+    pt: 'Manual',
+    de: 'Anleitung',
+    fr: 'Manuel',
+    it: 'Manuale',
+    nl: 'Handleiding',
+    se: 'Anvandarhandbok',
+    fi: 'Ohjeet',
+    cz: 'Manuál',
+    ro: 'Instrucțiuni',
+    tr: 'Talimatlar',
+};
+
+// Define the ordering of the pages in the same ordering as the mapping above
+var ordering = Array.from(Object.keys(manual_translations));
 
 Promise.all([
     fs.ensureDir(outputDir),
@@ -456,16 +473,6 @@ async function renderPDF(
             </footer>`,
     });
 }
-
-// Define a mapping between language codes and translation of 'Manual'
-const manual_translations = {
-    en: 'Manual',
-    nl: 'Handleiding',
-    fr: 'Manuel',
-    de: 'Anleitung',
-    es: 'Manual',
-    se: 'Anvandarhandbok',
-};
 
 /**
  * This function is used to generate the front page of a booklet
