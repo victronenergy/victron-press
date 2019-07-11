@@ -461,7 +461,7 @@ async function generateFrontPagePDF(
     fp_css,
     logoSVG,
     languages,
-    url='google.com'
+    url = 'google.com'
 ) {
     // Parse the frontmatter of the markdown file
     const frontmatter = vuepressUtil.parseFrontmatter(
