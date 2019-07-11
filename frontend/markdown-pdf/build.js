@@ -619,7 +619,7 @@ async function renderEmptyPage(browser, format = 'A4') {
  * @param {*} css General CSS for the booklet
  * @param {*} bookletCSS Extra CSS for the booklet
  * @param {*} logoSVG SVG file containing the logo of Victron Energy
- * @param {*} lang Language used in the HTML
+ * @param {*} currentLang Language used in the HTML
  * @param {*} languages All languages used in the booklet (necessary when display_sidebar is true)
  * @param {*} display_sidebar Boolean indicating whether we should display the sidebar
  * @param {*} pageNumber Pagenumber to start numbering from
@@ -631,7 +631,7 @@ async function generateBooklet(
     css,
     bookletCSS,
     logoSVG,
-    lang,
+    currentLang,
     languages,
     display_sidebar = true,
     pageNumber = 1
@@ -663,11 +663,11 @@ async function generateBooklet(
                         ${
                             /* Create a side bar from `languages`, where `lang` is selected */
                             languages
-                                .map(lang_ => {
-                                    if (lang_ === lang) {
-                                        return `<td class="sidebar selected">${lang_}</td>`;
+                                .map(lang => {
+                                    if (lang === currentLang) {
+                                        return `<td class="sidebar selected">${lang}</td>`;
                                     } else {
-                                        return `<td class="sidebar">${lang_}</td>`;
+                                        return `<td class="sidebar">${lang}</td>`;
                                     }
                                 })
                                 .join('')
