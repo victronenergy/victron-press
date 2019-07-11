@@ -57,6 +57,7 @@ The following environment variables should be provided (for example via the
 - `GITHUB_BRANCH`. Required. The branch name containing the Markdown files.
 - `SENTRY_DSN_FRONTEND`. Optional. Sentry DSN for logging errors that occur in the frontend.
 - `SENTRY_DSN_BACKEND`. Optional. Sentry DSN for logging errors that occur in the frontend.
+- `DOCS_BASE_URL`. Required. Base url of where the documentation is located.
 
 #### Running with Docker
 
