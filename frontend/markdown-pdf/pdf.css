@@ -494,7 +494,6 @@ h1 {
 
 h2 {
     counter-reset: h3;
-    break-before: page;
 }
 
 h3 {
