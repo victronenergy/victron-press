@@ -1,21 +1,25 @@
 /* eslint-env node */
 
+const dotenv = require('dotenv');
 const fs = require('fs-extra');
 const globby = require('globby');
+const hummus = require('hummus');
 const markdownit = require('markdown-it');
+const memoryStreams = require('memory-streams');
+const moment = require('moment');
 const path = require('path');
 const puppeteer = require('puppeteer');
+const qrcode = require('qrcode');
 const vuepressUtil = require('vuepress/lib/util');
-const hummus = require('hummus');
-const memoryStreams = require('memory-streams');
-const QRCode = require('qrcode');
-const moment = require('moment');
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', function(err, promise) {
     console.error('Unhandled rejected', promise);
     process.exit(1);
 });
+
+// Load environment variables
+dotenv.config();
 
 const inputDir = path.join(__dirname, '../../data/docs');
 const outputDir = path.join(__dirname, '../../data/build/pdf');
@@ -535,7 +539,7 @@ async function generateFrontPagePDF(
     const inferredTitle = vuepressUtil.inferTitle(frontmatter);
 
     // Generate QR code with link to online documentation
-    const qrCode = await QRCode.toDataURL(url);
+    const qr = await qrcode.toDataURL(url);
 
     // Generate the HTML for the frontpage of the booklet
     const html = `
@@ -564,7 +568,7 @@ async function generateFrontPagePDF(
                     <i>${moment().format('YYYY-MM-MM hh:mm:ss')}</i><br>
                     ${booklet_config.product_nos.join('<br>')}
                 </div>
-                <img src="${qrCode}" class="qrcode" />
+                <img src="${qr}" class="qrcode" />
             </div>
         </body>
     </html>
