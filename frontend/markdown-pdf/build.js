@@ -174,8 +174,15 @@ Promise.all([
                 fs
                     .readFile(path.join(inputDir, filePath), 'utf8')
                     .then(md => generateBodyFromMarkdown(md, filePath))
-                    .then(html =>
-                        generateSinglePDF(filePath, browser, html, css, logoSVG)
+                    .then(([frontmatter, html]) =>
+                        generateSinglePDF(
+                            frontmatter,
+                            filePath,
+                            browser,
+                            html,
+                            css,
+                            logoSVG
+                        )
                     ),
                 fs.ensureDir(
                     // Ensure the necessary output directories exist
@@ -202,11 +209,12 @@ Promise.all([
                 // Loop over all distinct markdown files
                 Array.from(languages.keys(), async manual => {
                     // Create variable to store config options of this manual
-                    let booklet_config = {};
+                    let frontmatter, booklet_config;
+
                     // Check whether the markdown file exists in the root folder
                     if (fs.existsSync(path.join(inputDir, manual))) {
                         // Parse Frontmatter for config extraction
-                        const frontmatter = vuepressUtil.parseFrontmatter(
+                        frontmatter = vuepressUtil.parseFrontmatter(
                             await fs.readFile(
                                 path.join(inputDir, manual),
                                 'utf8'
@@ -252,6 +260,7 @@ Promise.all([
                                 // Generate the front page of this booklet
                                 const frontPage = generateFrontPagePDF(
                                     browser,
+                                    frontmatter,
                                     manual,
                                     css,
                                     fpCSS,
@@ -403,25 +412,28 @@ async function generateBodyFromMarkdown(md, filePath) {
     }
     languages.get(file).set(lang, result);
 
-    return result;
+    return [frontmatter, result];
 }
 
 /**
  * This function is used to generate a single PDF for an HTML page, given
  * it has the path to the used markdown file, a puppeteer browser, HTML contents,
  * CSS and the Victron logo
+ * @param {*} frontmatter Frontmatter of the markdown file corresponding to the (to-be) generated PDF
  * @param {*} filePath Path to the used markdown file (used to get frontmatter)
  * @param {*} browser Puppeteer browser instance
  * @param {*} html HTML content for the PDF page
  * @param {*} css CSS for the PDF page
  * @param {*} logoSVG Logo of victron energy
  */
-async function generateSinglePDF(filePath, browser, html, css, logoSVG) {
-    // Parse the frontmatter of the markdown file
-    const frontmatter = vuepressUtil.parseFrontmatter(
-        await fs.readFile(path.join(inputDir, filePath), 'utf8')
-    );
-
+async function generateSinglePDF(
+    frontmatter,
+    filePath,
+    browser,
+    html,
+    css,
+    logoSVG
+) {
     // Infer the title from the frontmatter
     const inferredTitle = vuepressUtil.inferTitle(frontmatter);
 
@@ -505,6 +517,7 @@ async function renderPDF(
 /**
  * This function is used to generate the front page of a booklet
  * @param {*} browser Puppeteer browser instance
+ * @param {*} frontmatter Frontmatter of the booklet markdown file
  * @param {*} filePath Path to the markdown file for the booklet
  * @param {*} css CSS for the front page
  * @param {*} fp_css extra CSS front page
@@ -513,6 +526,7 @@ async function renderPDF(
  */
 async function generateFrontPagePDF(
     browser,
+    frontmatter,
     filePath,
     css,
     fp_css,
@@ -520,11 +534,6 @@ async function generateFrontPagePDF(
     languages,
     url
 ) {
-    // Parse the frontmatter of the markdown file
-    const frontmatter = vuepressUtil.parseFrontmatter(
-        await fs.readFile(path.join(inputDir, filePath), 'utf8')
-    );
-
     // Combine all config elements in the frontmatter into 1 object
     const booklet_config = frontmatter.data.config;
 
