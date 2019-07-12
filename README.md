@@ -1,8 +1,5 @@
 # Victron Energy documentation
 
-[![last release](https://img.shields.io/github/release/victronenergy/victron-press.svg)](https://github.com/victronenergy/victron-press/releases)
-[![build status](https://img.shields.io/travis/com/victronenergy/victron-press/master.svg)](https://travis-ci.com/victronenergy/victron-press)
-
 ## Overview
 
 This repository houses two applications: The frontend, which is written using
