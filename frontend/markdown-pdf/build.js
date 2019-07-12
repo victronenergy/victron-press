@@ -354,8 +354,8 @@ Promise.all([
                                 fs.writeFile(
                                     path.join(
                                         outputDir,
-                                        `manual_${set}_${manual.replace(/\.md$/, '.pdf')(
-                                            '.md',
+                                        `manual_${set}_${manual.replace(
+                                            /\.md$/,
                                             '.pdf'
                                         )}`
                                     ),
