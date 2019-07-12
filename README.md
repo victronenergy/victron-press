@@ -39,10 +39,7 @@ Execute the following commands in the (new, empty) directory where you want to s
 The following environment variables should be provided (for example via the
 `.env` file) for the application to work:
 
-- `OAUTH_CLIENT_ID`. Required. GitHub OAuth App ID used for authenticating users. The OAuth
-  app should have its authorization callback URL set to `<...>/api/v1/oauth-callback`,
-  filling out the hostname where the application will be available (for example, when
-  developing on your local machine on port 80, use `http://localhost/api/v1/oauth-callback`).
+- `OAUTH_CLIENT_ID`. Required. GitHub OAuth App ID used for authenticating users.
 - `OAUTH_CLIENT_SECRET`. Required. GitHub OAuth App client secret used for authentication.
 - `GITHUB_TOKEN`. Required. GitHub API token used for making commits to the configured
   GitHub repository. Enter a Personal access token on an account that has access to the
