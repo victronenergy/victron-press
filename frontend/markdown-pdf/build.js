@@ -647,9 +647,7 @@ async function generateBooklet(
     <body>
         ${
             /* Add `pageNumber` empty pages to the HTML in order to increase the page number */
-            [...Array(pageNumber).keys()].map(
-                () => `<div class="empty-page">empty</div>`
-            )
+            '<div class="empty-page">empty</div>'.repeat(pageNumber)
         }
         <div class="">
             <div class="sidebar" ${
