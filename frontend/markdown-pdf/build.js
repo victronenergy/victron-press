@@ -97,9 +97,13 @@ const ordering = [
     'tr',
 ];
 
-const DOCS_BASE_URL = process.env.DOCS_BASE_URL
-    ? process.env.DOCS_BASE_URL
-    : 'https://docs.victronenergy.com/';
+let DOCS_BASE_URL;
+if (process.env.DOCS_BASE_URL) {
+    DOCS_BASE_URL = process.env.DOCS_BASE_URL;
+} else {
+    DOCS_BASE_URL = 'https://docs.victronenergy.com/';
+    console.warn(`Variable DOCS_BASE_URL not found in environment; Using ${DOCS_BASE_URL} as DOCS_BASE_URL`);
+}
 
 Promise.all([
     fs.ensureDir(outputDir),
