@@ -102,7 +102,9 @@ if (process.env.DOCS_BASE_URL) {
     DOCS_BASE_URL = process.env.DOCS_BASE_URL;
 } else {
     DOCS_BASE_URL = 'https://docs.victronenergy.com/';
-    console.warn(`Variable DOCS_BASE_URL not found in environment; Using ${DOCS_BASE_URL} as DOCS_BASE_URL`);
+    console.warn(
+        `Variable DOCS_BASE_URL not found in environment; Using ${DOCS_BASE_URL} as DOCS_BASE_URL`
+    );
 }
 
 Promise.all([
@@ -211,18 +213,10 @@ Promise.all([
                             )
                         );
 
-                        // Combine all config elements in the frontmatter into 1 dict
-                        if (frontmatter.data.config) {
-                            frontmatter.data.config.forEach(elem => {
-                                booklet_config[elem.name] = elem.content;
-                            });
-                        } else {
-                            // If there is no config, this md file does not need to be converted to a booklet
-                            return;
-                        }
+                        booklet_config = frontmatter.data.config;
 
-                        // If we don't need to generate a booklet for this md file, skip this file
-                        if (!booklet_config.generate_booklet) {
+                        // If there is no config, we don't need to generate a booklet
+                        if (!frontmatter.data.config) {
                             return;
                         }
                     } else {
@@ -532,10 +526,7 @@ async function generateFrontPagePDF(
     );
 
     // Combine all config elements in the frontmatter into 1 object
-    let booklet_config = {};
-    frontmatter.data.config.forEach(elem => {
-        booklet_config[elem.name] = elem.content;
-    });
+    const booklet_config = frontmatter.data.config;
 
     // Infer the title of the front page
     const inferredTitle = vuepressUtil.inferTitle(frontmatter);
