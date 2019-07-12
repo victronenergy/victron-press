@@ -23,7 +23,6 @@ div.sidebar {
 }
 
 table.sidebar {
-    /* position: relative; */
     text-align: center;
     text-transform: uppercase;
     margin-right: 5mm;
@@ -51,7 +50,6 @@ h4,
 h5,
 h6 {
     border: none;
-    /* font-weight: 300; */
     font-weight: 700;
     line-height: 1.4;
     margin: 10px 0 10px;
@@ -76,18 +74,15 @@ h3 {
 
 h4 {
     font-size: 10px;
-    /* font-weight: 700; */
     line-height: 1;
 }
 
 h5 {
     font-size: 9px;
-    /* font-weight: 700; */
 }
 
 h6 {
     font-size: 8px;
-    /* font-weight: 700; */
 }
 
 .empty-page { page-break-after: always; visibility: hidden; }
