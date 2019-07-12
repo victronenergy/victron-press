@@ -181,7 +181,7 @@ Promise.all([
                         fs.writeFile(
                             path.join(
                                 outputDir,
-                                filePath.replace('.md', '.pdf')
+                                filePath.replace(/\.md$/, '.pdf')
                             ),
                             pdf
                         )
@@ -261,7 +261,7 @@ Promise.all([
                                     langs,
                                     /* Dynamically generate link to online documentation */
                                     DOCS_BASE_URL +
-                                        manual.replace('.md', '.html')
+                                        manual.replace(/\.md$/, '.html')
                                 );
 
                                 //  Create an empty map to store, per language, generated PDF's with and without sidebar
@@ -354,7 +354,7 @@ Promise.all([
                                 fs.writeFile(
                                     path.join(
                                         outputDir,
-                                        `manual_${set}_${manual.replace(
+                                        `manual_${set}_${manual.replace(/\.md$/, '.pdf')(
                                             '.md',
                                             '.pdf'
                                         )}`
