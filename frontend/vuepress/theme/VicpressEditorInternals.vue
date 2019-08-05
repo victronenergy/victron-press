@@ -33,7 +33,7 @@ import axios from 'axios';
 import 'tui-editor/dist/tui-editor.css';
 import 'codemirror/lib/codemirror.css';
 
-import { normalize, makeRelative, endingSlashRE } from './util';
+import { normalize, endingSlashRE } from './util';
 
 export default {
     name: 'PageEdit',
@@ -71,10 +71,7 @@ export default {
                                 })
                                 .then(data => {
                                     callback(
-                                        makeRelative(
-                                            window.location.pathname,
-                                            data.headers['content-location']
-                                        ),
+                                        data.headers['content-location'],
                                         'alt-text'
                                     );
                                 })

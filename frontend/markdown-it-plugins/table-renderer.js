@@ -94,6 +94,7 @@ function table_renderer(state, startLine, endLine, silent) {
     }
 
     columns = lineText.split('|');
+
     aligns = [];
     for (i = 0; i < columns.length; i += 1) {
         t = columns[i].trim();
@@ -124,6 +125,7 @@ function table_renderer(state, startLine, endLine, silent) {
     if (lineText.indexOf('|') === -1) {
         return false;
     }
+
     columns = escapedSplit(lineText.replace(/^\||\|$/g, ''));
 
     columnCount = columns.length;
@@ -199,7 +201,7 @@ function table_renderer(state, startLine, endLine, silent) {
         token = state.push('tr_open', 'tr', 1);
         var prevColspan = 0;
 
-        for (i = 0; i < alignCount; i += 1) {
+        for (i = 0; i < alignCount; i++) {
             token = state.push('td_open', 'td', 1);
             token.attrs = [];
             var tdColspan = 0;
@@ -210,6 +212,12 @@ function table_renderer(state, startLine, endLine, silent) {
                     tdColspan = columns[i]
                         .trim()
                         .substring(tdIndex, tdIndex + 1);
+                    // allow @cols= x in addition to @cols=x
+                    if (tdColspan + 1 == 1) {
+                        tdColspan = columns[i]
+                            .trim()
+                            .substring(tdIndex + 1, tdIndex + 2);
+                    }
                     tdContent = columns[i]
                         ? columns[i].trim().split(':')[1]
                         : '';
@@ -232,7 +240,7 @@ function table_renderer(state, startLine, endLine, silent) {
             }
             token.children = [];
 
-            if (tdColspan) {
+            if (tdColspan != 0 && tdColspan !== '') {
                 i = i + (tdColspan - 1);
                 prevColspan = tdColspan - 1;
                 tdColspan = 0;
