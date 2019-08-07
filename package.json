@@ -16,7 +16,7 @@
     "start": "vuepress dev data/docs",
     "build:clean": "rimraf data/build data/dist",
     "build:symlink": "symlink-dir frontend/vuepress data/docs/.vuepress",
-    "build:html": "node frontend/markdown-link-checker/check.js && vuepress build data/docs -d data/build/vuepress && rimraf data/build/vuepress/**/index.html && fs-move --merge --overwrite data/build/vuepress data/dist",
+    "build:html": "vuepress build data/docs -d data/build/vuepress && rimraf data/build/vuepress/**/index.html && fs-move --merge --overwrite data/build/vuepress data/dist",
     "build:pdf": "node frontend/markdown-pdf/build.js && fs-move --merge --overwrite data/build/pdf data/dist",
     "build:index": "node frontend/build-index.js && fs-move --merge --overwrite data/build/index data/dist",
     "build": "npm-run-all -p build:symlink build:clean -p build:html build:pdf build:index",
