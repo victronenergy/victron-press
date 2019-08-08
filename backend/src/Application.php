@@ -192,7 +192,7 @@ class Application implements RequestHandlerInterface
 
             // If a file was specified, save it in the session so we may
             // redirect the user back there once they completed the log in
-            $filePath = $request->getQueryParams()['file'];
+            $filePath = $request->getQueryParams()['file'] ?? null;
             if (!empty($filePath) && !preg_match('#((^|/)\.[^/]+(/|$)|^\d{3}\.md$|(^|/)README\.md$)#i', $filePath)) {
                 $session->set('redirect_file', $filePath);
             }
