@@ -539,7 +539,7 @@ class Application implements RequestHandlerInterface
         }
 
         // Sanity check the section name
-        $section = $request->getQueryParams()['section'];
+        $section = $request->getQueryParams()['section'] ?? null;
         if (empty($section)) {
             $section = null;
         } elseif (!preg_match('/^[ [:graph:]]+$/i', $section)) {
