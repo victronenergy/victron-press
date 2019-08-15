@@ -143,7 +143,10 @@ Promise.all([
                                     <title>${inferredTitle}</title>
                                     <style>${css}</style>
                                 </head>
-                                <body>${html}</body>
+                                <body>
+                                    ${html}
+                                    &nbsp;
+                                </body>
                                 </html>
                             `;
                         }),
