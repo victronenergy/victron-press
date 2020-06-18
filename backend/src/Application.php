@@ -254,7 +254,7 @@ class Application implements RequestHandlerInterface
         if ($userName !== $this->config['GITHUB_USER']) {
             // Use the global application token to check if the logged in user has access to the project
             $client = new GithubClient();
-            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
+            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_HTTP_TOKEN);
             try {
                 (/** @var \Github\Api\Repo */ $api = $client->api('repo'))->collaborators()->check(
                     $this->config['GITHUB_USER'],
@@ -413,7 +413,7 @@ class Application implements RequestHandlerInterface
         try {
             // Connect to GitHub API
             $client = new GithubClient();
-            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
+            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_HTTP_TOKEN);
 
             // Retrieve file info
             $file = $client->api('repo')->contents()->show(
@@ -596,7 +596,7 @@ class Application implements RequestHandlerInterface
 
         // Connect to the GitHub API
         $client = new GithubClient();
-        $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
+        $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_HTTP_TOKEN);
 
         // Get SHA of the latest commit
         $commits = $client->api('repo')->commits()->all(
@@ -863,7 +863,7 @@ class Application implements RequestHandlerInterface
         // Retrieve the file information from GitHub
         try {
             $client = new GithubClient();
-            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
+            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_HTTP_TOKEN);
             $file = $client->api('repo')->contents()->show(
                 $this->config['GITHUB_USER'],
                 $this->config['GITHUB_REPO'],
@@ -941,7 +941,7 @@ class Application implements RequestHandlerInterface
         // Retrieve the file information from GitHub
         try {
             $client = new GithubClient();
-            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_URL_TOKEN);
+            $client->authenticate($this->config['GITHUB_TOKEN'], null, GithubClient::AUTH_HTTP_TOKEN);
             $file = $client->api('repo')->contents()->show(
                 $this->config['GITHUB_USER'],
                 $this->config['GITHUB_REPO'],
